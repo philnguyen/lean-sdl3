@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install SDL3
+        run: brew install sdl3 sdl3_ttf
+      - uses: leanprover/lean-action@v1
+      - name: Smoke test
+        run: |
+          export SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy
+          lake exe sdl
