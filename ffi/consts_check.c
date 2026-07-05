@@ -29,3 +29,8 @@ _Static_assert((int)SDL_PROPERTY_TYPE_STRING  == 2, "PropertyType.string");
 _Static_assert((int)SDL_PROPERTY_TYPE_NUMBER  == 3, "PropertyType.number");
 _Static_assert((int)SDL_PROPERTY_TYPE_FLOAT   == 4, "PropertyType.float");
 _Static_assert((int)SDL_PROPERTY_TYPE_BOOLEAN == 5, "PropertyType.boolean");
+
+/* ---- Sdl/Hints.lean: HintPriority ---- */
+_Static_assert((int)SDL_HINT_DEFAULT  == 0, "HintPriority.default");
+_Static_assert((int)SDL_HINT_NORMAL   == 1, "HintPriority.normal");
+_Static_assert((int)SDL_HINT_OVERRIDE == 2, "HintPriority.override");
