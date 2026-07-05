@@ -5,6 +5,7 @@ import Sdl.Properties
 import Sdl.Hints
 import Sdl.Log
 import Sdl.Timer
+import Sdl.Guid
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
