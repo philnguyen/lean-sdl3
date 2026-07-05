@@ -7,6 +7,7 @@
  *   - lean_sdl_properties_borrowed : borrowed (SDL_GetGlobalProperties) -> no destroy
  */
 #include "util.h"
+#include "classes.h"
 
 /* Owned: destroy on finalize. `self` is the holder's void* ptr. */
 SDL_DEFINE_CLASS(lean_sdl_properties,

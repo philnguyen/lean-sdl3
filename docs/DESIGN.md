@@ -34,7 +34,9 @@ Facts this design rests on (verified against Lean v4.31.0 + SDL 3.4.10):
   use the signed `intN_t` — identical width/registers, bits preserved.
 - One Lean module per SDL header: `Sdl/<Name>.lean` + `ffi/<name>.c` mirror
   `SDL_<name>.h`. Shared machinery: `ffi/util.{h,c}`, `ffi/callbacks.{h,c}`,
-  `ffi/consts_check.c`.
+  `ffi/consts_check.c`. External-class pointer globals that another module's
+  shims need (e.g. surface.c wrapping a borrowed Properties or Palette) are
+  declared in `ffi/classes.h` — never forward-declared locally.
 - Lean naming (AGENTS.md): drop `SDL_`, lowerCamelCase functions, cite the
   exact C name in every binding's doc comment. Enum/flag members carry a
   `-- C: SDL_NAME` comment.
