@@ -71,3 +71,25 @@ _Static_assert((int)SDL_DATE_FORMAT_MMDDYYYY == 2, "DateFormat.mmddyyyy");
 /* ---- Sdl/Time.lean: TimeFormat ---- */
 _Static_assert((int)SDL_TIME_FORMAT_24HR == 0, "TimeFormat.24hr");
 _Static_assert((int)SDL_TIME_FORMAT_12HR == 1, "TimeFormat.12hr");
+
+/* ---- Sdl/Filesystem.lean: Folder ---- */
+_Static_assert((int)SDL_FOLDER_HOME        == 0,  "Folder.home");
+_Static_assert((int)SDL_FOLDER_DESKTOP     == 1,  "Folder.desktop");
+_Static_assert((int)SDL_FOLDER_DOCUMENTS   == 2,  "Folder.documents");
+_Static_assert((int)SDL_FOLDER_DOWNLOADS   == 3,  "Folder.downloads");
+_Static_assert((int)SDL_FOLDER_MUSIC       == 4,  "Folder.music");
+_Static_assert((int)SDL_FOLDER_PICTURES    == 5,  "Folder.pictures");
+_Static_assert((int)SDL_FOLDER_PUBLICSHARE == 6,  "Folder.publicshare");
+_Static_assert((int)SDL_FOLDER_SAVEDGAMES  == 7,  "Folder.savedgames");
+_Static_assert((int)SDL_FOLDER_SCREENSHOTS == 8,  "Folder.screenshots");
+_Static_assert((int)SDL_FOLDER_TEMPLATES   == 9,  "Folder.templates");
+_Static_assert((int)SDL_FOLDER_VIDEOS      == 10, "Folder.videos");
+
+/* ---- Sdl/Filesystem.lean: PathType ---- */
+_Static_assert((int)SDL_PATHTYPE_NONE      == 0, "PathType.none");
+_Static_assert((int)SDL_PATHTYPE_FILE      == 1, "PathType.file");
+_Static_assert((int)SDL_PATHTYPE_DIRECTORY == 2, "PathType.directory");
+_Static_assert((int)SDL_PATHTYPE_OTHER     == 3, "PathType.other");
+
+/* ---- Sdl/Filesystem.lean: GlobFlags ---- */
+_Static_assert(SDL_GLOB_CASEINSENSITIVE == 0x1u, "GlobFlags.caseInsensitive");
