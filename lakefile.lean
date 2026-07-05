@@ -72,3 +72,14 @@ extern_lib sdlShim pkg := do
 @[default_target]
 lean_exe sdl where
   root := `Main
+
+-- Registers the `Tests.*` submodules (Harness + per-module test groups) so the
+-- test exe below can import them; a bare `lean_exe` does not glob its srcDir.
+lean_lib Tests where
+  srcDir := "test"
+  globs := #[.andSubmodules `Tests]
+
+@[test_driver]
+lean_exe test where
+  srcDir := "test"
+  root := `Tests
