@@ -62,3 +62,12 @@ _Static_assert((int)SDL_LOG_PRIORITY_CRITICAL == 7, "LogPriority.critical");
 _Static_assert(SDL_NS_PER_SECOND == 1000000000LL, "Timer.nsPerSecond");
 _Static_assert(SDL_NS_PER_MS     == 1000000,      "Timer.nsPerMs");
 _Static_assert(SDL_NS_PER_US     == 1000,         "Timer.nsPerUs");
+
+/* ---- Sdl/Time.lean: DateFormat ---- */
+_Static_assert((int)SDL_DATE_FORMAT_YYYYMMDD == 0, "DateFormat.yyyymmdd");
+_Static_assert((int)SDL_DATE_FORMAT_DDMMYYYY == 1, "DateFormat.ddmmyyyy");
+_Static_assert((int)SDL_DATE_FORMAT_MMDDYYYY == 2, "DateFormat.mmddyyyy");
+
+/* ---- Sdl/Time.lean: TimeFormat ---- */
+_Static_assert((int)SDL_TIME_FORMAT_24HR == 0, "TimeFormat.24hr");
+_Static_assert((int)SDL_TIME_FORMAT_12HR == 1, "TimeFormat.12hr");

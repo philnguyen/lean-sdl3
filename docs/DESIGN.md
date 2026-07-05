@@ -26,7 +26,12 @@ Facts this design rests on (verified against Lean v4.31.0 + SDL 3.4.10):
 ## Symbol & module conventions
 
 - C shim symbols: `lean_sdl_<snake_case>` (e.g. `lean_sdl_create_window`).
-  `@[export]`ed Lean makers: `lean_sdl_mk_<snake_case>`.
+  `@[export]`ed Lean makers: `lean_sdl_mk_<snake_case>` — the standard way for C
+  to hand a multi-field Lean structure back to Lean (a private Lean def over
+  flattened scalars/objects; the shim forward-declares and calls it, so the
+  Lean compiler owns constructor layout). ABI note: Lean's generated C uses
+  `uint32_t`/`uint64_t` even for `Int32`/`Int64` params; shim forward-decls may
+  use the signed `intN_t` — identical width/registers, bits preserved.
 - One Lean module per SDL header: `Sdl/<Name>.lean` + `ffi/<name>.c` mirror
   `SDL_<name>.h`. Shared machinery: `ffi/util.{h,c}`, `ffi/callbacks.{h,c}`,
   `ffi/consts_check.c`.
