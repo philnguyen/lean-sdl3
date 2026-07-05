@@ -57,3 +57,8 @@ _Static_assert((int)SDL_LOG_PRIORITY_INFO     == 4, "LogPriority.info");
 _Static_assert((int)SDL_LOG_PRIORITY_WARN     == 5, "LogPriority.warn");
 _Static_assert((int)SDL_LOG_PRIORITY_ERROR    == 6, "LogPriority.error");
 _Static_assert((int)SDL_LOG_PRIORITY_CRITICAL == 7, "LogPriority.critical");
+
+/* ---- Sdl/Timer.lean: time-unit constants ---- */
+_Static_assert(SDL_NS_PER_SECOND == 1000000000LL, "Timer.nsPerSecond");
+_Static_assert(SDL_NS_PER_MS     == 1000000,      "Timer.nsPerMs");
+_Static_assert(SDL_NS_PER_US     == 1000,         "Timer.nsPerUs");
