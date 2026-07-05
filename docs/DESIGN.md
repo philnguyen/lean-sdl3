@@ -72,7 +72,10 @@ Archetypes (decide per handle, record in the module's header comment):
 Every shim uses `SDL_GET_OR_THROW` (NULL-guard) so post-destroy use is an IO
 error, never UB. Manual destroy = destroy + `ptr = NULL` (+ dec/NULL owner).
 External classes are registered from a per-module `initialize` block in the
-Lean module (runs on the main thread at startup, deterministic).
+Lean module (runs on the main thread at startup, deterministic). This requires
+`precompileModules := true` on `lean_lib Sdl`: the initializer runs in the
+interpreter at import time while *compiling* downstream modules, and only a
+precompiled (natively linked) library can resolve the shim symbol then.
 
 Caveat (documented, not enforced): don't let the *last* reference to a video
 handle die inside a `Task` or SDL-thread callback — finalizers run on the

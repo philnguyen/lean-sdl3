@@ -41,7 +41,12 @@ package sdl where
   moreLinkArgs := #["-L/opt/homebrew/lib", "-lSDL3", "-Wl,-rpath,/opt/homebrew/lib"]
 
 @[default_target]
-lean_lib Sdl
+lean_lib Sdl where
+  -- Properties' `initialize` block registers external classes by calling an FFI
+  -- shim; the interpreter must be able to resolve that symbol when it runs the
+  -- initializer at import time, so the library's native code (with the linked
+  -- `sdlShim`) is precompiled and loaded rather than interpreted.
+  precompileModules := true
 
 /-- Compile every `ffi/*.c` shim into one static archive; Lake auto-links it
 into all executables. Header changes retrigger via `extraDepTrace`. -/

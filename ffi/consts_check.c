@@ -21,3 +21,11 @@ _Static_assert(SDL_INIT_CAMERA   == 0x00010000u, "InitFlags.camera");
 _Static_assert((int)SDL_APP_CONTINUE == 0, "AppResult.continue");
 _Static_assert((int)SDL_APP_SUCCESS  == 1, "AppResult.success");
 _Static_assert((int)SDL_APP_FAILURE  == 2, "AppResult.failure");
+
+/* ---- Sdl/Properties.lean: PropertyType ---- */
+_Static_assert((int)SDL_PROPERTY_TYPE_INVALID == 0, "PropertyType.invalid");
+_Static_assert((int)SDL_PROPERTY_TYPE_POINTER == 1, "PropertyType.pointer");
+_Static_assert((int)SDL_PROPERTY_TYPE_STRING  == 2, "PropertyType.string");
+_Static_assert((int)SDL_PROPERTY_TYPE_NUMBER  == 3, "PropertyType.number");
+_Static_assert((int)SDL_PROPERTY_TYPE_FLOAT   == 4, "PropertyType.float");
+_Static_assert((int)SDL_PROPERTY_TYPE_BOOLEAN == 5, "PropertyType.boolean");
