@@ -93,3 +93,11 @@ _Static_assert((int)SDL_PATHTYPE_OTHER     == 3, "PathType.other");
 
 /* ---- Sdl/Filesystem.lean: GlobFlags ---- */
 _Static_assert(SDL_GLOB_CASEINSENSITIVE == 0x1u, "GlobFlags.caseInsensitive");
+
+/* ---- Sdl/Power.lean: PowerState (ERROR is the IO-error sentinel) ---- */
+_Static_assert((int)SDL_POWERSTATE_ERROR      == -1, "PowerState.error sentinel");
+_Static_assert((int)SDL_POWERSTATE_UNKNOWN    == 0,  "PowerState.unknown");
+_Static_assert((int)SDL_POWERSTATE_ON_BATTERY == 1,  "PowerState.onBattery");
+_Static_assert((int)SDL_POWERSTATE_NO_BATTERY == 2,  "PowerState.noBattery");
+_Static_assert((int)SDL_POWERSTATE_CHARGING   == 3,  "PowerState.charging");
+_Static_assert((int)SDL_POWERSTATE_CHARGED    == 4,  "PowerState.charged");

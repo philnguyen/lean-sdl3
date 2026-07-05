@@ -8,6 +8,10 @@ import Sdl.Timer
 import Sdl.Guid
 import Sdl.Time
 import Sdl.Filesystem
+import Sdl.CpuInfo
+import Sdl.Power
+import Sdl.Locale
+import Sdl.Misc
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
