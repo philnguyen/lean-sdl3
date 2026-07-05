@@ -4,6 +4,12 @@ import Tests.Properties
 import Tests.Hints
 import Tests.Log
 import Tests.Timer
+import Tests.Guid
+import Tests.Time
+import Tests.Filesystem
+import Tests.CpuInfo
+import Tests.Power
+import Tests.Locale
 
 /-!
 # Runtime test entry point
@@ -20,4 +26,10 @@ def main : IO UInt32 := do
   Harness.group "Hints" Hints.run
   Harness.group "Log" Log.run
   Harness.group "Timer" Timer.run
+  Harness.group "Guid" Guid.run
+  Harness.group "Time" Time.run
+  Harness.group "Filesystem" Filesystem.run
+  Harness.group "CpuInfo" CpuInfo.run
+  Harness.group "Power" Power.run
+  Harness.group "Locale" Locale.run
   Harness.summary
