@@ -919,3 +919,7 @@ _Static_assert(SDL_KMOD_CTRL == 0x00c0u, "Keymod.ctrl");
 _Static_assert(SDL_KMOD_SHIFT == 0x0003u, "Keymod.shift");
 _Static_assert(SDL_KMOD_ALT == 0x0300u, "Keymod.alt");
 _Static_assert(SDL_KMOD_GUI == 0x0c00u, "Keymod.gui");
+
+/* ---- Sdl/Keyboard.lean: no new enum/flag constants (Scancode/Keycode/Keymod
+ * are pinned above; KeyboardId is an open id domain). ---- */
+

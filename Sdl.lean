@@ -22,6 +22,7 @@ import Sdl.Clipboard
 import Sdl.MessageBox
 import Sdl.Scancode
 import Sdl.Keycode
+import Sdl.Keyboard
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
