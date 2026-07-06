@@ -12,6 +12,7 @@ import Sdl.CpuInfo
 import Sdl.Power
 import Sdl.Locale
 import Sdl.Misc
+import Sdl.Rect
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
