@@ -53,9 +53,26 @@ static inline lean_object *lean_sdl_wrap_surface_borrowed(
  * windows or an owned ref to the parent window's external for popup windows.
  * Windows are finalizer-only (no manual destroy). Each window created through
  * the binding stores its external object as a non-owning pointer property
- * ("lean_sdl.window") on the window's properties, so SDL_Window* -> external
- * lookups (GetWindowFromID, GetGrabbedWindow, ...) return the same handle. */
+ * (LEAN_SDL_WINDOW_PROP) on the window's properties, so SDL_Window* -> external
+ * lookups (GetWindowFromID, GetGrabbedWindow, GetMouseFocus, ...) return the
+ * same handle. */
 extern lean_external_class *lean_sdl_window_class;
+
+/* The non-owning property key storing a window's Lean external. */
+#define LEAN_SDL_WINDOW_PROP "lean_sdl.window"
+
+/* SDL_Window* -> Option Window: the same external the window was created with.
+ * Foreign windows (not created via this binding) yield none. Sound because a
+ * window's external and the SDL_Window are destroyed together (finalizer-only),
+ * and SDL_DestroyWindow destroys the properties with the window. */
+static inline lean_object *lean_sdl_window_option(SDL_Window *win) {
+    if (!win) return lean_sdl_none();
+    lean_object *ext = (lean_object *)SDL_GetPointerProperty(
+        SDL_GetWindowProperties(win), LEAN_SDL_WINDOW_PROP, NULL);
+    if (!ext) return lean_sdl_none();
+    lean_inc(ext);
+    return lean_sdl_some(ext);
+}
 
 #ifdef __cplusplus
 }

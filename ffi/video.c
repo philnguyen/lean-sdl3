@@ -56,9 +56,6 @@ LEAN_EXPORT lean_obj_res lean_sdl_video_register_classes(lean_obj_arg w) {
     return lean_sdl_unit_ok();
 }
 
-/* The non-owning property key storing a window's Lean external. */
-#define LEAN_SDL_WINDOW_PROP "lean_sdl.window"
-
 /* Build a DisplayMode from a (possibly const) SDL_DisplayMode* via the maker. */
 static lean_object *lean_sdl_display_mode_obj(const SDL_DisplayMode *m) {
     return lean_sdl_mk_display_mode(
@@ -73,19 +70,6 @@ static lean_object *lean_sdl_wrap_window(SDL_Window *win, lean_object *owner) {
     lean_object *ext = lean_sdl_wrap(lean_sdl_window_class, win, owner);
     SDL_SetPointerProperty(SDL_GetWindowProperties(win), LEAN_SDL_WINDOW_PROP, ext);
     return ext;
-}
-
-/* SDL_Window* -> Option Window: the same external the window was created with.
- * Foreign windows (not created via this binding) yield none. Sound because a
- * window's external and the SDL_Window are destroyed together (finalizer-only),
- * and SDL_DestroyWindow destroys the properties with the window. */
-static lean_object *lean_sdl_window_option(SDL_Window *win) {
-    if (!win) return lean_sdl_none();
-    lean_object *ext = (lean_object *)SDL_GetPointerProperty(
-        SDL_GetWindowProperties(win), LEAN_SDL_WINDOW_PROP, NULL);
-    if (!ext) return lean_sdl_none();
-    lean_inc(ext);
-    return lean_sdl_some(ext);
 }
 
 /* Extract a required `@& Properties`: throw if the handle was destroyed. The
