@@ -25,6 +25,7 @@ import Sdl.Keycode
 import Sdl.Keyboard
 import Sdl.Mouse
 import Sdl.Touch
+import Sdl.Pen
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.

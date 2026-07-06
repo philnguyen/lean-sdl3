@@ -977,3 +977,29 @@ _Static_assert((int)SDL_TOUCH_DEVICE_INDIRECT_RELATIVE == 2, "TouchDeviceType.in
 /* ---- Sdl/Touch.lean: TouchId virtual-touch named constants ---- */
 _Static_assert((Uint64)SDL_MOUSE_TOUCHID == 0xFFFFFFFFFFFFFFFFull, "TouchId.mouse");
 _Static_assert((Uint64)SDL_PEN_TOUCHID   == 0xFFFFFFFFFFFFFFFEull, "TouchId.pen");
+
+/* ---- Sdl/Pen.lean: PenInputFlags ---- */
+_Static_assert(SDL_PEN_INPUT_DOWN         == 0x1u,        "PenInputFlags.down");
+_Static_assert(SDL_PEN_INPUT_BUTTON_1     == 0x2u,        "PenInputFlags.button1");
+_Static_assert(SDL_PEN_INPUT_BUTTON_2     == 0x4u,        "PenInputFlags.button2");
+_Static_assert(SDL_PEN_INPUT_BUTTON_3     == 0x8u,        "PenInputFlags.button3");
+_Static_assert(SDL_PEN_INPUT_BUTTON_4     == 0x10u,       "PenInputFlags.button4");
+_Static_assert(SDL_PEN_INPUT_BUTTON_5     == 0x20u,       "PenInputFlags.button5");
+_Static_assert(SDL_PEN_INPUT_ERASER_TIP   == 0x40000000u, "PenInputFlags.eraserTip");
+_Static_assert(SDL_PEN_INPUT_IN_PROXIMITY == 0x80000000u, "PenInputFlags.inProximity");
+
+/* ---- Sdl/Pen.lean: PenAxis (version-open; COUNT excluded) ---- */
+_Static_assert((int)SDL_PEN_AXIS_PRESSURE            == 0, "PenAxis.pressure");
+_Static_assert((int)SDL_PEN_AXIS_XTILT               == 1, "PenAxis.xTilt");
+_Static_assert((int)SDL_PEN_AXIS_YTILT               == 2, "PenAxis.yTilt");
+_Static_assert((int)SDL_PEN_AXIS_DISTANCE            == 3, "PenAxis.distance");
+_Static_assert((int)SDL_PEN_AXIS_ROTATION            == 4, "PenAxis.rotation");
+_Static_assert((int)SDL_PEN_AXIS_SLIDER              == 5, "PenAxis.slider");
+_Static_assert((int)SDL_PEN_AXIS_TANGENTIAL_PRESSURE == 6, "PenAxis.tangentialPressure");
+_Static_assert((int)SDL_PEN_AXIS_COUNT               == 7, "PenAxis count");
+
+/* ---- Sdl/Pen.lean: PenDeviceType (INVALID is the -1 error sentinel) ---- */
+_Static_assert((int)SDL_PEN_DEVICE_TYPE_INVALID  == -1, "PenDeviceType.invalid sentinel");
+_Static_assert((int)SDL_PEN_DEVICE_TYPE_UNKNOWN  == 0,  "PenDeviceType.unknown");
+_Static_assert((int)SDL_PEN_DEVICE_TYPE_DIRECT   == 1,  "PenDeviceType.direct");
+_Static_assert((int)SDL_PEN_DEVICE_TYPE_INDIRECT == 2,  "PenDeviceType.indirect");
