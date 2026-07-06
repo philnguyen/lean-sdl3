@@ -19,6 +19,7 @@ import Tests.Clipboard
 import Tests.Keyboard
 import Tests.Mouse
 import Tests.TouchPen
+import Tests.Events
 
 /-!
 # Runtime test entry point
@@ -51,4 +52,5 @@ def main : IO UInt32 := do
   Harness.group "Keyboard" Keyboard.run
   Harness.group "Mouse" Mouse.run
   Harness.group "TouchPen" TouchPen.run
+  Harness.group "Events" Events.run
   Harness.summary
