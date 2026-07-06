@@ -72,7 +72,62 @@ def timerTests : IO Unit := do
   check "remove-while-firing stress: removed timer stays stopped"
     ((← hot.get) == settled)
 
+def eventWatchFilterTests : IO Unit := do
+  Sdl.init .video
+  Sdl.pumpEvents
+  Sdl.flushEvents
+  let some tA ← Sdl.registerEvents 2
+    | check "registerEvents for watch tests" false
+  let tB : Sdl.EventType := ⟨tA.val + 1⟩
+
+  -- Watches run synchronously during the push (same thread here).
+  let seen ← IO.mkRef (#[] : Array UInt32)
+  let watch ← Sdl.addEventWatch fun e => do
+    if let .user t _ := e then seen.modify (·.push t)
+  let seen2 ← IO.mkRef (0 : Nat)
+  let watch2 ← Sdl.addEventWatch fun _ => seen2.modify (· + 1)
+  check "push accepted (no filter)" (← Sdl.pushUserEvent tA)
+  check "watch saw pushed event" ((← seen.get) == #[tA.val])
+  check "second watch fired too" ((← seen2.get) == 1)
+  Sdl.flushEvents
+
+  -- Filter drops tA, keeps everything else; watches must not see drops.
+  Sdl.setEventFilter fun e =>
+    match e with
+    | .user t _ => return t != tA.val
+    | _ => return true
+  check "filtered push reports false" (!(← Sdl.pushUserEvent tA))
+  check "filtered event not queued" (!(← Sdl.hasEvent tA))
+  check "watch did not see filtered event" ((← seen.get) == #[tA.val])
+  check "filter passes other type" (← Sdl.pushUserEvent tB)
+  check "watch saw passing event" ((← seen.get) == #[tA.val, tB.val])
+  Sdl.clearEventFilter
+  check "push accepted after clearEventFilter" (← Sdl.pushUserEvent tA)
+  Sdl.flushEvents
+
+  -- Watch removal is effective and idempotent.
+  check "removeEventWatch = true" (← Sdl.removeEventWatch watch)
+  check "removeEventWatch again = false" (!(← Sdl.removeEventWatch watch))
+  let _ ← Sdl.pushUserEvent tA
+  check "removed watch no longer fires" ((← seen.get) == #[tA.val, tB.val, tA.val])
+  check "surviving watch still fires" ((← seen2.get) >= 4)
+  let _ ← Sdl.removeEventWatch watch2
+  Sdl.flushEvents
+
+  -- filterEvents: one-shot sweep removes only what the callback rejects.
+  let _ ← Sdl.pushUserEvent tA
+  let _ ← Sdl.pushUserEvent tA
+  let _ ← Sdl.pushUserEvent tB
+  Sdl.filterEvents fun e =>
+    match e with
+    | .user t _ => return t == tB.val
+    | _ => return true
+  check "filterEvents removed rejected type" (!(← Sdl.hasEvent tA))
+  check "filterEvents kept accepted type" (← Sdl.hasEvent tB)
+  Sdl.flushEvents
+
 def run : IO Unit := do
   timerTests
+  eventWatchFilterTests
 
 end Tests.Callbacks

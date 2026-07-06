@@ -31,9 +31,9 @@ boundary.
 
 * `SDL_PeepEvents` — batch queue surgery (peek/add-at-range); niche and its
   `SDL_EventAction` enum is only used by it.
-* `SDL_SetEventFilter` / `SDL_GetEventFilter` / `SDL_AddEventWatch` /
-  `SDL_RemoveEventWatch` / `SDL_FilterEvents` — event callbacks, deferred to the
-  M6 callbacks milestone.
+* `SDL_GetEventFilter` — returns the C function pointer/userdata pair, which is
+  always the binding's own trampoline; meaningless in Lean (track your own
+  filter if you need it back).
 * `SDL_GetWindowFromEvent` — use `Event.windowId` together with
   `Sdl.getWindowFromId`.
 * `SDL_GetEventDescription` — needs the raw union post-decode; `Repr` on `Event`
@@ -1428,5 +1428,58 @@ private opaque eventEnabledRaw (type : UInt32) : IO Bool
 C: `SDL_EventEnabled`. -/
 def eventEnabled (type : EventType) : IO Bool :=
   eventEnabledRaw type.val
+
+/-! ## Event watches and filters
+
+Both kinds of callback receive a *decoded copy* of the event — unlike C, they
+cannot mutate the event in the queue. Both may run on whatever thread generates
+or pushes the event (SDL threads are registered with the Lean runtime by the
+binding); keep them fast, and never touch video/render APIs from one. -/
+
+/-- Identifies an event watch from `addEventWatch` for later removal. This is a
+binding-local key, not an SDL id (SDL identifies watches by a C
+function/userdata pair). -/
+sdl_id EventWatchId : UInt64
+
+@[extern "lean_sdl_add_event_watch"]
+private opaque addEventWatchRaw (cb : Event → IO Unit) : IO UInt64
+
+/-- Call `cb` for every event as it enters the queue (and immediately for
+events that bypass it, e.g. quit signals). Runs on the thread posting the
+event, *during* the push — before `pushUserEvent` returns, the watch has run.
+Watches do not see events dropped by the filter (`setEventFilter`) or disabled
+types; exceptions in `cb` are swallowed. C: `SDL_AddEventWatch`. -/
+def addEventWatch (cb : Event → IO Unit) : IO EventWatchId := do
+  return ⟨← addEventWatchRaw cb⟩
+
+@[extern "lean_sdl_remove_event_watch"]
+private opaque removeEventWatchRaw (key : UInt64) : IO Bool
+
+/-- Remove an event watch. Returns `false` (a safe no-op) if `id` was already
+removed. At most one in-flight invocation may still complete on another thread.
+C: `SDL_RemoveEventWatch`. -/
+def removeEventWatch (id : EventWatchId) : IO Bool :=
+  removeEventWatchRaw id.val
+
+/-- Install `cb` as the one global event filter: every candidate event is
+offered to it *before* entering the queue, and is dropped (unrecoverably) when
+`cb` returns `false`. Replaces any previous filter. Runs synchronously on the
+generating/pushing thread — a dropped push makes `pushUserEvent` return
+`false`, and watches never see dropped events. Exceptions in `cb` keep the
+event. Events already sitting in the queue are not re-filtered (use
+`filterEvents` for those). C: `SDL_SetEventFilter`. -/
+@[extern "lean_sdl_set_event_filter"]
+opaque setEventFilter (cb : Event → IO Bool) : IO Unit
+
+/-- Remove the filter installed by `setEventFilter` (a no-op if none).
+C: `SDL_SetEventFilter(NULL, NULL)`. -/
+@[extern "lean_sdl_clear_event_filter"]
+opaque clearEventFilter : IO Unit
+
+/-- Run `cb` once over every event currently in the queue, on the calling
+thread, removing those for which it returns `false`. Exceptions keep the
+event. C: `SDL_FilterEvents`. -/
+@[extern "lean_sdl_filter_events"]
+opaque filterEvents (cb : Event → IO Bool) : IO Unit
 
 end Sdl

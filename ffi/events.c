@@ -15,6 +15,8 @@
  * register class, so the bits are preserved. Float32 -> float, Bool -> uint8_t,
  * String/Array String/Option String -> lean_object*. */
 #include "util.h"
+#include "callbacks.h"
+#include "events.h"
 
 /* The decode reinterprets the 128-byte SDL_Event union; pin its ABI size. */
 _Static_assert(sizeof(SDL_Event) == 128, "SDL_Event ABI size");
@@ -114,8 +116,9 @@ static lean_object *lean_sdl_event_string_array(const char *const *xs, int n) {
 /* Decode one SDL_Event into an owned `Sdl.Event` via the matching maker. The
  * Display and Window families are contiguous ranges, routed by range so a
  * future mid-range member still reaches the right maker (which falls back to
- * .unknown for any value it does not itself map). */
-static lean_object *lean_sdl_decode_event(const SDL_Event *e) {
+ * .unknown for any value it does not itself map). Non-static: declared in
+ * ffi/events.h so callback trampolines outside this file can decode too. */
+lean_object *lean_sdl_decode_event(const SDL_Event *e) {
     Uint32 t = e->type;
 
     if (t >= SDL_EVENT_DISPLAY_FIRST && t <= SDL_EVENT_DISPLAY_LAST)
@@ -455,4 +458,105 @@ LEAN_EXPORT lean_obj_res lean_sdl_event_enabled(uint32_t type, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
     return lean_io_result_mk_ok(lean_box(SDL_EventEnabled(type)));
+}
+
+/* ==================== Event watches and filters ====================
+ * Watches: gen-key registry (docs/DESIGN.md "Callbacks" #1) — SDL identifies a
+ * watch by the (function, userdata) pair, so the shared trampoline plus the
+ * key disambiguates. Filter: locked slot (#2) — SDL keeps exactly one filter.
+ * Both trampolines decode the event and run the Lean closure; both can fire on
+ * whatever thread generates or pushes the event. */
+
+static sdl_cb_registry lean_sdl_event_watch_registry;
+
+/* Watch closure: Event -> IO Unit. SDL ignores the return value. */
+static bool SDLCALL lean_sdl_event_watch_tramp(void *userdata, SDL_Event *event) {
+    uint64_t key = (uint64_t)(uintptr_t)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *fn = lean_sdl_cb_acquire(&lean_sdl_event_watch_registry, key);
+    if (!fn) return true; /* removed; possible trailing invocation */
+    lean_sdl_io_ignore(lean_apply_2(fn, lean_sdl_decode_event(event), lean_box(0)));
+    return true;
+}
+
+/* Sdl.addEventWatchRaw (cb : Event -> IO Unit) : IO UInt64
+ * -- C: SDL_AddEventWatch. */
+LEAN_EXPORT lean_obj_res lean_sdl_add_event_watch(lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    uint64_t key = lean_sdl_cb_register(&lean_sdl_event_watch_registry, fn, 0);
+    if (!SDL_AddEventWatch(lean_sdl_event_watch_tramp, (void *)(uintptr_t)key)) {
+        lean_object *f;
+        uintptr_t aux;
+        if (lean_sdl_cb_take(&lean_sdl_event_watch_registry, key, &f, &aux)) lean_dec(f);
+        return lean_sdl_throw();
+    }
+    return lean_io_result_mk_ok(lean_box_uint64(key));
+}
+
+/* Sdl.removeEventWatchRaw (key : UInt64) : IO Bool
+ * -- C: SDL_RemoveEventWatch (void; our bool = "was registered"). */
+LEAN_EXPORT lean_obj_res lean_sdl_remove_event_watch(uint64_t key, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_object *fn;
+    uintptr_t aux;
+    bool had = lean_sdl_cb_take(&lean_sdl_event_watch_registry, key, &fn, &aux);
+    if (had) {
+        SDL_RemoveEventWatch(lean_sdl_event_watch_tramp, (void *)(uintptr_t)key);
+        lean_dec(fn);
+    }
+    return lean_io_result_mk_ok(lean_box(had ? 1 : 0));
+}
+
+static sdl_cb_slot lean_sdl_event_filter_slot;
+
+/* Filter closure: Event -> IO Bool (false = drop). Exceptions keep the event
+ * (accepting is the conservative default: dropped events are unrecoverable). */
+static bool SDLCALL lean_sdl_event_filter_tramp(void *userdata, SDL_Event *event) {
+    (void)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *fn = lean_sdl_slot_acquire(&lean_sdl_event_filter_slot);
+    if (!fn) return true; /* filter cleared mid-dispatch */
+    return lean_sdl_io_bool_or(
+        lean_apply_2(fn, lean_sdl_decode_event(event), lean_box(0)), true);
+}
+
+/* Sdl.setEventFilter (cb : Event -> IO Bool) : IO Unit
+ * -- C: SDL_SetEventFilter. Slot is filled before SDL sees the trampoline. */
+LEAN_EXPORT lean_obj_res lean_sdl_set_event_filter(lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_sdl_slot_set(&lean_sdl_event_filter_slot, fn);
+    SDL_SetEventFilter(lean_sdl_event_filter_tramp, NULL);
+    return lean_sdl_unit_ok();
+}
+
+/* Sdl.clearEventFilter : IO Unit -- C: SDL_SetEventFilter(NULL, NULL). SDL is
+ * unhooked first; a trampoline mid-flight already holds its own closure ref. */
+LEAN_EXPORT lean_obj_res lean_sdl_clear_event_filter(lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    SDL_SetEventFilter(NULL, NULL);
+    lean_sdl_slot_clear(&lean_sdl_event_filter_slot);
+    return lean_sdl_unit_ok();
+}
+
+/* One-shot synchronous queue sweep: the closure itself is the userdata,
+ * borrowed for the duration of the SDL_FilterEvents call — no registry. Runs
+ * on the calling (Lean) thread, so no ensure-thread dance is needed. */
+static bool SDLCALL lean_sdl_filter_events_tramp(void *userdata, SDL_Event *event) {
+    lean_object *fn = (lean_object *)userdata;
+    lean_inc(fn); /* keep our borrow alive across the consuming apply */
+    return lean_sdl_io_bool_or(
+        lean_apply_2(fn, lean_sdl_decode_event(event), lean_box(0)), true);
+}
+
+/* Sdl.filterEvents (cb : Event -> IO Bool) : IO Unit -- C: SDL_FilterEvents. */
+LEAN_EXPORT lean_obj_res lean_sdl_filter_events(lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    SDL_FilterEvents(lean_sdl_filter_events_tramp, fn);
+    lean_dec(fn);
+    return lean_sdl_unit_ok();
 }
