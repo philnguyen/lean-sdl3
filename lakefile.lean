@@ -83,3 +83,94 @@ lean_lib Tests where
 lean_exe test where
   srcDir := "test"
   root := `Tests
+
+-- Provides the `Common` module (shared demo scaffolding) that every example
+-- exe imports; the example root modules themselves belong to their exes.
+lean_lib Examples where
+  srcDir := "examples"
+  roots := #[`Common]
+
+/- Demos: Lean ports of the official SDL3 examples (examples.libsdl.org), one
+`lean_exe` per example, named `<category>-<nn>-<name>` after the upstream
+directory. Sources live at `examples/<Category>/<Name>.lean`. Smoke-run all of
+them headless with `scripts/smoke-examples.sh`. -/
+
+lean_exe «renderer-01-clear» where
+  srcDir := "examples"
+  root := `Renderer.Clear
+
+lean_exe «renderer-02-primitives» where
+  srcDir := "examples"
+  root := `Renderer.Primitives
+
+lean_exe «renderer-03-lines» where
+  srcDir := "examples"
+  root := `Renderer.Lines
+
+lean_exe «renderer-04-points» where
+  srcDir := "examples"
+  root := `Renderer.Points
+
+lean_exe «renderer-05-rectangles» where
+  srcDir := "examples"
+  root := `Renderer.Rectangles
+
+lean_exe «renderer-06-textures» where
+  srcDir := "examples"
+  root := `Renderer.Textures
+
+lean_exe «renderer-07-streaming-textures» where
+  srcDir := "examples"
+  root := `Renderer.StreamingTextures
+
+lean_exe «renderer-08-rotating-textures» where
+  srcDir := "examples"
+  root := `Renderer.RotatingTextures
+
+lean_exe «renderer-09-scaling-textures» where
+  srcDir := "examples"
+  root := `Renderer.ScalingTextures
+
+lean_exe «renderer-10-geometry» where
+  srcDir := "examples"
+  root := `Renderer.Geometry
+
+lean_exe «renderer-11-color-mods» where
+  srcDir := "examples"
+  root := `Renderer.ColorMods
+
+lean_exe «renderer-14-viewport» where
+  srcDir := "examples"
+  root := `Renderer.Viewport
+
+lean_exe «renderer-15-cliprect» where
+  srcDir := "examples"
+  root := `Renderer.ClipRect
+
+lean_exe «renderer-17-read-pixels» where
+  srcDir := "examples"
+  root := `Renderer.ReadPixels
+
+lean_exe «renderer-18-debug-text» where
+  srcDir := "examples"
+  root := `Renderer.DebugText
+
+lean_exe «renderer-19-affine-textures» where
+  srcDir := "examples"
+  root := `Renderer.AffineTextures
+
+lean_exe «renderer-20-blending» where
+  srcDir := "examples"
+  root := `Renderer.Blending
+
+lean_exe «misc-01-power» where
+  srcDir := "examples"
+  root := `Misc.Power
+
+lean_exe «misc-02-clipboard» where
+  srcDir := "examples"
+  root := `Misc.Clipboard
+
+lean_exe «misc-03-locale» where
+  srcDir := "examples"
+  root := `Misc.Locale
