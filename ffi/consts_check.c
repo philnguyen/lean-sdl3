@@ -259,3 +259,109 @@ _Static_assert((int)SDL_FLIP_HORIZONTAL_AND_VERTICAL  == 3, "FlipMode.horizontal
 
 /* ---- Sdl/Surface.lean: SDL_Rect ABI (flattened rect args rebuilt in C) ---- */
 _Static_assert(sizeof(SDL_Rect) == 16, "SDL_Rect size");
+
+/* ---- Sdl/Video.lean: SystemTheme ---- */
+_Static_assert((int)SDL_SYSTEM_THEME_UNKNOWN == 0, "SystemTheme.unknown");
+_Static_assert((int)SDL_SYSTEM_THEME_LIGHT   == 1, "SystemTheme.light");
+_Static_assert((int)SDL_SYSTEM_THEME_DARK    == 2, "SystemTheme.dark");
+
+/* ---- Sdl/Video.lean: DisplayOrientation ---- */
+_Static_assert((int)SDL_ORIENTATION_UNKNOWN           == 0, "DisplayOrientation.unknown");
+_Static_assert((int)SDL_ORIENTATION_LANDSCAPE         == 1, "DisplayOrientation.landscape");
+_Static_assert((int)SDL_ORIENTATION_LANDSCAPE_FLIPPED == 2, "DisplayOrientation.landscapeFlipped");
+_Static_assert((int)SDL_ORIENTATION_PORTRAIT          == 3, "DisplayOrientation.portrait");
+_Static_assert((int)SDL_ORIENTATION_PORTRAIT_FLIPPED  == 4, "DisplayOrientation.portraitFlipped");
+
+/* ---- Sdl/Video.lean: WindowFlags ---- */
+_Static_assert(SDL_WINDOW_FULLSCREEN          == 0x0000000000000001ULL, "WindowFlags.fullscreen");
+_Static_assert(SDL_WINDOW_OPENGL              == 0x0000000000000002ULL, "WindowFlags.opengl");
+_Static_assert(SDL_WINDOW_OCCLUDED            == 0x0000000000000004ULL, "WindowFlags.occluded");
+_Static_assert(SDL_WINDOW_HIDDEN              == 0x0000000000000008ULL, "WindowFlags.hidden");
+_Static_assert(SDL_WINDOW_BORDERLESS          == 0x0000000000000010ULL, "WindowFlags.borderless");
+_Static_assert(SDL_WINDOW_RESIZABLE           == 0x0000000000000020ULL, "WindowFlags.resizable");
+_Static_assert(SDL_WINDOW_MINIMIZED           == 0x0000000000000040ULL, "WindowFlags.minimized");
+_Static_assert(SDL_WINDOW_MAXIMIZED           == 0x0000000000000080ULL, "WindowFlags.maximized");
+_Static_assert(SDL_WINDOW_MOUSE_GRABBED       == 0x0000000000000100ULL, "WindowFlags.mouseGrabbed");
+_Static_assert(SDL_WINDOW_INPUT_FOCUS         == 0x0000000000000200ULL, "WindowFlags.inputFocus");
+_Static_assert(SDL_WINDOW_MOUSE_FOCUS         == 0x0000000000000400ULL, "WindowFlags.mouseFocus");
+_Static_assert(SDL_WINDOW_EXTERNAL            == 0x0000000000000800ULL, "WindowFlags.external");
+_Static_assert(SDL_WINDOW_MODAL               == 0x0000000000001000ULL, "WindowFlags.modal");
+_Static_assert(SDL_WINDOW_HIGH_PIXEL_DENSITY  == 0x0000000000002000ULL, "WindowFlags.highPixelDensity");
+_Static_assert(SDL_WINDOW_MOUSE_CAPTURE       == 0x0000000000004000ULL, "WindowFlags.mouseCapture");
+_Static_assert(SDL_WINDOW_MOUSE_RELATIVE_MODE == 0x0000000000008000ULL, "WindowFlags.mouseRelativeMode");
+_Static_assert(SDL_WINDOW_ALWAYS_ON_TOP       == 0x0000000000010000ULL, "WindowFlags.alwaysOnTop");
+_Static_assert(SDL_WINDOW_UTILITY             == 0x0000000000020000ULL, "WindowFlags.utility");
+_Static_assert(SDL_WINDOW_TOOLTIP             == 0x0000000000040000ULL, "WindowFlags.tooltip");
+_Static_assert(SDL_WINDOW_POPUP_MENU          == 0x0000000000080000ULL, "WindowFlags.popupMenu");
+_Static_assert(SDL_WINDOW_KEYBOARD_GRABBED    == 0x0000000000100000ULL, "WindowFlags.keyboardGrabbed");
+_Static_assert(SDL_WINDOW_FILL_DOCUMENT       == 0x0000000000200000ULL, "WindowFlags.fillDocument");
+_Static_assert(SDL_WINDOW_VULKAN              == 0x0000000010000000ULL, "WindowFlags.vulkan");
+_Static_assert(SDL_WINDOW_METAL               == 0x0000000020000000ULL, "WindowFlags.metal");
+_Static_assert(SDL_WINDOW_TRANSPARENT         == 0x0000000040000000ULL, "WindowFlags.transparent");
+_Static_assert(SDL_WINDOW_NOT_FOCUSABLE       == 0x0000000080000000ULL, "WindowFlags.notFocusable");
+
+/* ---- Sdl/Video.lean: FlashOperation ---- */
+_Static_assert((int)SDL_FLASH_CANCEL        == 0, "FlashOperation.cancel");
+_Static_assert((int)SDL_FLASH_BRIEFLY       == 1, "FlashOperation.briefly");
+_Static_assert((int)SDL_FLASH_UNTIL_FOCUSED == 2, "FlashOperation.untilFocused");
+
+/* ---- Sdl/Video.lean: ProgressState (INVALID is the -1 error sentinel) ---- */
+_Static_assert((int)SDL_PROGRESS_STATE_INVALID       == -1, "ProgressState.invalid sentinel");
+_Static_assert((int)SDL_PROGRESS_STATE_NONE          == 0,  "ProgressState.none");
+_Static_assert((int)SDL_PROGRESS_STATE_INDETERMINATE == 1,  "ProgressState.indeterminate");
+_Static_assert((int)SDL_PROGRESS_STATE_NORMAL        == 2,  "ProgressState.normal");
+_Static_assert((int)SDL_PROGRESS_STATE_PAUSED        == 3,  "ProgressState.paused");
+_Static_assert((int)SDL_PROGRESS_STATE_ERROR         == 4,  "ProgressState.error");
+
+/* ---- Sdl/Video.lean: GLAttr ---- */
+_Static_assert((int)SDL_GL_RED_SIZE                   == 0,  "GLAttr.redSize");
+_Static_assert((int)SDL_GL_GREEN_SIZE                 == 1,  "GLAttr.greenSize");
+_Static_assert((int)SDL_GL_BLUE_SIZE                  == 2,  "GLAttr.blueSize");
+_Static_assert((int)SDL_GL_ALPHA_SIZE                 == 3,  "GLAttr.alphaSize");
+_Static_assert((int)SDL_GL_BUFFER_SIZE                == 4,  "GLAttr.bufferSize");
+_Static_assert((int)SDL_GL_DOUBLEBUFFER               == 5,  "GLAttr.doublebuffer");
+_Static_assert((int)SDL_GL_DEPTH_SIZE                 == 6,  "GLAttr.depthSize");
+_Static_assert((int)SDL_GL_STENCIL_SIZE               == 7,  "GLAttr.stencilSize");
+_Static_assert((int)SDL_GL_ACCUM_RED_SIZE             == 8,  "GLAttr.accumRedSize");
+_Static_assert((int)SDL_GL_ACCUM_GREEN_SIZE           == 9,  "GLAttr.accumGreenSize");
+_Static_assert((int)SDL_GL_ACCUM_BLUE_SIZE            == 10, "GLAttr.accumBlueSize");
+_Static_assert((int)SDL_GL_ACCUM_ALPHA_SIZE           == 11, "GLAttr.accumAlphaSize");
+_Static_assert((int)SDL_GL_STEREO                     == 12, "GLAttr.stereo");
+_Static_assert((int)SDL_GL_MULTISAMPLEBUFFERS         == 13, "GLAttr.multisamplebuffers");
+_Static_assert((int)SDL_GL_MULTISAMPLESAMPLES         == 14, "GLAttr.multisamplesamples");
+_Static_assert((int)SDL_GL_ACCELERATED_VISUAL         == 15, "GLAttr.acceleratedVisual");
+_Static_assert((int)SDL_GL_RETAINED_BACKING           == 16, "GLAttr.retainedBacking");
+_Static_assert((int)SDL_GL_CONTEXT_MAJOR_VERSION      == 17, "GLAttr.contextMajorVersion");
+_Static_assert((int)SDL_GL_CONTEXT_MINOR_VERSION      == 18, "GLAttr.contextMinorVersion");
+_Static_assert((int)SDL_GL_CONTEXT_FLAGS              == 19, "GLAttr.contextFlags");
+_Static_assert((int)SDL_GL_CONTEXT_PROFILE_MASK       == 20, "GLAttr.contextProfileMask");
+_Static_assert((int)SDL_GL_SHARE_WITH_CURRENT_CONTEXT == 21, "GLAttr.shareWithCurrentContext");
+_Static_assert((int)SDL_GL_FRAMEBUFFER_SRGB_CAPABLE   == 22, "GLAttr.framebufferSrgbCapable");
+_Static_assert((int)SDL_GL_CONTEXT_RELEASE_BEHAVIOR   == 23, "GLAttr.contextReleaseBehavior");
+_Static_assert((int)SDL_GL_CONTEXT_RESET_NOTIFICATION == 24, "GLAttr.contextResetNotification");
+_Static_assert((int)SDL_GL_CONTEXT_NO_ERROR           == 25, "GLAttr.contextNoError");
+_Static_assert((int)SDL_GL_FLOATBUFFERS               == 26, "GLAttr.floatbuffers");
+_Static_assert((int)SDL_GL_EGL_PLATFORM               == 27, "GLAttr.eglPlatform");
+
+/* ---- Sdl/Video.lean: GLProfile ---- */
+_Static_assert(SDL_GL_CONTEXT_PROFILE_CORE          == 0x0001, "GLProfile.core");
+_Static_assert(SDL_GL_CONTEXT_PROFILE_COMPATIBILITY == 0x0002, "GLProfile.compatibility");
+_Static_assert(SDL_GL_CONTEXT_PROFILE_ES            == 0x0004, "GLProfile.es");
+
+/* ---- Sdl/Video.lean: GLContextFlag ---- */
+_Static_assert(SDL_GL_CONTEXT_DEBUG_FLAG              == 0x0001, "GLContextFlag.debug");
+_Static_assert(SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG == 0x0002, "GLContextFlag.forwardCompatible");
+_Static_assert(SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG     == 0x0004, "GLContextFlag.robustAccess");
+_Static_assert(SDL_GL_CONTEXT_RESET_ISOLATION_FLAG   == 0x0008, "GLContextFlag.resetIsolation");
+
+/* ---- Sdl/Video.lean: GLContextReleaseBehavior ---- */
+_Static_assert(SDL_GL_CONTEXT_RELEASE_BEHAVIOR_NONE  == 0, "GLContextReleaseBehavior.none");
+_Static_assert(SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH == 1, "GLContextReleaseBehavior.flush");
+
+/* ---- Sdl/Video.lean: GLContextResetNotification ---- */
+_Static_assert(SDL_GL_CONTEXT_RESET_NO_NOTIFICATION == 0, "GLContextResetNotification.noNotification");
+_Static_assert(SDL_GL_CONTEXT_RESET_LOSE_CONTEXT    == 1, "GLContextResetNotification.loseContext");
+
+/* ---- Sdl/Video.lean: window surface vsync constants ---- */
+_Static_assert(SDL_WINDOW_SURFACE_VSYNC_DISABLED == 0,  "Window.surfaceVSyncDisabled");
+_Static_assert(SDL_WINDOW_SURFACE_VSYNC_ADAPTIVE == -1, "Window.surfaceVSyncAdaptive");

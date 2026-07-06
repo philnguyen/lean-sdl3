@@ -14,13 +14,15 @@ import Tests.BlendMode
 import Tests.Pixels
 import Tests.IOStream
 import Tests.Surface
+import Tests.Video
 
 /-!
 # Runtime test entry point
 
-Exercises the M2 modules against the linked SDL3. Run headless with
-`SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy lake exe test`. None of these
-subsystems require `Sdl.init`.
+Exercises the modules against the linked SDL3. Run headless with
+`SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy lake exe test`. Every group up to
+and including `Surface` runs without `Sdl.init`; the `Video` group is the first
+that calls `Sdl.init .video` (and does not `Sdl.quit` afterwards).
 -/
 
 open Tests
@@ -40,4 +42,5 @@ def main : IO UInt32 := do
   Harness.group "Pixels" Pixels.run
   Harness.group "IOStream" IOStream.run
   Harness.group "Surface" Surface.run
+  Harness.group "Video" Video.run
   Harness.summary
