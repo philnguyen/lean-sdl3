@@ -7,9 +7,6 @@ import Sdl.Error
 String-keyed configuration variables. Hint-name constants live in the
 `Sdl.Hint` namespace (`Sdl.Hint.appId = "SDL_APP_ID"`), one per
 `SDL_HINT_*` `#define` in the header.
-
-Skipped: `SDL_AddHintCallback`, `SDL_RemoveHintCallback` — need a callback
-bridge; deferred to the M6 callbacks milestone.
 -/
 
 namespace Sdl
@@ -50,6 +47,31 @@ opaque getHint (name : @& String) : IO (Option String)
 C: `SDL_GetHintBoolean`. -/
 @[extern "lean_sdl_get_hint_boolean"]
 opaque getHintBoolean (name : @& String) (defaultValue : Bool := false) : IO Bool
+
+/-- Identifies a hint callback from `addHintCallback` for later removal
+(binding-local key, not an SDL id). -/
+sdl_id HintCallbackId : UInt64
+
+@[extern "lean_sdl_add_hint_callback"]
+private opaque addHintCallbackRaw (name : @& String)
+    (cb : String → Option String → Option String → IO Unit) : IO UInt64
+
+/-- Call `cb name oldValue newValue` whenever the hint `name` changes — and
+once, synchronously, during this call with the hint's current value. Runs on
+the thread that sets the hint; exceptions in `cb` are swallowed.
+C: `SDL_AddHintCallback`. -/
+def addHintCallback (name : String)
+    (cb : (name : String) → (oldValue newValue : Option String) → IO Unit) :
+    IO HintCallbackId := do
+  return ⟨← addHintCallbackRaw name cb⟩
+
+@[extern "lean_sdl_remove_hint_callback"]
+private opaque removeHintCallbackRaw (id : UInt64) : IO Bool
+
+/-- Remove a hint callback. Returns `false` (a safe no-op) if `id` was already
+removed. C: `SDL_RemoveHintCallback`. -/
+def removeHintCallback (id : HintCallbackId) : IO Bool :=
+  removeHintCallbackRaw id.val
 
 /-! Hint-name string constants (one per `SDL_HINT_*` in `SDL_hints.h`). -/
 namespace Hint

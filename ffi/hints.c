@@ -1,5 +1,6 @@
 /* Shims for Sdl/Hints.lean (SDL_hints.h). */
 #include "util.h"
+#include "callbacks.h"
 
 /* Sdl.setHint -- C: SDL_SetHint */
 LEAN_EXPORT lean_obj_res lean_sdl_set_hint(
@@ -51,4 +52,62 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_hint_boolean(
     SDL_SHIM_PROLOGUE();
     return lean_io_result_mk_ok(
         lean_box(SDL_GetHintBoolean(lean_string_cstr(name), default_value != 0)));
+}
+
+/* ---- Hint callbacks (gen-key registry; docs/DESIGN.md "Callbacks" #1).
+ * Entry aux = an SDL_strdup'd copy of the hint name, needed again for
+ * SDL_RemoveHintCallback (SDL identifies a callback by name + fn + userdata).
+ * SDL_AddHintCallback invokes the callback synchronously during registration
+ * (initial value) on this Lean thread; the entry is registered first, so the
+ * trampoline finds it. */
+
+static sdl_cb_registry lean_sdl_hint_registry;
+
+/* Registered closure: String -> Option String -> Option String -> IO Unit
+ * (name, oldValue, newValue). */
+static void SDLCALL lean_sdl_hint_tramp(void *userdata, const char *name,
+                                        const char *old_value, const char *new_value) {
+    uint64_t key = (uint64_t)(uintptr_t)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *fn = lean_sdl_cb_acquire(&lean_sdl_hint_registry, key);
+    if (!fn) return;
+    lean_sdl_io_ignore(lean_apply_4(fn, lean_sdl_mk_string(name),
+        lean_sdl_option_string(old_value), lean_sdl_option_string(new_value),
+        lean_box(0)));
+}
+
+/* Sdl.addHintCallbackRaw -- C: SDL_AddHintCallback */
+LEAN_EXPORT lean_obj_res lean_sdl_add_hint_callback(
+        b_lean_obj_arg name, lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    char *name_copy = SDL_strdup(lean_string_cstr(name));
+    uint64_t key = lean_sdl_cb_register(&lean_sdl_hint_registry, fn, (uintptr_t)name_copy);
+    if (!SDL_AddHintCallback(name_copy, lean_sdl_hint_tramp, (void *)(uintptr_t)key)) {
+        lean_object *f;
+        uintptr_t aux;
+        if (lean_sdl_cb_take(&lean_sdl_hint_registry, key, &f, &aux)) {
+            lean_dec(f);
+            SDL_free((void *)aux);
+        }
+        return lean_sdl_throw();
+    }
+    return lean_io_result_mk_ok(lean_box_uint64(key));
+}
+
+/* Sdl.removeHintCallbackRaw -- C: SDL_RemoveHintCallback (void; our bool =
+ * "was registered"). */
+LEAN_EXPORT lean_obj_res lean_sdl_remove_hint_callback(uint64_t key, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_object *fn;
+    uintptr_t aux;
+    bool had = lean_sdl_cb_take(&lean_sdl_hint_registry, key, &fn, &aux);
+    if (had) {
+        SDL_RemoveHintCallback((const char *)aux, lean_sdl_hint_tramp,
+                               (void *)(uintptr_t)key);
+        lean_dec(fn);
+        SDL_free((void *)aux);
+    }
+    return lean_io_result_mk_ok(lean_box(had ? 1 : 0));
 }

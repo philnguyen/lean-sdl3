@@ -1,5 +1,6 @@
 /* Shims for Sdl/Log.lean (SDL_log.h). */
 #include "util.h"
+#include "callbacks.h"
 
 /* Sdl.setLogPriorities -- C: SDL_SetLogPriorities */
 LEAN_EXPORT lean_obj_res lean_sdl_set_log_priorities(uint32_t priority, lean_obj_arg w) {
@@ -63,5 +64,45 @@ LEAN_EXPORT lean_obj_res lean_sdl_log_message(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_LogMessage((int)category, (SDL_LogPriority)priority, "%s", lean_string_cstr(msg));
+    return lean_sdl_unit_ok();
+}
+
+/* ---- Log output function (locked slot; docs/DESIGN.md "Callbacks" #2).
+ * SDL keeps exactly one output function; ours is a static slot. Restoring
+ * goes through SDL_GetDefaultLogOutputFunction, not NULL. */
+
+static sdl_cb_slot lean_sdl_log_output_slot;
+
+/* Registered closure: UInt32 -> UInt32 -> String -> IO Unit
+ * (category, priority, message). */
+static void SDLCALL lean_sdl_log_output_tramp(void *userdata, int category,
+                                              SDL_LogPriority priority,
+                                              const char *message) {
+    (void)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *fn = lean_sdl_slot_acquire(&lean_sdl_log_output_slot);
+    if (!fn) return; /* reset mid-dispatch */
+    lean_sdl_io_ignore(lean_apply_4(fn, lean_box_uint32((uint32_t)category),
+        lean_box_uint32((uint32_t)priority), lean_sdl_mk_string(message),
+        lean_box(0)));
+}
+
+/* Sdl.setLogOutputFunctionRaw -- C: SDL_SetLogOutputFunction */
+LEAN_EXPORT lean_obj_res lean_sdl_set_log_output_function(lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_sdl_slot_set(&lean_sdl_log_output_slot, fn);
+    SDL_SetLogOutputFunction(lean_sdl_log_output_tramp, NULL);
+    return lean_sdl_unit_ok();
+}
+
+/* Sdl.resetLogOutputFunction -- C: SDL_SetLogOutputFunction with
+ * SDL_GetDefaultLogOutputFunction. SDL is unhooked before the slot is
+ * cleared; a trampoline mid-flight already holds its own closure ref. */
+LEAN_EXPORT lean_obj_res lean_sdl_reset_log_output_function(lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), NULL);
+    lean_sdl_slot_clear(&lean_sdl_log_output_slot);
     return lean_sdl_unit_ok();
 }

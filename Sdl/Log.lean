@@ -8,9 +8,11 @@ Priority-filtered logging by category. `LogCategory` is an open numeric domain
 (apps may define their own categories at or above `.custom`); `LogPriority` is a
 closed enum.
 
-Skipped: `SDL_SetLogOutputFunction`, `SDL_GetLogOutputFunction`,
-`SDL_GetDefaultLogOutputFunction` — need a callback bridge (M6 milestone).
-`SDL_LogMessageV` — C `va_list` variant, not bindable.
+Skipped: `SDL_GetLogOutputFunction` — returns a C function pointer, which is
+always the binding's own trampoline once `setLogOutputFunction` has run;
+meaningless in Lean. (`SDL_GetDefaultLogOutputFunction` is used internally by
+`resetLogOutputFunction`.) `SDL_LogMessageV` — C `va_list` variant, not
+bindable.
 -/
 
 namespace Sdl
@@ -113,5 +115,24 @@ def logError (category : LogCategory := .application) (msg : String) : IO Unit :
 /-- Log at `.critical` priority. C: `SDL_LogCritical`. -/
 def logCritical (category : LogCategory := .application) (msg : String) : IO Unit :=
   logMessage category .critical msg
+
+@[extern "lean_sdl_set_log_output_function"]
+private opaque setLogOutputFunctionRaw (cb : UInt32 → UInt32 → String → IO Unit) : IO Unit
+
+/-- Replace SDL's log output routine with `cb category priority message`
+(replacing any previous replacement). Runs synchronously on the logging
+thread; the message is the plain formatted text (priority prefixes are a
+default-output concern). Do not log from inside `cb` — SDL does not guard
+against the recursion. Exceptions in `cb` are swallowed. Unknown priorities
+decode as `.invalid`. C: `SDL_SetLogOutputFunction`. -/
+def setLogOutputFunction
+    (cb : LogCategory → LogPriority → String → IO Unit) : IO Unit :=
+  setLogOutputFunctionRaw fun cat prio msg =>
+    cb ⟨cat⟩ (LogPriority.ofVal? prio |>.getD .invalid) msg
+
+/-- Restore SDL's default (platform) log output routine.
+C: `SDL_SetLogOutputFunction` with `SDL_GetDefaultLogOutputFunction()`. -/
+@[extern "lean_sdl_reset_log_output_function"]
+opaque resetLogOutputFunction : IO Unit
 
 end Sdl

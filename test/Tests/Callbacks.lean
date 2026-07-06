@@ -126,8 +126,45 @@ def eventWatchFilterTests : IO Unit := do
   check "filterEvents kept accepted type" (← Sdl.hasEvent tB)
   Sdl.flushEvents
 
+def hintCallbackTests : IO Unit := do
+  let events ← IO.mkRef (#[] : Array (Option String × Option String))
+  let hname := "SDL_LEAN_SDL3_CB_HINT"
+  let hid ← Sdl.addHintCallback hname fun _ old new => events.modify (·.push (old, new))
+  check "hint cb fired on registration" ((← events.get).size == 1)
+  Sdl.setHint hname "v1"
+  check "hint cb fired on set" ((← events.get)[1]?.map (·.2) == some (some "v1"))
+  Sdl.setHint hname "v2"
+  check "hint cb old/new on change" ((← events.get)[2]? == some (some "v1", some "v2"))
+  check "removeHintCallback = true" (← Sdl.removeHintCallback hid)
+  check "removeHintCallback again = false" (!(← Sdl.removeHintCallback hid))
+  Sdl.setHint hname "v3"
+  check "removed hint cb no longer fires" ((← events.get).size == 3)
+  Sdl.resetHint hname
+
+def logOutputTests : IO Unit := do
+  let captured ← IO.mkRef (#[] : Array (UInt32 × UInt32 × String))
+  Sdl.setLogOutputFunction fun cat prio msg =>
+    captured.modify (·.push (cat.val, prio.val, msg))
+  Sdl.logInfo .application "lean-sdl3-capture-me"
+  check "log cb captured category/priority/message"
+    ((← captured.get).any fun (c, p, m) =>
+      c == Sdl.LogCategory.application.val
+        && p == Sdl.LogPriority.info.val
+        && m == "lean-sdl3-capture-me")
+  -- Replacing the output function drops the old closure, keeps capturing.
+  let captured2 ← IO.mkRef (#[] : Array String)
+  Sdl.setLogOutputFunction fun _ _ msg => captured2.modify (·.push msg)
+  Sdl.logWarn .application "second-capture"
+  check "replaced log cb captures" ((← captured2.get).contains "second-capture")
+  check "old log cb inactive" (!(← captured.get).any fun (_, _, m) => m == "second-capture")
+  Sdl.resetLogOutputFunction
+  Sdl.logInfo .application "after-reset"
+  check "reset log cb inactive" (!(← captured2.get).contains "after-reset")
+
 def run : IO Unit := do
   timerTests
   eventWatchFilterTests
+  hintCallbackTests
+  logOutputTests
 
 end Tests.Callbacks
