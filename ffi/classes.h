@@ -74,6 +74,54 @@ static inline lean_object *lean_sdl_window_option(SDL_Window *win) {
     return lean_sdl_some(ext);
 }
 
+/* ffi/render.c -- holder ptr is an SDL_Renderer*, owner is an owned ref to the
+ * creating Window's external (or the Surface's external for the software
+ * renderer). Renderers are finalizer-only (no manual destroy). Each renderer
+ * created through the binding stores its external object as a non-owning
+ * pointer property (LEAN_SDL_RENDERER_PROP) on the renderer's properties, so
+ * SDL_Renderer* -> external lookups (GetRenderer) return the same handle. */
+extern lean_external_class *lean_sdl_renderer_class;
+
+/* ffi/render.c -- holder ptr is an SDL_Texture*, owner is an owned ref to the
+ * creating Renderer's external. Textures are owned leaves (manual
+ * Texture.destroy exposed). Each texture created through the binding stores its
+ * external object as a non-owning pointer property (LEAN_SDL_TEXTURE_PROP) on
+ * the texture's properties, so SDL_Texture* -> external lookups
+ * (GetRenderTarget) return the same handle. */
+extern lean_external_class *lean_sdl_texture_class;
+
+/* Non-owning property keys storing a renderer's / texture's Lean external. */
+#define LEAN_SDL_RENDERER_PROP "lean_sdl.renderer"
+#define LEAN_SDL_TEXTURE_PROP  "lean_sdl.texture"
+
+/* SDL_Renderer* -> Option Renderer: the same external the renderer was created
+ * with. Foreign renderers (not created via this binding) yield none. Sound for
+ * the same reason as windows: the external and the SDL_Renderer are destroyed
+ * together (finalizer-only), and SDL_DestroyRenderer destroys the properties
+ * with the renderer. */
+static inline lean_object *lean_sdl_renderer_option(SDL_Renderer *r) {
+    if (!r) return lean_sdl_none();
+    lean_object *ext = (lean_object *)SDL_GetPointerProperty(
+        SDL_GetRendererProperties(r), LEAN_SDL_RENDERER_PROP, NULL);
+    if (!ext) return lean_sdl_none();
+    lean_inc(ext);
+    return lean_sdl_some(ext);
+}
+
+/* SDL_Texture* -> Option Texture: the same external the texture was created
+ * with. Foreign textures yield none. Sound because the property dies inside
+ * SDL_DestroyTexture (whether via the finalizer or a manual Texture.destroy),
+ * and a live external always has a live SDL_Texture (destroy NULLs the ptr and
+ * the guard rejects use). */
+static inline lean_object *lean_sdl_texture_option(SDL_Texture *t) {
+    if (!t) return lean_sdl_none();
+    lean_object *ext = (lean_object *)SDL_GetPointerProperty(
+        SDL_GetTextureProperties(t), LEAN_SDL_TEXTURE_PROP, NULL);
+    if (!ext) return lean_sdl_none();
+    lean_inc(ext);
+    return lean_sdl_some(ext);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,6 +2,7 @@
  * block is pinned against the real SDL headers here. A wrong Lean literal
  * shows up as a build failure. Grouped by Lean module. */
 #include <SDL3/SDL.h>
+#include <stddef.h> /* offsetof (SDL_Vertex layout checks) */
 
 /* ---- ABI assumptions ---- */
 _Static_assert(sizeof(SDL_Event) == 128, "SDL_Event ABI size");
@@ -1150,3 +1151,33 @@ _Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOMRIGHT == 6, "HitTestResult.resiz
 _Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOM      == 7, "HitTestResult.resizeBottom");
 _Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOMLEFT  == 8, "HitTestResult.resizeBottomLeft");
 _Static_assert((Uint32)SDL_HITTEST_RESIZE_LEFT        == 9, "HitTestResult.resizeLeft");
+
+/* ==== Sdl/Render.lean : TextureAccess ==== */
+_Static_assert((int)SDL_TEXTUREACCESS_STATIC    == 0, "TextureAccess.static");
+_Static_assert((int)SDL_TEXTUREACCESS_STREAMING == 1, "TextureAccess.streaming");
+_Static_assert((int)SDL_TEXTUREACCESS_TARGET    == 2, "TextureAccess.target");
+
+/* ==== Sdl/Render.lean : TextureAddressMode (INVALID is the -1 sentinel) ==== */
+_Static_assert((int)SDL_TEXTURE_ADDRESS_INVALID == -1, "TextureAddressMode.invalid sentinel");
+_Static_assert((int)SDL_TEXTURE_ADDRESS_AUTO    == 0,  "TextureAddressMode.auto");
+_Static_assert((int)SDL_TEXTURE_ADDRESS_CLAMP   == 1,  "TextureAddressMode.clamp");
+_Static_assert((int)SDL_TEXTURE_ADDRESS_WRAP    == 2,  "TextureAddressMode.wrap");
+
+/* ==== Sdl/Render.lean : RendererLogicalPresentation ==== */
+_Static_assert((int)SDL_LOGICAL_PRESENTATION_DISABLED      == 0, "RendererLogicalPresentation.disabled");
+_Static_assert((int)SDL_LOGICAL_PRESENTATION_STRETCH       == 1, "RendererLogicalPresentation.stretch");
+_Static_assert((int)SDL_LOGICAL_PRESENTATION_LETTERBOX     == 2, "RendererLogicalPresentation.letterbox");
+_Static_assert((int)SDL_LOGICAL_PRESENTATION_OVERSCAN      == 3, "RendererLogicalPresentation.overscan");
+_Static_assert((int)SDL_LOGICAL_PRESENTATION_INTEGER_SCALE == 4, "RendererLogicalPresentation.integerScale");
+
+/* ==== Sdl/Render.lean : SDL_Vertex ABI (geometry packs 8x float32 LE per
+ * vertex: position.x, .y, color.r, .g, .b, .a, tex_coord.x, .y) ==== */
+_Static_assert(sizeof(SDL_Vertex) == 32, "SDL_Vertex size");
+_Static_assert(offsetof(SDL_Vertex, position)  == 0,  "SDL_Vertex.position offset");
+_Static_assert(offsetof(SDL_Vertex, color)     == 8,  "SDL_Vertex.color offset");
+_Static_assert(offsetof(SDL_Vertex, tex_coord) == 24, "SDL_Vertex.tex_coord offset");
+
+/* ==== Sdl/Render.lean : constants ==== */
+_Static_assert(SDL_RENDERER_VSYNC_DISABLED == 0,  "Renderer.vsyncDisabled");
+_Static_assert(SDL_RENDERER_VSYNC_ADAPTIVE == -1, "Renderer.vsyncAdaptive");
+_Static_assert(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE == 8, "Sdl.debugTextFontCharacterSize");
