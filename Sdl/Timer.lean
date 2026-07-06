@@ -4,11 +4,15 @@ import Sdl.Error
 /-!
 # Timers and clocks (`SDL_timer.h`)
 
-Wall-clock/monotonic time queries, blocking delays, and the pure time-unit
-conversion helpers that mirror the header's `SDL_*_TO_*` macros.
+Wall-clock/monotonic time queries, blocking delays, the pure time-unit
+conversion helpers that mirror the header's `SDL_*_TO_*` macros, and callback
+timers (`addTimer`/`addTimerNS`/`removeTimer`).
 
-Skipped: `SDL_AddTimer`, `SDL_AddTimerNS`, `SDL_RemoveTimer` — need a callback
-bridge; deferred to the M6 callbacks milestone.
+Timer callbacks run on SDL's timer thread (registered with the Lean runtime by
+the binding). Do not touch video/render APIs from one, and don't let the last
+reference to a video handle die there. `IO.Ref` traffic between a timer callback
+and the main thread is safe for single-writer patterns; there is no atomic
+read-modify-write across threads.
 -/
 
 namespace Sdl
@@ -43,6 +47,41 @@ opaque delayNS (ns : UInt64) : IO Unit
 than `delayNS`. C: `SDL_DelayPrecise`. -/
 @[extern "lean_sdl_delay_precise"]
 opaque delayPrecise (ns : UInt64) : IO Unit
+
+/-! ## Callback timers -/
+
+/-- A timer handle from `addTimer`/`addTimerNS`. `0` is never a valid id.
+C: `SDL_TimerID`. -/
+sdl_id TimerId : UInt32
+
+@[extern "lean_sdl_add_timer"]
+private opaque addTimerRaw (intervalMs : UInt32) (cb : UInt32 → UInt32 → IO UInt32) : IO UInt32
+
+/-- Call `cb id interval` on SDL's timer thread after `intervalMs` milliseconds
+(needs no `Sdl.init`). The callback returns the next interval in ms; returning
+`0` cancels the timer, as does throwing. Timing is inexact (OS scheduling); the
+current interval is passed to the callback. After `removeTimer`, at most one
+in-flight invocation may still complete (SDL's own guarantee).
+C: `SDL_AddTimer`. -/
+def addTimer (intervalMs : UInt32) (cb : TimerId → UInt32 → IO UInt32) : IO TimerId := do
+  return ⟨← addTimerRaw intervalMs fun id interval => cb ⟨id⟩ interval⟩
+
+@[extern "lean_sdl_add_timer_ns"]
+private opaque addTimerNSRaw (intervalNs : UInt64) (cb : UInt32 → UInt64 → IO UInt64) : IO UInt32
+
+/-- Nanosecond-resolution `addTimer` (same cancellation and threading
+contract). C: `SDL_AddTimerNS`. -/
+def addTimerNS (intervalNs : UInt64) (cb : TimerId → UInt64 → IO UInt64) : IO TimerId := do
+  return ⟨← addTimerNSRaw intervalNs fun id interval => cb ⟨id⟩ interval⟩
+
+@[extern "lean_sdl_remove_timer"]
+private opaque removeTimerRaw (id : UInt32) : IO Bool
+
+/-- Remove a timer. Returns `false` if the timer no longer exists (already
+removed, or its callback returned `0`/threw) — calling again is a safe no-op.
+C: `SDL_RemoveTimer`. -/
+def removeTimer (id : TimerId) : IO Bool :=
+  removeTimerRaw id.val
 
 /-! ## Time-unit conversions (pure, `UInt64`). -/
 
