@@ -365,3 +365,27 @@ _Static_assert(SDL_GL_CONTEXT_RESET_LOSE_CONTEXT    == 1, "GLContextResetNotific
 /* ---- Sdl/Video.lean: window surface vsync constants ---- */
 _Static_assert(SDL_WINDOW_SURFACE_VSYNC_DISABLED == 0,  "Window.surfaceVSyncDisabled");
 _Static_assert(SDL_WINDOW_SURFACE_VSYNC_ADAPTIVE == -1, "Window.surfaceVSyncAdaptive");
+
+/* ---- Sdl/MessageBox.lean: MessageBoxFlags ---- */
+_Static_assert(SDL_MESSAGEBOX_ERROR                 == 0x00000010u, "MessageBoxFlags.error");
+_Static_assert(SDL_MESSAGEBOX_WARNING               == 0x00000020u, "MessageBoxFlags.warning");
+_Static_assert(SDL_MESSAGEBOX_INFORMATION           == 0x00000040u, "MessageBoxFlags.information");
+_Static_assert(SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT == 0x00000080u, "MessageBoxFlags.buttonsLeftToRight");
+_Static_assert(SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT == 0x00000100u, "MessageBoxFlags.buttonsRightToLeft");
+
+/* ---- Sdl/MessageBox.lean: MessageBoxButtonFlags ---- */
+_Static_assert(SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT == 0x00000001u, "MessageBoxButtonFlags.returnkeyDefault");
+_Static_assert(SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT == 0x00000002u, "MessageBoxButtonFlags.escapekeyDefault");
+
+/* ---- Sdl/MessageBox.lean: SDL_MessageBoxColorType indices, pinned to the
+ * MessageBoxColorScheme field ORDER (background, text, buttonBorder,
+ * buttonBackground, buttonSelected) so the packed 15-byte scheme lines up. ---- */
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_BACKGROUND        == 0, "MessageBoxColorScheme.background index");
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_TEXT             == 1, "MessageBoxColorScheme.text index");
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_BUTTON_BORDER     == 2, "MessageBoxColorScheme.buttonBorder index");
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND == 3, "MessageBoxColorScheme.buttonBackground index");
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED   == 4, "MessageBoxColorScheme.buttonSelected index");
+_Static_assert((int)SDL_MESSAGEBOX_COLOR_COUNT             == 5, "MessageBoxColorScheme field count");
+
+/* ---- Sdl/MessageBox.lean: SDL_MessageBoxColor ABI (scheme packs r,g,b bytes) ---- */
+_Static_assert(sizeof(SDL_MessageBoxColor) == 3, "SDL_MessageBoxColor size");
