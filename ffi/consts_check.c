@@ -238,3 +238,24 @@ _Static_assert((int)SDL_IO_STATUS_WRITEONLY == 5, "IOStatus.writeonly");
 _Static_assert((int)SDL_IO_SEEK_SET == 0, "IOWhence.seekSet");
 _Static_assert((int)SDL_IO_SEEK_CUR == 1, "IOWhence.seekCur");
 _Static_assert((int)SDL_IO_SEEK_END == 2, "IOWhence.seekEnd");
+
+/* ---- Sdl/Surface.lean: SurfaceFlags ---- */
+_Static_assert(SDL_SURFACE_PREALLOCATED == 0x00000001u, "SurfaceFlags.preallocated");
+_Static_assert(SDL_SURFACE_LOCK_NEEDED  == 0x00000002u, "SurfaceFlags.lockNeeded");
+_Static_assert(SDL_SURFACE_LOCKED       == 0x00000004u, "SurfaceFlags.locked");
+_Static_assert(SDL_SURFACE_SIMD_ALIGNED == 0x00000008u, "SurfaceFlags.simdAligned");
+
+/* ---- Sdl/Surface.lean: ScaleMode (INVALID is the -1 error sentinel) ---- */
+_Static_assert((int)SDL_SCALEMODE_INVALID == -1, "ScaleMode.invalid sentinel");
+_Static_assert((int)SDL_SCALEMODE_NEAREST ==  0, "ScaleMode.nearest");
+_Static_assert((int)SDL_SCALEMODE_LINEAR  ==  1, "ScaleMode.linear");
+_Static_assert((int)SDL_SCALEMODE_PIXELART == 2, "ScaleMode.pixelart");
+
+/* ---- Sdl/Surface.lean: FlipMode ---- */
+_Static_assert((int)SDL_FLIP_NONE                     == 0, "FlipMode.none");
+_Static_assert((int)SDL_FLIP_HORIZONTAL               == 1, "FlipMode.horizontal");
+_Static_assert((int)SDL_FLIP_VERTICAL                 == 2, "FlipMode.vertical");
+_Static_assert((int)SDL_FLIP_HORIZONTAL_AND_VERTICAL  == 3, "FlipMode.horizontalAndVertical");
+
+/* ---- Sdl/Surface.lean: SDL_Rect ABI (flattened rect args rebuilt in C) ---- */
+_Static_assert(sizeof(SDL_Rect) == 16, "SDL_Rect size");

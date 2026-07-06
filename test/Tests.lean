@@ -13,6 +13,7 @@ import Tests.Locale
 import Tests.BlendMode
 import Tests.Pixels
 import Tests.IOStream
+import Tests.Surface
 
 /-!
 # Runtime test entry point
@@ -38,4 +39,5 @@ def main : IO UInt32 := do
   Harness.group "BlendMode" BlendMode.run
   Harness.group "Pixels" Pixels.run
   Harness.group "IOStream" IOStream.run
+  Harness.group "Surface" Surface.run
   Harness.summary

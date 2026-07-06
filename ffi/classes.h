@@ -32,8 +32,14 @@ extern lean_external_class *lean_sdl_palette_class;
 extern lean_external_class *lean_sdl_palette_borrowed_class;
 
 /* ffi/iostream.c -- holder ptr is an SDL_IOStream*, owner as usual (the source
- * ByteArray for ioFromConstMem). */
+ * ByteArray for ioFromConstMem). Consumed by surface.c's *_IO loaders/savers. */
 extern lean_external_class *lean_sdl_iostream_class;
+
+/* ffi/surface.c -- holder ptr is an SDL_Surface*, owner as usual. The borrowed
+ * class backs surfaces owned by another handle (e.g. a window's surface from
+ * SDL_GetWindowSurface in M4). */
+extern lean_external_class *lean_sdl_surface_class;
+extern lean_external_class *lean_sdl_surface_borrowed_class;
 
 #ifdef __cplusplus
 }

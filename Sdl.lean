@@ -16,6 +16,7 @@ import Sdl.Rect
 import Sdl.BlendMode
 import Sdl.Pixels
 import Sdl.IOStream
+import Sdl.Surface
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
