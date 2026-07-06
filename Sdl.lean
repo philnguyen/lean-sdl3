@@ -29,6 +29,7 @@ import Sdl.Pen
 import Sdl.Events
 import Sdl.Dialog
 import Sdl.Render
+import Sdl.App
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.

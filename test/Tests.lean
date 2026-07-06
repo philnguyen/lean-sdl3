@@ -21,6 +21,7 @@ import Tests.Mouse
 import Tests.TouchPen
 import Tests.Events
 import Tests.Render
+import Tests.App
 import Tests.Callbacks
 
 /-!
@@ -56,5 +57,6 @@ def main : IO UInt32 := do
   Harness.group "TouchPen" TouchPen.run
   Harness.group "Events" Events.run
   Harness.group "Render" Render.run
+  Harness.group "App" App.run
   Harness.group "Callbacks" Callbacks.run
   Harness.summary
