@@ -31,6 +31,10 @@ static inline lean_object *lean_sdl_wrap_properties_borrowed(
 extern lean_external_class *lean_sdl_palette_class;
 extern lean_external_class *lean_sdl_palette_borrowed_class;
 
+/* ffi/iostream.c -- holder ptr is an SDL_IOStream*, owner as usual (the source
+ * ByteArray for ioFromConstMem). */
+extern lean_external_class *lean_sdl_iostream_class;
+
 #ifdef __cplusplus
 }
 #endif

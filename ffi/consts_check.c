@@ -225,3 +225,16 @@ _Static_assert(SDL_COLORSPACE_YUV_DEFAULT == SDL_COLORSPACE_BT601_LIMITED, "Colo
 
 /* ---- Sdl/Pixels.lean: Color ABI (Palette.setColors packs r,g,b,a bytes) ---- */
 _Static_assert(sizeof(SDL_Color) == 4, "SDL_Color size");
+
+/* ---- Sdl/IOStream.lean: IOStatus ---- */
+_Static_assert((int)SDL_IO_STATUS_READY     == 0, "IOStatus.ready");
+_Static_assert((int)SDL_IO_STATUS_ERROR     == 1, "IOStatus.error");
+_Static_assert((int)SDL_IO_STATUS_EOF       == 2, "IOStatus.eof");
+_Static_assert((int)SDL_IO_STATUS_NOT_READY == 3, "IOStatus.notReady");
+_Static_assert((int)SDL_IO_STATUS_READONLY  == 4, "IOStatus.readonly");
+_Static_assert((int)SDL_IO_STATUS_WRITEONLY == 5, "IOStatus.writeonly");
+
+/* ---- Sdl/IOStream.lean: IOWhence ---- */
+_Static_assert((int)SDL_IO_SEEK_SET == 0, "IOWhence.seekSet");
+_Static_assert((int)SDL_IO_SEEK_CUR == 1, "IOWhence.seekCur");
+_Static_assert((int)SDL_IO_SEEK_END == 2, "IOWhence.seekEnd");
