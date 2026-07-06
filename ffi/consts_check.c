@@ -968,3 +968,12 @@ _Static_assert((int)SDL_SYSTEM_CURSOR_COUNT       == 20, "SystemCursor count");
 _Static_assert((Uint32)SDL_TOUCH_MOUSEID == 0xFFFFFFFFu, "MouseId.touch");
 _Static_assert((Uint32)SDL_PEN_MOUSEID   == 0xFFFFFFFEu, "MouseId.pen");
 
+/* ---- Sdl/Touch.lean: TouchDeviceType (INVALID is the -1 error sentinel) ---- */
+_Static_assert((int)SDL_TOUCH_DEVICE_INVALID          == -1, "TouchDeviceType.invalid sentinel");
+_Static_assert((int)SDL_TOUCH_DEVICE_DIRECT           == 0,  "TouchDeviceType.direct");
+_Static_assert((int)SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE == 1, "TouchDeviceType.indirectAbsolute");
+_Static_assert((int)SDL_TOUCH_DEVICE_INDIRECT_RELATIVE == 2, "TouchDeviceType.indirectRelative");
+
+/* ---- Sdl/Touch.lean: TouchId virtual-touch named constants ---- */
+_Static_assert((Uint64)SDL_MOUSE_TOUCHID == 0xFFFFFFFFFFFFFFFFull, "TouchId.mouse");
+_Static_assert((Uint64)SDL_PEN_TOUCHID   == 0xFFFFFFFFFFFFFFFEull, "TouchId.pen");
