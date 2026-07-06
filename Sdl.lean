@@ -18,6 +18,7 @@ import Sdl.Pixels
 import Sdl.IOStream
 import Sdl.Surface
 import Sdl.Video
+import Sdl.Clipboard
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.

@@ -15,6 +15,7 @@ import Tests.Pixels
 import Tests.IOStream
 import Tests.Surface
 import Tests.Video
+import Tests.Clipboard
 
 /-!
 # Runtime test entry point
@@ -43,4 +44,5 @@ def main : IO UInt32 := do
   Harness.group "IOStream" IOStream.run
   Harness.group "Surface" Surface.run
   Harness.group "Video" Video.run
+  Harness.group "Clipboard" Clipboard.run
   Harness.summary
