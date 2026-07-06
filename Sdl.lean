@@ -20,6 +20,7 @@ import Sdl.Surface
 import Sdl.Video
 import Sdl.Clipboard
 import Sdl.MessageBox
+import Sdl.Scancode
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
