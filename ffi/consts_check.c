@@ -923,3 +923,48 @@ _Static_assert(SDL_KMOD_GUI == 0x0c00u, "Keymod.gui");
 /* ---- Sdl/Keyboard.lean: no new enum/flag constants (Scancode/Keycode/Keymod
  * are pinned above; KeyboardId is an open id domain). ---- */
 
+/* ---- Sdl/Mouse.lean: MouseButton (SDL_BUTTON_*) ---- */
+_Static_assert(SDL_BUTTON_LEFT   == 1, "MouseButton.left");
+_Static_assert(SDL_BUTTON_MIDDLE == 2, "MouseButton.middle");
+_Static_assert(SDL_BUTTON_RIGHT  == 3, "MouseButton.right");
+_Static_assert(SDL_BUTTON_X1     == 4, "MouseButton.x1");
+_Static_assert(SDL_BUTTON_X2     == 5, "MouseButton.x2");
+
+/* ---- Sdl/Mouse.lean: MouseButtonFlags (SDL_BUTTON_*MASK) ---- */
+_Static_assert(SDL_BUTTON_LMASK  == 0x1u,  "MouseButtonFlags.left");
+_Static_assert(SDL_BUTTON_MMASK  == 0x2u,  "MouseButtonFlags.middle");
+_Static_assert(SDL_BUTTON_RMASK  == 0x4u,  "MouseButtonFlags.right");
+_Static_assert(SDL_BUTTON_X1MASK == 0x8u,  "MouseButtonFlags.x1");
+_Static_assert(SDL_BUTTON_X2MASK == 0x10u, "MouseButtonFlags.x2");
+
+/* ---- Sdl/Mouse.lean: MouseWheelDirection ---- */
+_Static_assert((int)SDL_MOUSEWHEEL_NORMAL  == 0, "MouseWheelDirection.normal");
+_Static_assert((int)SDL_MOUSEWHEEL_FLIPPED == 1, "MouseWheelDirection.flipped");
+
+/* ---- Sdl/Mouse.lean: SystemCursor (COUNT excluded) ---- */
+_Static_assert((int)SDL_SYSTEM_CURSOR_DEFAULT     == 0,  "SystemCursor.default");
+_Static_assert((int)SDL_SYSTEM_CURSOR_TEXT        == 1,  "SystemCursor.text");
+_Static_assert((int)SDL_SYSTEM_CURSOR_WAIT        == 2,  "SystemCursor.wait");
+_Static_assert((int)SDL_SYSTEM_CURSOR_CROSSHAIR   == 3,  "SystemCursor.crosshair");
+_Static_assert((int)SDL_SYSTEM_CURSOR_PROGRESS    == 4,  "SystemCursor.progress");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NWSE_RESIZE == 5,  "SystemCursor.nwseResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NESW_RESIZE == 6,  "SystemCursor.neswResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_EW_RESIZE   == 7,  "SystemCursor.ewResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NS_RESIZE   == 8,  "SystemCursor.nsResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_MOVE        == 9,  "SystemCursor.move");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NOT_ALLOWED == 10, "SystemCursor.notAllowed");
+_Static_assert((int)SDL_SYSTEM_CURSOR_POINTER     == 11, "SystemCursor.pointer");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NW_RESIZE   == 12, "SystemCursor.nwResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_N_RESIZE    == 13, "SystemCursor.nResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_NE_RESIZE   == 14, "SystemCursor.neResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_E_RESIZE    == 15, "SystemCursor.eResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_SE_RESIZE   == 16, "SystemCursor.seResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_S_RESIZE    == 17, "SystemCursor.sResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_SW_RESIZE   == 18, "SystemCursor.swResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_W_RESIZE    == 19, "SystemCursor.wResize");
+_Static_assert((int)SDL_SYSTEM_CURSOR_COUNT       == 20, "SystemCursor count");
+
+/* ---- Sdl/Mouse.lean: MouseId virtual-mouse named constants ---- */
+_Static_assert((Uint32)SDL_TOUCH_MOUSEID == 0xFFFFFFFFu, "MouseId.touch");
+_Static_assert((Uint32)SDL_PEN_MOUSEID   == 0xFFFFFFFEu, "MouseId.pen");
+
