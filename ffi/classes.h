@@ -26,6 +26,11 @@ static inline lean_object *lean_sdl_wrap_properties_borrowed(
                          (void *)(uintptr_t)id, owner);
 }
 
+/* ffi/pixels.c -- holder ptr is an SDL_Palette*, owner as usual. The borrowed
+ * class backs palettes owned by another handle (e.g. a surface's palette). */
+extern lean_external_class *lean_sdl_palette_class;
+extern lean_external_class *lean_sdl_palette_borrowed_class;
+
 #ifdef __cplusplus
 }
 #endif

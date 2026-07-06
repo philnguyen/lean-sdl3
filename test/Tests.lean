@@ -11,6 +11,7 @@ import Tests.CpuInfo
 import Tests.Power
 import Tests.Locale
 import Tests.BlendMode
+import Tests.Pixels
 
 /-!
 # Runtime test entry point
@@ -34,4 +35,5 @@ def main : IO UInt32 := do
   Harness.group "Power" Power.run
   Harness.group "Locale" Locale.run
   Harness.group "BlendMode" BlendMode.run
+  Harness.group "Pixels" Pixels.run
   Harness.summary
