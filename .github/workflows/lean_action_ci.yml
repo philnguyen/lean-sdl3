@@ -18,3 +18,5 @@ jobs:
         run: |
           export SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy
           lake exe sdl
+      - name: Demo smoke test
+        run: scripts/smoke-examples.sh
