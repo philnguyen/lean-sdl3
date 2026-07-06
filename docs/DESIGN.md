@@ -89,6 +89,15 @@ handle die inside a `Task` or SDL-thread callback — finalizers run on the
 dropping thread and video destroys are main-thread-only. `SDL_RunOnMainThread`
 is the escape hatch if this ever needs enforcement.
 
+Caveat (documented, not enforced): when SDL holds a raw pointer to an object
+without owning it (e.g. the texture bound via `SDL_SetRenderTarget`), the
+binding does NOT add a hidden retain if doing so would create a reference
+cycle (render target: texture already owns its renderer). Lean's eager RC
+frees the object the moment the last visible reference dies — SDL then
+destroys it and resets its own pointer, which is memory-safe but silently
+undoes the binding-time state. Rule: such bindings document "keep your
+reference alive while bound".
+
 ## Event decode
 
 One C switch in `ffi/events.c` over `event->type` calls `@[export]`ed Lean
