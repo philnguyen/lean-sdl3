@@ -197,11 +197,28 @@ def enumerationTests : IO Unit := do
   checkThrows "enumerateDirectory missing path throws"
     (Sdl.enumerateDirectory "/nonexistent-lean-sdl3-path/" fun _ _ => return .continue)
 
+def dialogTests : IO Unit := do
+  -- An invalid filter pattern is rejected by SDL's validation layer *before*
+  -- any real dialog can open, invoking the callback synchronously with NULL —
+  -- a headless-safe, deterministic exercise of the one-shot bridge (verified
+  -- against SDL_dialog.c / SDL_dialog_utils.c).
+  let result ← IO.mkRef (none : Option Sdl.DialogResult)
+  Sdl.showOpenFileDialog (fun r => result.set (some r))
+    (filters := #[⟨"Bad", "inv/alid"⟩])
+  check "dialog invalid-filter error is synchronous and .error"
+    (match ← result.get with | some (.error msg) => !msg.isEmpty | _ => false)
+  let result2 ← IO.mkRef (none : Option Sdl.DialogResult)
+  Sdl.showSaveFileDialog (fun r => result2.set (some r))
+    (filters := #[⟨"Bad", ";also-bad"⟩])
+  check "save dialog invalid-filter error"
+    (match ← result2.get with | some (.error _) => true | _ => false)
+
 def run : IO Unit := do
   timerTests
   eventWatchFilterTests
   hintCallbackTests
   logOutputTests
   enumerationTests
+  dialogTests
 
 end Tests.Callbacks

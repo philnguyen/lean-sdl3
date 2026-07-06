@@ -1133,3 +1133,8 @@ _Static_assert((Uint32)SDL_EVENT_LAST                    == 0xFFFF, "EventType.l
 _Static_assert((Uint32)SDL_ENUM_CONTINUE == 0, "EnumerationResult.continue");
 _Static_assert((Uint32)SDL_ENUM_SUCCESS  == 1, "EnumerationResult.success");
 _Static_assert((Uint32)SDL_ENUM_FAILURE  == 2, "EnumerationResult.failure");
+
+/* ==== Sdl/Dialog.lean : FileDialogType ==== */
+_Static_assert((Uint32)SDL_FILEDIALOG_OPENFILE   == 0, "FileDialogType.openFile");
+_Static_assert((Uint32)SDL_FILEDIALOG_SAVEFILE   == 1, "FileDialogType.saveFile");
+_Static_assert((Uint32)SDL_FILEDIALOG_OPENFOLDER == 2, "FileDialogType.openFolder");
