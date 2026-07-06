@@ -37,9 +37,25 @@ extern lean_external_class *lean_sdl_iostream_class;
 
 /* ffi/surface.c -- holder ptr is an SDL_Surface*, owner as usual. The borrowed
  * class backs surfaces owned by another handle (e.g. a window's surface from
- * SDL_GetWindowSurface in M4). */
+ * SDL_GetWindowSurface). */
 extern lean_external_class *lean_sdl_surface_class;
 extern lean_external_class *lean_sdl_surface_borrowed_class;
+
+/* Wrap a borrowed SDL_Surface* whose lifetime is tied to `owner` (an owned
+ * ref to the owning handle's external object, e.g. a window). The wrapped
+ * surface is never destroyed by the finalizer. */
+static inline lean_object *lean_sdl_wrap_surface_borrowed(
+        SDL_Surface *surf, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_surface_borrowed_class, surf, owner);
+}
+
+/* ffi/video.c -- holder ptr is an SDL_Window*, owner is NULL for top-level
+ * windows or an owned ref to the parent window's external for popup windows.
+ * Windows are finalizer-only (no manual destroy). Each window created through
+ * the binding stores its external object as a non-owning pointer property
+ * ("lean_sdl.window") on the window's properties, so SDL_Window* -> external
+ * lookups (GetWindowFromID, GetGrabbedWindow, ...) return the same handle. */
+extern lean_external_class *lean_sdl_window_class;
 
 #ifdef __cplusplus
 }
