@@ -11,10 +11,11 @@ destroyed). The `SDL_PropertiesID` (a nonzero `Uint32`) lives in the holder's
 `ptr` as `(void *)(uintptr_t)id`; a NULL `ptr` means the handle was destroyed.
 
 Skipped:
-* `SDL_SetPointerPropertyWithCleanup`, `SDL_EnumerateProperties` — need a
-  callback bridge; deferred to the M6 callbacks milestone.
-* `SDL_SetPointerProperty`, `SDL_GetPointerProperty` — raw `void *`;
-  deliberately left unbound (unsafe across the FFI boundary).
+* `SDL_SetPointerProperty`, `SDL_GetPointerProperty`,
+  `SDL_SetPointerPropertyWithCleanup` — raw `void *`; deliberately left
+  unbound (unsafe across the FFI boundary). The cleanup mechanism is used
+  *internally* by the binding to keep owned Lean closures in SDL properties
+  (e.g. a window's hit-test callback).
 -/
 
 namespace Sdl
@@ -119,6 +120,17 @@ opaque getBooleanProperty (props : @& Properties) (name : @& String)
 /-- Remove the named property. C: `SDL_ClearProperty`. -/
 @[extern "lean_sdl_clear_property"]
 opaque clearProperty (props : @& Properties) (name : @& String) : IO Unit
+
+@[extern "lean_sdl_enumerate_properties"]
+private opaque enumerateRaw (props : @& Properties) (cb : String → IO Unit) : IO Unit
+
+/-- Call `cb` once per property name, synchronously on this thread. SDL holds
+the group's lock during enumeration, so `cb` must not read or modify `props`
+itself — collect the names and act afterwards. (The C callback's `props`
+argument is dropped; the caller already holds the handle.)
+C: `SDL_EnumerateProperties`. -/
+def enumerate (props : @& Properties) (cb : String → IO Unit) : IO Unit :=
+  enumerateRaw props cb
 
 /-- Destroy an owned property group (do not use the handle afterwards). Throws
 if `props` is the borrowed global group. C: `SDL_DestroyProperties`. -/

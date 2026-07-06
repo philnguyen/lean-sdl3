@@ -8,8 +8,8 @@ import Sdl.Time
 Path queries (base/pref/user/current directories), directory-tree
 manipulation (create/remove/rename/copy), path info, and pattern globbing.
 
-Skipped: `SDL_EnumerateDirectory` — needs a callback bridge; deferred to the
-M6 callbacks milestone. Use `globDirectory` for a materialized listing.
+`globDirectory` gives a materialized (recursive) listing; `enumerateDirectory`
+streams one directory's entries through a callback with early-stop.
 -/
 
 namespace Sdl
@@ -123,5 +123,25 @@ def globDirectory (path : String) (pattern : Option String := none)
 C: `SDL_GetCurrentDirectory`. -/
 @[extern "lean_sdl_get_current_directory"]
 opaque getCurrentDirectory : IO String
+
+/-- What a directory-enumeration callback asks the walk to do next.
+C: `SDL_EnumerationResult`. -/
+sdl_enum EnumerationResult : UInt32 where
+  | «continue» => 0  -- C: SDL_ENUM_CONTINUE
+  | success    => 1  -- C: SDL_ENUM_SUCCESS (stop, successfully)
+  | failure    => 2  -- C: SDL_ENUM_FAILURE (stop, as a failure)
+
+@[extern "lean_sdl_enumerate_directory"]
+private opaque enumerateDirectoryRaw (path : @& String)
+    (cb : String → String → IO UInt32) : IO Unit
+
+/-- Call `cb dirname fname` for each entry of the single directory `path`
+(not recursive), synchronously on this thread, in no guaranteed order. `cb`
+returns `.continue` to keep walking, `.success` to stop early, or `.failure`
+to abort — `.failure` (or a thrown exception) surfaces as an IO error.
+C: `SDL_EnumerateDirectory`. -/
+def enumerateDirectory (path : String)
+    (cb : (dirname fname : String) → IO EnumerationResult) : IO Unit :=
+  enumerateDirectoryRaw path fun d f => do return (← cb d f).val
 
 end Sdl

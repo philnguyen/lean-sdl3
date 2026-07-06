@@ -1128,3 +1128,8 @@ _Static_assert((Uint32)SDL_EVENT_RENDER_DEVICE_LOST      == 0x2002, "EventType.r
 _Static_assert((Uint32)SDL_EVENT_POLL_SENTINEL           == 0x7F00, "EventType.pollSentinel");
 _Static_assert((Uint32)SDL_EVENT_USER                    == 0x8000, "EventType.user");
 _Static_assert((Uint32)SDL_EVENT_LAST                    == 0xFFFF, "EventType.last");
+
+/* ==== Sdl/Filesystem.lean : EnumerationResult ==== */
+_Static_assert((Uint32)SDL_ENUM_CONTINUE == 0, "EnumerationResult.continue");
+_Static_assert((Uint32)SDL_ENUM_SUCCESS  == 1, "EnumerationResult.success");
+_Static_assert((Uint32)SDL_ENUM_FAILURE  == 2, "EnumerationResult.failure");

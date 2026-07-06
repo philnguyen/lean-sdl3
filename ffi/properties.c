@@ -8,6 +8,7 @@
  */
 #include "util.h"
 #include "classes.h"
+#include "callbacks.h"
 
 /* Owned: destroy on finalize. `self` is the holder's void* ptr. */
 SDL_DEFINE_CLASS(lean_sdl_properties,
@@ -204,5 +205,38 @@ LEAN_EXPORT lean_obj_res lean_sdl_destroy_properties(b_lean_obj_arg props, lean_
         return lean_sdl_throw_msg("SDL: cannot destroy borrowed Properties");
     SDL_DestroyProperties((SDL_PropertiesID)(uintptr_t)h->ptr);
     h->ptr = NULL;
+    return lean_sdl_unit_ok();
+}
+
+/* ---- Property enumeration (synchronous borrowed-closure callback;
+ * docs/DESIGN.md "Callbacks", synchronous case). The closure pointer itself
+ * is the userdata, borrowed for the duration of the SDL call. */
+
+/* Closure: String -> IO Unit (the property name; the C callback's props
+ * argument is dropped -- the caller already holds the handle). */
+static void SDLCALL lean_sdl_enum_props_tramp(void *userdata,
+                                              SDL_PropertiesID props,
+                                              const char *name) {
+    (void)props;
+    lean_object *fn = (lean_object *)userdata;
+    lean_inc(fn); /* keep the borrow alive across the consuming apply */
+    lean_sdl_io_ignore(lean_apply_2(fn, lean_sdl_mk_string(name), lean_box(0)));
+}
+
+/* Sdl.Properties.enumerateRaw -- C: SDL_EnumerateProperties */
+LEAN_EXPORT lean_obj_res lean_sdl_enumerate_properties(
+        b_lean_obj_arg props, lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    /* Not SDL_PROPS_OR_THROW: its early return would leak the owned `fn`. */
+    sdl_holder *h = lean_sdl_holder_of(props);
+    if (!h->ptr) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: handle used after destroy/release");
+    }
+    SDL_PropertiesID id = (SDL_PropertiesID)(uintptr_t)h->ptr;
+    bool ok = SDL_EnumerateProperties(id, lean_sdl_enum_props_tramp, fn);
+    lean_dec(fn);
+    if (!ok) return lean_sdl_throw();
     return lean_sdl_unit_ok();
 }

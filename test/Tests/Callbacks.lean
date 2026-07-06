@@ -161,10 +161,47 @@ def logOutputTests : IO Unit := do
   Sdl.logInfo .application "after-reset"
   check "reset log cb inactive" (!(← captured2.get).contains "after-reset")
 
+def enumerationTests : IO Unit := do
+  -- Properties.enumerate visits every name exactly once.
+  let props ← Sdl.createProperties
+  props.setStringProperty "alpha" "a"
+  props.setNumberProperty "beta" 2
+  props.setBooleanProperty "gamma" true
+  let names ← IO.mkRef (#[] : Array String)
+  props.enumerate fun n => names.modify (·.push n)
+  check "Properties.enumerate visits all names"
+    ((← names.get).qsort (· < ·) == #["alpha", "beta", "gamma"])
+  props.destroy
+
+  -- enumerateDirectory: full walk, early stop, failure, and exception.
+  let base ← Sdl.getBasePath
+  let all ← IO.mkRef (0 : Nat)
+  Sdl.enumerateDirectory base fun _ _ => do
+    all.modify (· + 1)
+    return .continue
+  check "enumerateDirectory found entries" ((← all.get) >= 1)
+  let firstDir ← IO.mkRef ""
+  let stopped ← IO.mkRef (0 : Nat)
+  Sdl.enumerateDirectory base fun d _ => do
+    firstDir.set d
+    stopped.modify (· + 1)
+    return .success
+  check "enumerateDirectory early stop" ((← stopped.get) == 1)
+  check "enumerateDirectory dirname is the queried path"
+    ((← firstDir.get) == base)
+  checkThrows "enumerateDirectory .failure throws"
+    (Sdl.enumerateDirectory base fun _ _ => return .failure)
+  checkThrows "enumerateDirectory exception throws"
+    (Sdl.enumerateDirectory base fun _ _ =>
+      throw (IO.userError "deliberate test throw"))
+  checkThrows "enumerateDirectory missing path throws"
+    (Sdl.enumerateDirectory "/nonexistent-lean-sdl3-path/" fun _ _ => return .continue)
+
 def run : IO Unit := do
   timerTests
   eventWatchFilterTests
   hintCallbackTests
   logOutputTests
+  enumerationTests
 
 end Tests.Callbacks

@@ -1,5 +1,6 @@
 /* Shims for Sdl/Filesystem.lean (SDL_filesystem.h). */
 #include "util.h"
+#include "callbacks.h"
 
 /* Lean-owned maker (see Sdl/Filesystem.lean). */
 extern lean_object *lean_sdl_mk_path_info(
@@ -109,4 +110,33 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_current_directory(lean_obj_arg w) {
     lean_object *s = lean_mk_string(p);
     SDL_free(p);
     return lean_io_result_mk_ok(s);
+}
+
+/* ---- Directory enumeration (synchronous borrowed-closure callback;
+ * docs/DESIGN.md "Callbacks", synchronous case). */
+
+/* Closure: String -> String -> IO UInt32 (dirname, fname,
+ * EnumerationResult.val). A Lean exception maps to SDL_ENUM_FAILURE, which
+ * aborts the walk and surfaces as an IO error from the shim. */
+static SDL_EnumerationResult SDLCALL lean_sdl_enum_dir_tramp(
+        void *userdata, const char *dirname, const char *fname) {
+    lean_object *fn = (lean_object *)userdata;
+    lean_inc(fn); /* keep the borrow alive across the consuming apply */
+    lean_object *res = lean_apply_3(fn, lean_sdl_mk_string(dirname),
+                                    lean_sdl_mk_string(fname), lean_box(0));
+    if (!lean_io_result_is_ok(res))
+        SDL_SetError("Lean directory-enumeration callback raised an exception");
+    return (SDL_EnumerationResult)lean_sdl_io_u32_or(res, (uint32_t)SDL_ENUM_FAILURE);
+}
+
+/* Sdl.enumerateDirectoryRaw -- C: SDL_EnumerateDirectory */
+LEAN_EXPORT lean_obj_res lean_sdl_enumerate_directory(
+        b_lean_obj_arg path, lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    bool ok = SDL_EnumerateDirectory(lean_string_cstr(path),
+                                     lean_sdl_enum_dir_tramp, fn);
+    lean_dec(fn);
+    if (!ok) return lean_sdl_throw();
+    return lean_sdl_unit_ok();
 }
