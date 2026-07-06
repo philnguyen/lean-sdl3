@@ -32,8 +32,6 @@ returned handle is a fresh borrowed wrapper, so do not compare cursor handles.
 
 * `SDL_CreateAnimatedCursor` — takes an array of `SDL_CursorFrameInfo` structs
   referencing surfaces; no example needs it.
-* `SDL_SetRelativeMouseTransform` — installs a motion callback (deferred to the
-  M6 callbacks milestone).
 -/
 
 namespace Sdl
@@ -250,5 +248,26 @@ opaque hideCursor : IO Unit
 /-- Whether the cursor is currently being shown. C: `SDL_CursorVisible`. -/
 @[extern "lean_sdl_cursor_visible"]
 opaque cursorVisible : IO Bool
+
+@[extern "lean_sdl_set_relative_mouse_transform"]
+private opaque setRelativeMouseTransformRaw
+    (cb : UInt64 → Option Window → UInt32 → Float32 → Float32 →
+          IO (Float32 × Float32)) : IO Unit
+
+/-- Install the one global transform applied to raw relative mouse deltas
+(`cb timestamp window mouse x y` returns the transformed `(x, y)`), replacing
+any previous transform. Runs inside SDL's mouse input processing — potentially
+a separate realtime-priority thread — so keep it fast and non-blocking (SDL
+warns stalling that thread can freeze the whole system). An exception leaves
+the delta unchanged. C: `SDL_SetRelativeMouseTransform`. -/
+def setRelativeMouseTransform
+    (cb : (timestamp : UInt64) → (window : Option Window) → (mouse : MouseId) →
+          (x y : Float32) → IO (Float32 × Float32)) : IO Unit :=
+  setRelativeMouseTransformRaw fun ts win which x y => cb ts win ⟨which⟩ x y
+
+/-- Remove the relative-mouse-delta transform (a safe no-op if none).
+C: `SDL_SetRelativeMouseTransform` with `NULL`. -/
+@[extern "lean_sdl_clear_relative_mouse_transform"]
+opaque clearRelativeMouseTransform : IO Unit
 
 end Sdl

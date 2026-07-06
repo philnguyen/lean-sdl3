@@ -213,6 +213,52 @@ def dialogTests : IO Unit := do
   check "save dialog invalid-filter error"
     (match ← result2.get with | some (.error _) => true | _ => false)
 
+def clipboardDataTests : IO Unit := do
+  -- Lazy provider: the dummy backend serves requests through the internal
+  -- clipboard, invoking the callback synchronously from getClipboardData.
+  let calls ← IO.mkRef (#[] : Array String)
+  Sdl.setClipboardData #["application/x-lean-test", "text/plain"] fun mime => do
+    calls.modify (·.push mime)
+    return s!"data-for:{mime}".toUTF8
+  check "clipboard offers mime type"
+    ((← Sdl.getClipboardMimeTypes).contains "application/x-lean-test")
+  check "hasClipboardData on offered type" (← Sdl.hasClipboardData "application/x-lean-test")
+  check "clipboard provider round-trip"
+    ((← Sdl.getClipboardData "application/x-lean-test")
+      == "data-for:application/x-lean-test".toUTF8)
+  check "provider saw the requested mime"
+    ((← calls.get).contains "application/x-lean-test")
+  -- A throwing provider means "no data for this request".
+  Sdl.setClipboardData #["application/x-lean-err"] fun _ =>
+    throw (IO.userError "deliberate test throw")
+  checkThrows "throwing provider yields no data"
+    (Sdl.getClipboardData "application/x-lean-err")
+  -- clearClipboardData runs the cleanup and withdraws the offer.
+  Sdl.clearClipboardData
+  checkThrows "cleared offer yields no data"
+    (Sdl.getClipboardData "application/x-lean-err")
+
+def hitTestTransformTests : IO Unit := do
+  -- The dummy video driver does not implement hit tests: SDL_SetWindowHitTest
+  -- reports "not supported", which the shim surfaces as an IO error *after*
+  -- unwinding the property-stored closure (the cleanup path still runs). A
+  -- real driver accepts the installs. Both outcomes are RC-balanced; accept
+  -- either, but nothing else.
+  let win ← Sdl.createWindow "lean-sdl3 cb-test" 64 64
+  let hitTestRes ← try
+      win.setHitTest fun _ _ => return .draggable
+      win.setHitTest fun _ p => return (if p.x < 8 then .resizeLeft else .normal)
+      win.clearHitTest
+      win.setHitTest fun _ _ => return .draggable
+      pure "ok"
+    catch e => pure (toString e)
+  check "hit test install/replace/clear (or driver-unsupported)"
+    (hitTestRes == "ok" || hitTestRes.endsWith "not supported")
+  Sdl.setRelativeMouseTransform fun _ _ _ x y => return (x * 2.0, y * 2.0)
+  Sdl.setRelativeMouseTransform fun _ _ _ x y => return (y, x)
+  Sdl.clearRelativeMouseTransform
+  check "mouse transform install/replace/clear" true
+
 def run : IO Unit := do
   timerTests
   eventWatchFilterTests
@@ -220,5 +266,7 @@ def run : IO Unit := do
   logOutputTests
   enumerationTests
   dialogTests
+  clipboardDataTests
+  hitTestTransformTests
 
 end Tests.Callbacks

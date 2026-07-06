@@ -20,6 +20,7 @@
  * working for the owned or borrowed surface class alike. */
 #include "util.h"
 #include "classes.h"
+#include "callbacks.h"
 
 /* Lean-owned maker (see Sdl/Mouse.lean). */
 extern lean_object *lean_sdl_mk_mouse_state(uint32_t state, float x, float y);
@@ -266,4 +267,54 @@ LEAN_EXPORT lean_obj_res lean_sdl_cursor_visible(lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
     return lean_io_result_mk_ok(lean_box(SDL_CursorVisible()));
+}
+
+/* ==================== Relative mouse transform ====================
+ * Locked slot (docs/DESIGN.md "Callbacks" #2): SDL keeps exactly one global
+ * transform. Fires from SDL's mouse input processing, which may be a separate
+ * realtime-priority thread. */
+
+static sdl_cb_slot lean_sdl_mouse_transform_slot;
+
+/* Registered closure: UInt64 -> Option Window -> UInt32 -> Float32 -> Float32
+ * -> IO (Float32 x Float32) (timestamp, window, mouseIdVal, x, y -> x', y').
+ * An exception leaves the delta unchanged. */
+static void SDLCALL lean_sdl_mouse_transform_tramp(void *userdata, Uint64 timestamp,
+        SDL_Window *window, SDL_MouseID mouseID, float *x, float *y) {
+    (void)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *fn = lean_sdl_slot_acquire(&lean_sdl_mouse_transform_slot);
+    if (!fn) return; /* cleared mid-dispatch */
+    lean_object *res = lean_apply_6(fn, lean_box_uint64(timestamp),
+        lean_sdl_window_option(window), lean_box_uint32((uint32_t)mouseID),
+        lean_box_float32(*x), lean_box_float32(*y), lean_box(0));
+    if (lean_io_result_is_ok(res)) {
+        lean_object *pair = lean_io_result_get_value(res);
+        *x = lean_unbox_float32(lean_ctor_get(pair, 0));
+        *y = lean_unbox_float32(lean_ctor_get(pair, 1));
+    }
+    lean_dec(res);
+}
+
+/* Sdl.setRelativeMouseTransformRaw -- C: SDL_SetRelativeMouseTransform */
+LEAN_EXPORT lean_obj_res lean_sdl_set_relative_mouse_transform(
+        lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_sdl_slot_set(&lean_sdl_mouse_transform_slot, fn);
+    if (!SDL_SetRelativeMouseTransform(lean_sdl_mouse_transform_tramp, NULL)) {
+        lean_sdl_slot_clear(&lean_sdl_mouse_transform_slot);
+        return lean_sdl_throw();
+    }
+    return lean_sdl_unit_ok();
+}
+
+/* Sdl.clearRelativeMouseTransform -- C: SDL_SetRelativeMouseTransform(NULL).
+ * SDL is unhooked first; a trampoline mid-flight holds its own closure ref. */
+LEAN_EXPORT lean_obj_res lean_sdl_clear_relative_mouse_transform(lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    if (!SDL_SetRelativeMouseTransform(NULL, NULL)) return lean_sdl_throw();
+    lean_sdl_slot_clear(&lean_sdl_mouse_transform_slot);
+    return lean_sdl_unit_ok();
 }

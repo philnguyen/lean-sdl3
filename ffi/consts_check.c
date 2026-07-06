@@ -1138,3 +1138,15 @@ _Static_assert((Uint32)SDL_ENUM_FAILURE  == 2, "EnumerationResult.failure");
 _Static_assert((Uint32)SDL_FILEDIALOG_OPENFILE   == 0, "FileDialogType.openFile");
 _Static_assert((Uint32)SDL_FILEDIALOG_SAVEFILE   == 1, "FileDialogType.saveFile");
 _Static_assert((Uint32)SDL_FILEDIALOG_OPENFOLDER == 2, "FileDialogType.openFolder");
+
+/* ==== Sdl/Video.lean : HitTestResult ==== */
+_Static_assert((Uint32)SDL_HITTEST_NORMAL             == 0, "HitTestResult.normal");
+_Static_assert((Uint32)SDL_HITTEST_DRAGGABLE          == 1, "HitTestResult.draggable");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_TOPLEFT     == 2, "HitTestResult.resizeTopLeft");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_TOP         == 3, "HitTestResult.resizeTop");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_TOPRIGHT    == 4, "HitTestResult.resizeTopRight");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_RIGHT       == 5, "HitTestResult.resizeRight");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOMRIGHT == 6, "HitTestResult.resizeBottomRight");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOM      == 7, "HitTestResult.resizeBottom");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_BOTTOMLEFT  == 8, "HitTestResult.resizeBottomLeft");
+_Static_assert((Uint32)SDL_HITTEST_RESIZE_LEFT        == 9, "HitTestResult.resizeLeft");

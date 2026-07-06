@@ -46,10 +46,9 @@ Sdl.glSetAttribute .contextProfileMask (Int32.ofNat GLProfile.core.val.toNat)
 
 ## Skipped
 
-Types: `SDL_HitTest`/`SDL_HitTestResult` (callback — deferred to M6); all
-`SDL_EGL*` types and `SDL_GLContextState` internals (out of scope).
+Types: all `SDL_EGL*` types and `SDL_GLContextState` internals (out of scope).
 
-Functions: `SDL_SetWindowHitTest` (callback → M6); `SDL_GL_GetProcAddress` /
+Functions: `SDL_GL_GetProcAddress` /
 `SDL_EGL_GetProcAddress` (raw function pointers, unusable without a GL binding);
 `SDL_EGL_GetCurrentDisplay` / `SDL_EGL_GetCurrentConfig` /
 `SDL_EGL_GetWindowSurface` / `SDL_EGL_SetAttributeCallbacks` (EGL out of scope);
@@ -470,6 +469,20 @@ handle the window was created with. C: `SDL_GetGrabbedWindow`. -/
 @[extern "lean_sdl_get_grabbed_window"]
 opaque getGrabbedWindow : IO (Option Window)
 
+/-- What a region of a window is, as answered by a hit-test callback
+(`Window.setHitTest`). C: `SDL_HitTestResult`. -/
+sdl_enum HitTestResult : UInt32 where
+  | normal            => 0  -- C: SDL_HITTEST_NORMAL
+  | draggable         => 1  -- C: SDL_HITTEST_DRAGGABLE
+  | resizeTopLeft     => 2  -- C: SDL_HITTEST_RESIZE_TOPLEFT
+  | resizeTop         => 3  -- C: SDL_HITTEST_RESIZE_TOP
+  | resizeTopRight    => 4  -- C: SDL_HITTEST_RESIZE_TOPRIGHT
+  | resizeRight       => 5  -- C: SDL_HITTEST_RESIZE_RIGHT
+  | resizeBottomRight => 6  -- C: SDL_HITTEST_RESIZE_BOTTOMRIGHT
+  | resizeBottom      => 7  -- C: SDL_HITTEST_RESIZE_BOTTOM
+  | resizeBottomLeft  => 8  -- C: SDL_HITTEST_RESIZE_BOTTOMLEFT
+  | resizeLeft        => 9  -- C: SDL_HITTEST_RESIZE_LEFT
+
 namespace Window
 
 /-- `SDL_WINDOW_SURFACE_VSYNC_DISABLED`: value for `setSurfaceVSync` disabling
@@ -848,6 +861,29 @@ opaque setProgressValue (self : @& Window) (value : Float32) : IO Unit
 error sentinel). C: `SDL_GetWindowProgressValue`. -/
 @[extern "lean_sdl_get_window_progress_value"]
 opaque getProgressValue (self : @& Window) : IO Float32
+
+@[extern "lean_sdl_set_window_hit_test"]
+private opaque setHitTestRaw (self : @& Window)
+    (cb : Window → Int32 → Int32 → IO UInt32) : IO Unit
+
+/-- Install `cb` as this window's hit-test callback: for special-shaped or
+borderless windows, SDL asks it whether a point is draggable/resizable instead
+of a normal region. Runs on the main thread during event processing; keep it
+fast (it can fire on every mouse move) and never call video functions that
+generate events from inside it. Exceptions yield `.normal`.
+
+The callback receives the window as an argument — do **not** capture the
+window handle in the closure instead: the closure is stored on the window, so
+capturing it creates a reference cycle that keeps the window alive forever.
+Main thread only. C: `SDL_SetWindowHitTest`. -/
+def setHitTest (self : @& Window) (cb : Window → Point → IO HitTestResult) :
+    IO Unit :=
+  setHitTestRaw self fun w x y => do return (← cb w ⟨x, y⟩).val
+
+/-- Remove this window's hit-test callback (a safe no-op if none). Main thread
+only. C: `SDL_SetWindowHitTest` with `NULL`. -/
+@[extern "lean_sdl_clear_window_hit_test"]
+opaque clearHitTest (self : @& Window) : IO Unit
 
 end Window
 

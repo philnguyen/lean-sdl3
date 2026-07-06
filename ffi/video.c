@@ -28,6 +28,7 @@
  * updateSurfaceRects receives a packed ByteArray reinterpreted as SDL_Rect[]. */
 #include "util.h"
 #include "classes.h"
+#include "callbacks.h"
 
 /* updateSurfaceRects reinterprets a packed 4x Int32 (little-endian) ByteArray
  * as SDL_Rect[]; pin the ABI. */
@@ -1197,4 +1198,73 @@ LEAN_EXPORT lean_obj_res lean_sdl_gl_swap_window(b_lean_obj_arg window, lean_obj
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_Window, win, window);
     SDL_BOOL_TO_IO(SDL_GL_SwapWindow(win));
+}
+
+/* ==================== Window hit test ====================
+ * The Lean closure rides the window's own SDL properties with a lean_dec
+ * cleanup (docs/DESIGN.md "Callbacks", property-stored variant): SDL then
+ * guarantees exactly one release on replace, clear, or window destruction —
+ * no registry entry can outlive the window. SDL_SetWindowHitTest and the hit
+ * test itself both run on the main thread, so property read vs. replace
+ * cannot race. */
+
+#define LEAN_SDL_HITTEST_PROP "lean_sdl.hittest"
+
+/* Stored closure: Window -> Int32 -> Int32 -> IO UInt32
+ * (window, point x, point y, HitTestResult.val). The window is passed to the
+ * closure by the trampoline so user code need not capture it (capturing it
+ * would create a window -> properties -> closure -> window refcount cycle). */
+static SDL_HitTestResult SDLCALL lean_sdl_hit_test_tramp(
+        SDL_Window *win, const SDL_Point *area, void *data) {
+    (void)data;
+    lean_sdl_ensure_thread();
+    lean_object *fn = (lean_object *)SDL_GetPointerProperty(
+        SDL_GetWindowProperties(win), LEAN_SDL_HITTEST_PROP, NULL);
+    if (!fn) return SDL_HITTEST_NORMAL;
+    lean_object *win_opt = lean_sdl_window_option(win);
+    if (lean_is_scalar(win_opt)) return SDL_HITTEST_NORMAL; /* foreign window */
+    lean_object *win_ext = lean_ctor_get(win_opt, 0);
+    lean_inc(win_ext);
+    lean_dec(win_opt);
+    lean_inc(fn);
+    lean_object *res = lean_apply_4(fn, win_ext,
+        lean_box_uint32((uint32_t)area->x), lean_box_uint32((uint32_t)area->y),
+        lean_box(0));
+    return (SDL_HitTestResult)lean_sdl_io_u32_or(res, (uint32_t)SDL_HITTEST_NORMAL);
+}
+
+/* Sdl.Window.setHitTestRaw -- C: SDL_SetWindowHitTest +
+ * SDL_SetPointerPropertyWithCleanup. On property-set failure SDL has already
+ * run the cleanup (dec'ing fn) — per SDL_properties.h — so no second dec. */
+LEAN_EXPORT lean_obj_res lean_sdl_set_window_hit_test(
+        b_lean_obj_arg window, lean_obj_arg fn, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    sdl_holder *h = lean_sdl_holder_of(window);
+    if (!h->ptr) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: handle used after destroy/release");
+    }
+    SDL_Window *win = (SDL_Window *)h->ptr;
+    lean_mark_mt(fn);
+    SDL_PropertiesID props = SDL_GetWindowProperties(win);
+    if (!SDL_SetPointerPropertyWithCleanup(props, LEAN_SDL_HITTEST_PROP,
+                                           fn, lean_sdl_cleanup_dec, NULL))
+        return lean_sdl_throw();
+    if (!SDL_SetWindowHitTest(win, lean_sdl_hit_test_tramp, NULL)) {
+        SDL_ClearProperty(props, LEAN_SDL_HITTEST_PROP); /* decs fn via cleanup */
+        return lean_sdl_throw();
+    }
+    return lean_sdl_unit_ok();
+}
+
+/* Sdl.Window.clearHitTest -- C: SDL_SetWindowHitTest(win, NULL, NULL). */
+LEAN_EXPORT lean_obj_res lean_sdl_clear_window_hit_test(
+        b_lean_obj_arg window, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    SDL_GET_OR_THROW(SDL_Window, win, window);
+    if (!SDL_SetWindowHitTest(win, NULL, NULL)) return lean_sdl_throw();
+    SDL_ClearProperty(SDL_GetWindowProperties(win), LEAN_SDL_HITTEST_PROP);
+    return lean_sdl_unit_ok();
 }

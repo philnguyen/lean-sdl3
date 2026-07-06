@@ -120,7 +120,24 @@ decoded fields; after the first build, diff the exported maker signatures in
    first, then decs closures. Trampolines pass a **borrowed** handle to avoid
    RC cycles.
 3. **One-shot** (dialog callbacks): the owned mt-marked closure IS the
-   userdata; `lean_apply` consumes it.
+   userdata (inside a small heap context when SDL also needs auxiliary data,
+   e.g. strdup'd dialog filters); `lean_apply` consumes it, the trampoline
+   frees the context. Variant with SDL-managed lifetime (clipboard data
+   provider): SDL's cleanup callback frees the context instead, firing exactly
+   once on replace/clear/quit.
+
+Property-stored variant of #2 for per-window callbacks (hit test): the owned
+mt-marked closure rides the window's own SDL properties under a `lean_sdl.*`
+key via `SDL_SetPointerPropertyWithCleanup` with a `lean_dec` cleanup — SDL
+guarantees exactly one release on overwrite, clear, or window destruction, so
+no registry entry can outlive its window. The trampoline passes the window to
+the closure so user code need not capture it (capturing would cycle:
+window → properties → closure → window).
+
+Synchronous callbacks that only run inside one of our shim calls
+(`SDL_FilterEvents`, property/directory enumeration) skip the machinery: the
+closure pointer itself is the userdata, borrowed for the duration of the call
+(`lean_inc` before each consuming `lean_apply`).
 
 Thread rule: every trampoline that may run on an SDL thread starts with
 `sdl_ensure_lean_thread()`; every shim entry runs `SDL_SHIM_PROLOGUE()` so

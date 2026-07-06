@@ -16,11 +16,8 @@ returning the empty string on failure *or* when the clipboard is empty — the t
 are not distinguishable (a genuine allocation failure and an empty clipboard both
 yield `""`).
 
-## Skipped
-
-* `SDL_SetClipboardData` — offers data lazily through a provider callback, so it
-  belongs with the M6 callbacks milestone. `clearClipboardData` (which cancels
-  any such offer) is bindable now and included below.
+`setClipboardData` offers mime-typed data lazily through a provider callback;
+`clearClipboardData` cancels the offer.
 -/
 
 namespace Sdl
@@ -78,5 +75,23 @@ opaque hasClipboardData (mimeType : @& String) : IO Bool
 failure (SDL returns `NULL`). C: `SDL_GetClipboardMimeTypes`. -/
 @[extern "lean_sdl_get_clipboard_mime_types"]
 opaque getClipboardMimeTypes : IO (Array String)
+
+@[extern "lean_sdl_set_clipboard_data"]
+private opaque setClipboardDataRaw (getData : String → IO ByteArray)
+    (mimeTypes : @& Array String) : IO Unit
+
+/-- Offer clipboard data for the given (nonempty) list of mime types, produced
+lazily: `getData mime` runs when someone requests that mime type — possibly on
+another thread, and possibly synchronously *during this call* on text-only or
+headless backends. SDL copies the returned bytes immediately; the binding also
+retains the last returned `ByteArray` until the next request or until the
+offer ends. An exception in `getData` means "no data" for that request.
+
+The offer ends — releasing the closure — when new clipboard content is set
+(`setClipboardText`, another `setClipboardData`), on `clearClipboardData`, or
+when the video subsystem quits. C: `SDL_SetClipboardData`. -/
+def setClipboardData (mimeTypes : Array String)
+    (getData : String → IO ByteArray) : IO Unit :=
+  setClipboardDataRaw getData mimeTypes
 
 end Sdl
