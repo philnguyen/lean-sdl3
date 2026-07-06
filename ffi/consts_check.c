@@ -101,3 +101,32 @@ _Static_assert((int)SDL_POWERSTATE_ON_BATTERY == 1,  "PowerState.onBattery");
 _Static_assert((int)SDL_POWERSTATE_NO_BATTERY == 2,  "PowerState.noBattery");
 _Static_assert((int)SDL_POWERSTATE_CHARGING   == 3,  "PowerState.charging");
 _Static_assert((int)SDL_POWERSTATE_CHARGED    == 4,  "PowerState.charged");
+
+/* ---- Sdl/BlendMode.lean: BlendMode ---- */
+_Static_assert(SDL_BLENDMODE_NONE                == 0x00000000u, "BlendMode.none");
+_Static_assert(SDL_BLENDMODE_BLEND               == 0x00000001u, "BlendMode.blend");
+_Static_assert(SDL_BLENDMODE_BLEND_PREMULTIPLIED == 0x00000010u, "BlendMode.blendPremultiplied");
+_Static_assert(SDL_BLENDMODE_ADD                 == 0x00000002u, "BlendMode.add");
+_Static_assert(SDL_BLENDMODE_ADD_PREMULTIPLIED   == 0x00000020u, "BlendMode.addPremultiplied");
+_Static_assert(SDL_BLENDMODE_MOD                 == 0x00000004u, "BlendMode.mod");
+_Static_assert(SDL_BLENDMODE_MUL                 == 0x00000008u, "BlendMode.mul");
+_Static_assert(SDL_BLENDMODE_INVALID             == 0x7FFFFFFFu, "BlendMode.invalid");
+
+/* ---- Sdl/BlendMode.lean: BlendOperation ---- */
+_Static_assert((int)SDL_BLENDOPERATION_ADD          == 0x1, "BlendOperation.add");
+_Static_assert((int)SDL_BLENDOPERATION_SUBTRACT     == 0x2, "BlendOperation.subtract");
+_Static_assert((int)SDL_BLENDOPERATION_REV_SUBTRACT == 0x3, "BlendOperation.revSubtract");
+_Static_assert((int)SDL_BLENDOPERATION_MINIMUM      == 0x4, "BlendOperation.minimum");
+_Static_assert((int)SDL_BLENDOPERATION_MAXIMUM      == 0x5, "BlendOperation.maximum");
+
+/* ---- Sdl/BlendMode.lean: BlendFactor ---- */
+_Static_assert((int)SDL_BLENDFACTOR_ZERO                == 0x1, "BlendFactor.zero");
+_Static_assert((int)SDL_BLENDFACTOR_ONE                 == 0x2, "BlendFactor.one");
+_Static_assert((int)SDL_BLENDFACTOR_SRC_COLOR           == 0x3, "BlendFactor.srcColor");
+_Static_assert((int)SDL_BLENDFACTOR_ONE_MINUS_SRC_COLOR == 0x4, "BlendFactor.oneMinusSrcColor");
+_Static_assert((int)SDL_BLENDFACTOR_SRC_ALPHA           == 0x5, "BlendFactor.srcAlpha");
+_Static_assert((int)SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA == 0x6, "BlendFactor.oneMinusSrcAlpha");
+_Static_assert((int)SDL_BLENDFACTOR_DST_COLOR           == 0x7, "BlendFactor.dstColor");
+_Static_assert((int)SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR == 0x8, "BlendFactor.oneMinusDstColor");
+_Static_assert((int)SDL_BLENDFACTOR_DST_ALPHA           == 0x9, "BlendFactor.dstAlpha");
+_Static_assert((int)SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA == 0xA, "BlendFactor.oneMinusDstAlpha");

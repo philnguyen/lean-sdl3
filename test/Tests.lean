@@ -10,6 +10,7 @@ import Tests.Filesystem
 import Tests.CpuInfo
 import Tests.Power
 import Tests.Locale
+import Tests.BlendMode
 
 /-!
 # Runtime test entry point
@@ -32,4 +33,5 @@ def main : IO UInt32 := do
   Harness.group "CpuInfo" CpuInfo.run
   Harness.group "Power" Power.run
   Harness.group "Locale" Locale.run
+  Harness.group "BlendMode" BlendMode.run
   Harness.summary
