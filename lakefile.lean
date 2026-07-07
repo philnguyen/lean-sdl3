@@ -43,12 +43,50 @@ def findSdl3IncludeArgs : IO (Array String) :=
 def findSdl3TtfIncludeArgs : IO (Array String) :=
   findIncludeArgs "SDL3_ttf" "sdl3-ttf" "sdl3_ttf" ("SDL3_ttf" / "SDL_ttf.h")
 
+/-- Locate one library's dir by probing Homebrew and standard prefixes for the
+actual shared library (each lib separately: Homebrew keg dirs hold only their
+own lib). `none` = hope the default linker path has it. -/
+def findLibDir (brewPkg stem : String) : IO (Option String) := do
+  let candidates ← do
+    let mut cs := #[]
+    if let some p ← tryCmd "brew" #["--prefix", brewPkg] then
+      cs := cs.push p
+    pure (cs ++ #["/opt/homebrew", "/usr/local", "/usr"])
+  for p in candidates do
+    for ext in ["dylib", "so", "so.0"] do
+      if ← (FilePath.mk p / "lib" / s!"{stem}.{ext}").pathExists then
+        return some s!"{p}/lib"
+  return none
+
+/-- Locate link flags the same way as headers: pkg-config → Homebrew/standard
+prefixes → bare `-lSDL3 -lSDL3_ttf` (hoping the default linker path has
+them). `-Wl,-rpath` entries are added for every discovered `-L` dir so the
+resulting binaries run without `LD_LIBRARY_PATH`/`DYLD_LIBRARY_PATH`. -/
+def findLinkArgs : IO (Array String) := do
+  if let some libs ← tryCmd "pkg-config" #["--libs", "sdl3", "sdl3-ttf"] then
+    let args := libs.splitOn " " |>.filter (· ≠ "") |>.toArray
+    let rpaths := args.filterMap fun a =>
+      if a.startsWith "-L" then some s!"-Wl,-rpath,{a.drop 2}" else none
+    return args ++ rpaths
+  let sdlDir ← findLibDir "sdl3" "libSDL3"
+  let ttfDir ← findLibDir "sdl3_ttf" "libSDL3_ttf"
+  let dirs := ([sdlDir, ttfDir].filterMap id).eraseDups.toArray
+  return (dirs.map (s!"-L{·}")) ++ #["-lSDL3", "-lSDL3_ttf"]
+      ++ (dirs.map (s!"-Wl,-rpath,{·}"))
+
+-- `moreLinkArgs` is a pure package field, so the discovery above runs once at
+-- lakefile elaboration via the standard implemented_by/opaque bridge.
+unsafe def sdlLinkArgsImpl : Array String :=
+  unsafeBaseIO do
+    match ← findLinkArgs.toBaseIO with
+    | .ok args => pure args
+    | .error _ => pure #["-lSDL3", "-lSDL3_ttf"]
+
+@[implemented_by sdlLinkArgsImpl]
+opaque sdlLinkArgs : Array String
+
 package sdl where
-  -- Link flags are a static field, so the Homebrew prefix is hardcoded here;
-  -- header detection (above) is dynamic. Portability follow-up: a
-  -- buildSharedLib shim that bakes in the detected rpath.
-  moreLinkArgs := #["-L/opt/homebrew/lib", "-lSDL3", "-lSDL3_ttf",
-                    "-Wl,-rpath,/opt/homebrew/lib"]
+  moreLinkArgs := sdlLinkArgs
 
 @[default_target]
 lean_lib Sdl where

@@ -300,5 +300,8 @@ sdl3` → standard prefixes) and fails with an actionable install message.
 `extern_lib sdlShim` compiles every `ffi/*.c` (`buildO`, system `cc`; include
 paths are weak args, semantic flags are trace args; `ffi/*.h` hashed via
 `extraDepTrace`) into a static archive that Lake auto-links into every
-executable. Link flags (`-lSDL3` + rpath) are in `package … moreLinkArgs`
-(hardcoded Homebrew prefix — portability follow-up: `buildSharedLib` variant).
+executable. Link flags are discovered the same way (`findLinkArgs`:
+pkg-config `--libs` → prefix probe for the shared library → bare `-lSDL3
+-lSDL3_ttf`), with `-Wl,-rpath` added per discovered `-L` dir; since
+`moreLinkArgs` is a pure package field, the discovery runs at lakefile
+elaboration through an `unsafeBaseIO`/`implemented_by` bridge.
