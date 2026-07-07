@@ -9,36 +9,46 @@ def tryCmd (cmd : String) (args : Array String) : IO (Option String) := do
     return if out.exitCode == 0 then some out.stdout.trimAscii.toString else none
   catch _ => return none
 
-def sdl3NotFoundMsg : String :=
-  "SDL3 development files not found.\n\
+def sdlNotFoundMsg (what pkgconf brewPkg : String) : String :=
+  s!"{what} development files not found.\n\
    \n\
-   To install on macOS:   brew install sdl3\n\
-   On other systems, install SDL3 >= 3.2 so that either `pkg-config sdl3`\n\
+   To install on macOS:   brew install {brewPkg}\n\
+   On other systems, install {what} >= 3.2 so that either `pkg-config {pkgconf}`\n\
    works or headers live under a standard prefix (/opt/homebrew, /usr/local,\n\
    /usr).\n\
    \n\
-   Searched: pkg-config sdl3, `brew --prefix sdl3`, /opt/homebrew, /usr/local, /usr."
+   Searched: pkg-config {pkgconf}, `brew --prefix {brewPkg}`, /opt/homebrew, \
+   /usr/local, /usr."
 
-/-- Locate SDL3 headers at build time: pkg-config → Homebrew → standard
-prefixes → actionable error. Returns compiler include args. -/
-def findSdl3IncludeArgs : IO (Array String) := do
-  if let some cflags ← tryCmd "pkg-config" #["--cflags", "sdl3"] then
+/-- Locate a library's headers at build time: pkg-config → Homebrew → standard
+prefixes (probing for `include/<headerRel>`) → actionable error. Returns
+compiler include args. -/
+def findIncludeArgs (what pkgconf brewPkg : String) (headerRel : FilePath) :
+    IO (Array String) := do
+  if let some cflags ← tryCmd "pkg-config" #["--cflags", pkgconf] then
     return cflags.splitOn " " |>.filter (· ≠ "") |>.toArray
   let candidates ← do
     let mut cs := #[]
-    if let some p ← tryCmd "brew" #["--prefix", "sdl3"] then
+    if let some p ← tryCmd "brew" #["--prefix", brewPkg] then
       cs := cs.push p
     pure (cs ++ #["/opt/homebrew", "/usr/local", "/usr"])
   for p in candidates do
-    if ← (FilePath.mk p / "include" / "SDL3" / "SDL.h").pathExists then
+    if ← (FilePath.mk p / "include" / headerRel).pathExists then
       return #["-I", p ++ "/include"]
-  throw <| IO.userError sdl3NotFoundMsg
+  throw <| IO.userError (sdlNotFoundMsg what pkgconf brewPkg)
+
+def findSdl3IncludeArgs : IO (Array String) :=
+  findIncludeArgs "SDL3" "sdl3" "sdl3" ("SDL3" / "SDL.h")
+
+def findSdl3TtfIncludeArgs : IO (Array String) :=
+  findIncludeArgs "SDL3_ttf" "sdl3-ttf" "sdl3_ttf" ("SDL3_ttf" / "SDL_ttf.h")
 
 package sdl where
   -- Link flags are a static field, so the Homebrew prefix is hardcoded here;
   -- header detection (above) is dynamic. Portability follow-up: a
   -- buildSharedLib shim that bakes in the detected rpath.
-  moreLinkArgs := #["-L/opt/homebrew/lib", "-lSDL3", "-Wl,-rpath,/opt/homebrew/lib"]
+  moreLinkArgs := #["-L/opt/homebrew/lib", "-lSDL3", "-lSDL3_ttf",
+                    "-Wl,-rpath,/opt/homebrew/lib"]
 
 @[default_target]
 lean_lib Sdl where
@@ -51,7 +61,7 @@ lean_lib Sdl where
 /-- Compile every `ffi/*.c` shim into one static archive; Lake auto-links it
 into all executables. Header changes retrigger via `extraDepTrace`. -/
 extern_lib sdlShim pkg := do
-  let sdlInclude ← findSdl3IncludeArgs
+  let sdlInclude := (← findSdl3IncludeArgs) ++ (← findSdl3TtfIncludeArgs)
   let leanInclude := (← getLeanIncludeDir).toString
   let shimDir := pkg.dir / "ffi"
   let entries ← shimDir.readDir

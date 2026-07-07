@@ -241,6 +241,58 @@ SDL_AUDIO_DRIVER=dummy`, frame cap via `SDL_LEAN_MAX_FRAMES` env var
   SDR + present modes VSYNC/IMMEDIATE supported (MAILBOX not); swapchain
   format 12 (B8G8R8A8_UNORM); acquire+cancel of an unused command buffer works.
 
+## SDL_ttf module (M14)
+
+- Namespace `Sdl.Ttf` (the `TTF_` prefix maps to it, per AGENTS.md). Files:
+  `Sdl/Ttf.lean` + `ffi/ttf.c` (init/version, enums/flags, Font, glyphs,
+  measurement, render-to-surface), `Sdl/Ttf/Text.lean` + `ffi/ttf_text.c`
+  (text engines, Text objects, substrings, draws, GPU draw data). Requires
+  SDL3_ttf >= 3.2 (`brew install sdl3_ttf`); build detection + `-lSDL3_ttf`
+  mirror the SDL3 lookup (`findSdl3TtfIncludeArgs`).
+- `Ttf.init`/`Ttf.quit` are refcounted by SDL_ttf itself (`TTF_WasInit`
+  returns the count). Nothing auto-inits; tests/demos call `Ttf.init`.
+  TTF_Init works without SDL_Init (probe-verified) — video is only needed for
+  renderer/GPU engines.
+- **Font** = owned root, finalizer-only (`TTF_CloseFont`; no manual close —
+  Texts and fallback configurations reference fonts, same rationale as
+  Window/Renderer). `openFontIO` always passes `closeio=false` and stores the
+  IOStream external as the holder owner, so stream-backed fonts (incl.
+  const-mem streams over a Lean ByteArray) keep their source alive by RC.
+  `addFallbackFont` does NOT retain: the caller must keep the fallback font
+  alive while it is set (documented caveat, same class as the GPU bind rule).
+- **TextEngine** = one Lean type backed by THREE external classes sharing
+  `sdl_holder` (surface/renderer/GPU), each finalizing with its own
+  `TTF_Destroy*TextEngine` and owning its creator (renderer ext / GPU device
+  ext; surface engines have owner=NULL). Engine-kind-specific shims
+  (`setGpuWinding`, …) class-check and throw on the wrong kind; generic Text
+  shims read the holder ptr uniformly.
+- **Text** = owned child with a twist: holder owner is a 2-field Lean pair
+  `(engineExt, fontExt)`, so a live Text pins BOTH by RC. `setEngine`/
+  `setFont` rebuild the pair (dec old, inc new); `getEngine`/`getFont` return
+  the pair's externals (identity-preserving, no wrap-from-raw). Manual
+  `Text.destroy` exposed (leaf; NULLs ptr, guard throws after).
+- SubString decodes via an `@[export]` Lean maker (events precedent):
+  `{flags : SubStringFlags, offset/length/lineIndex/clusterIndex : Int32,
+  rect : Rect}`; `SubStringFlags.direction` reads the low byte as `Direction`.
+  `getSubStringsForRange` copies the C array then `SDL_free`s it (single free
+  of the returned pointer frees everything, per header).
+- Enums: Direction (closed; INVALID=0, LTR=4..BTT=7), ImageType, Hinting
+  (`TTF_HintingFlags` is misnamed — it is an enum), HorizontalAlignment,
+  GpuTextEngineWinding (the -1 INVALID members pin as `(Uint32)-1` in
+  consts_check, PowerState precedent). Flags: FontStyle (bold/italic/
+  underline/strikethrough), SubStringFlags. Script tags = `sdl_id Script
+  UInt32` + `stringToTag`/`tagToString`.
+- Strings always cross with explicit byte length (`lean_string_size - 1`),
+  never NUL-scanned. Text-edit offsets/lengths are BYTE offsets (Int32).
+- Headless facts (probe-verified, SDL_ttf 3.2.2, macOS): everything except
+  the GPU engine works fully headless under the dummy video driver — font
+  open/metrics/render-to-surface with NO SDL_Init at all; the renderer engine
+  works on the dummy driver's software renderer including `drawRenderer`.
+  System fonts for tests/demos: try `/System/Library/Fonts/Helvetica.ttc`,
+  `Monaco.ttf`, `Supplemental/Arial.ttf` (all open fine; Helvetica.ttc has 6
+  faces). Blended renders are ARGB8888; Solid/Shaded are INDEX8.
+  `getFreeTypeVersion` reports 0.0.0 until TTF_Init has run.
+
 ## Build (`lakefile.lean`)
 
 `findSdl3IncludeArgs` detects SDL3 at build time (pkg-config → `brew --prefix
