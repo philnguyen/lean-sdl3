@@ -238,3 +238,11 @@ lean_exe «demo-03-infinite-monkeys» where
 lean_exe «demo-04-bytepusher» where
   srcDir := "examples"
   root := `Demo.BytePusher
+
+lean_exe «asyncio-01-load-bitmaps» where
+  srcDir := "examples"
+  root := `AsyncIO.LoadBitmaps
+
+lean_exe «storage-01-user» where
+  srcDir := "examples"
+  root := `Storage.User

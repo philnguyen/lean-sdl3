@@ -46,6 +46,8 @@ demos=(
   demo-02-woodeneye-008
   demo-03-infinite-monkeys
   "demo-04-bytepusher examples/assets/hello.BytePusher"
+  asyncio-01-load-bitmaps
+  storage-01-user
 )
 
 fail=0
