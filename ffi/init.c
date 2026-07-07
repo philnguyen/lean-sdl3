@@ -45,6 +45,35 @@ LEAN_EXPORT lean_obj_res lean_sdl_is_main_thread(lean_obj_arg w) {
     return lean_io_result_mk_ok(lean_box(SDL_IsMainThread()));
 }
 
+/* One-shot trampoline for runOnMainThread (docs/DESIGN.md "Callbacks" #3): the
+ * owned, mt-marked closure IS the userdata; lean_apply_1 consumes it. SDL fires
+ * it exactly once. A Lean exception has nowhere to go, so it is logged and
+ * swallowed. */
+static void SDLCALL lean_sdl_run_on_main_tramp(void *userdata) {
+    lean_object *fn = (lean_object *)userdata;
+    lean_sdl_ensure_thread();
+    lean_object *res = lean_apply_1(fn, lean_box(0));
+    if (lean_io_result_is_error(res))
+        SDL_Log("SDL: runOnMainThread callback raised an exception (swallowed)");
+    lean_dec(res);
+}
+
+/* Sdl.runOnMainThreadRaw (f : IO Unit) (waitComplete : Bool) : IO Unit
+ * -- C: SDL_RunOnMainThread. `fn` is owned; on a scheduling failure we dec it
+ * and throw, otherwise the trampoline consumes it (immediately if we are on the
+ * main thread, else during the main thread's event processing). */
+LEAN_EXPORT lean_obj_res lean_sdl_run_on_main_thread(
+        lean_obj_arg fn, uint8_t wait_complete, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    lean_mark_mt(fn);
+    if (!SDL_RunOnMainThread(lean_sdl_run_on_main_tramp, fn, wait_complete != 0)) {
+        lean_dec(fn);
+        return lean_sdl_throw();
+    }
+    return lean_sdl_unit_ok();
+}
+
 /* Sdl.setAppMetadata -- C: SDL_SetAppMetadata */
 LEAN_EXPORT lean_obj_res lean_sdl_set_app_metadata(
         b_lean_obj_arg name, b_lean_obj_arg version, b_lean_obj_arg identifier,

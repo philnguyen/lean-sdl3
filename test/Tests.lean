@@ -9,6 +9,9 @@ import Tests.Time
 import Tests.Filesystem
 import Tests.AsyncIO
 import Tests.Storage
+import Tests.Process
+import Tests.LoadSo
+import Tests.System
 import Tests.CpuInfo
 import Tests.Power
 import Tests.Locale
@@ -17,6 +20,7 @@ import Tests.Pixels
 import Tests.IOStream
 import Tests.Surface
 import Tests.Video
+import Tests.Tray
 import Tests.Clipboard
 import Tests.Keyboard
 import Tests.Mouse
@@ -51,6 +55,9 @@ def main : IO UInt32 := do
   Harness.group "Filesystem" Filesystem.run
   Harness.group "AsyncIO" AsyncIO.run
   Harness.group "Storage" Storage.run
+  Harness.group "Process" Process.run
+  Harness.group "LoadSo" LoadSo.run
+  Harness.group "System" System.run
   Harness.group "CpuInfo" CpuInfo.run
   Harness.group "Power" Power.run
   Harness.group "Locale" Locale.run
@@ -59,6 +66,7 @@ def main : IO UInt32 := do
   Harness.group "IOStream" IOStream.run
   Harness.group "Surface" Surface.run
   Harness.group "Video" Video.run
+  Harness.group "Tray" Tray.run
   Harness.group "Clipboard" Clipboard.run
   Harness.group "Keyboard" Keyboard.run
   Harness.group "Mouse" Mouse.run

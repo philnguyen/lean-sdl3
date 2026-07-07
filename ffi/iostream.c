@@ -18,12 +18,16 @@
 
 /* Owned: SDL_CloseIO on finalize (bool result ignored). */
 SDL_DEFINE_CLASS(lean_sdl_iostream, SDL_CloseIO((SDL_IOStream *)self))
+/* Borrowed (e.g. a process's stdin/stdout): never closed, only decs the owner.
+ * Used by ffi/process.c via lean_sdl_wrap_iostream_borrowed (classes.h). */
+SDL_DEFINE_BORROWED_CLASS(lean_sdl_iostream_borrowed)
 
-/* Register the class. Called from Sdl/IOStream.lean's `initialize`. */
+/* Register both classes. Called from Sdl/IOStream.lean's `initialize`. */
 LEAN_EXPORT lean_obj_res lean_sdl_iostream_register_classes(lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
     lean_sdl_iostream_class_init();
+    lean_sdl_iostream_borrowed_class_init();
     return lean_sdl_unit_ok();
 }
 
@@ -72,6 +76,8 @@ LEAN_EXPORT lean_obj_res lean_sdl_io_from_dynamic_mem(lean_obj_arg w) {
 LEAN_EXPORT lean_obj_res lean_sdl_close_io(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
+    if (lean_get_external_class((lean_object *)io) == lean_sdl_iostream_borrowed_class)
+        return lean_sdl_throw_msg("SDL: cannot close a borrowed stream");
     sdl_holder *h = lean_sdl_holder_of(io);
     if (!h->ptr)
         return lean_sdl_throw_msg("SDL: handle used after destroy/release");

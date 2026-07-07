@@ -73,7 +73,9 @@ namespace IOStream
 
 /-- Close and free the stream, flushing buffered writes. Throws on a flush
 failure, but the handle is invalid afterwards either way (SDL frees the stream
-regardless), so later use is an IO error. C: `SDL_CloseIO`. -/
+regardless), so later use is an IO error. Throws immediately (without closing)
+on a *borrowed* stream — e.g. a process's stdin/stdout from
+`Process.getInput`/`getOutput`, whose lifetime SDL owns. C: `SDL_CloseIO`. -/
 @[extern "lean_sdl_close_io"]
 opaque close (self : @& IOStream) : IO Unit
 

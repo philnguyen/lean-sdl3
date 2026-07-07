@@ -32,8 +32,22 @@ extern lean_external_class *lean_sdl_palette_class;
 extern lean_external_class *lean_sdl_palette_borrowed_class;
 
 /* ffi/iostream.c -- holder ptr is an SDL_IOStream*, owner as usual (the source
- * ByteArray for ioFromConstMem). Consumed by surface.c's *_IO loaders/savers. */
+ * ByteArray for ioFromConstMem). Consumed by surface.c's *_IO loaders/savers.
+ * The borrowed class backs streams owned by another handle (e.g. a process's
+ * stdin/stdout from SDL_GetProcessInput/Output): the finalizer never closes the
+ * stream, only decs the owner, and IOStream.close throws on it. Every other
+ * IOStream read/write/status/seek shim works on it unchanged (they deref the
+ * holder ptr generically). */
 extern lean_external_class *lean_sdl_iostream_class;
+extern lean_external_class *lean_sdl_iostream_borrowed_class;
+
+/* Wrap a borrowed SDL_IOStream* whose lifetime is tied to `owner` (an owned
+ * ref to the owning handle's external object, e.g. a process). Never closed by
+ * the finalizer. */
+static inline lean_object *lean_sdl_wrap_iostream_borrowed(
+        SDL_IOStream *io, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_iostream_borrowed_class, io, owner);
+}
 
 /* ffi/surface.c -- holder ptr is an SDL_Surface*, owner as usual. The borrowed
  * class backs surfaces owned by another handle (e.g. a window's surface from

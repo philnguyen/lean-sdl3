@@ -72,6 +72,22 @@ opaque quit : IO Unit
 @[extern "lean_sdl_is_main_thread"]
 opaque isMainThread : IO Bool
 
+@[extern "lean_sdl_run_on_main_thread"]
+private opaque runOnMainThreadRaw (f : IO Unit) (waitComplete : Bool) : IO Unit
+
+/-- Run `f` on the main thread during event processing. If called *on* the main
+thread, `f` runs immediately (synchronously). If called from another thread, it
+is queued and runs the next time the main thread processes events — so the main
+thread must be pumping events (`Sdl.pumpEvents`) for it to fire; with
+`waitComplete := true` (the default) this call blocks until it has.
+
+Any exception raised by `f` is swallowed (there is nowhere for it to propagate
+from an SDL callback) and logged via `SDL_Log`. Throws if SDL could not schedule
+the call. Beware deadlocks: do not have the main thread wait on this thread while
+calling with `waitComplete := true`. C: `SDL_RunOnMainThread`. -/
+def runOnMainThread (f : IO Unit) (waitComplete : Bool := true) : IO Unit :=
+  runOnMainThreadRaw f waitComplete
+
 /-- Set basic app metadata (shown by the OS in audio mixers, about dialogs…).
 Call before `Sdl.init`. C: `SDL_SetAppMetadata`. -/
 @[extern "lean_sdl_set_app_metadata"]

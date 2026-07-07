@@ -1381,3 +1381,29 @@ _Static_assert((int)SDL_ASYNCIO_CANCELED == 2, "AsyncIOResult.canceled");
 
 /* Sdl/Storage.lean introduces no new enums: GlobFlags / PathInfo /
  * EnumerationResult are already pinned by the Sdl/Filesystem.lean section. */
+
+/* ==================== Sdl/Process.lean ==================== */
+
+/* ---- ProcessIO (closed sdl_enum) ---- */
+_Static_assert((int)SDL_PROCESS_STDIO_INHERITED == 0, "ProcessIO.inherited");
+_Static_assert((int)SDL_PROCESS_STDIO_NULL      == 1, "ProcessIO.null");
+_Static_assert((int)SDL_PROCESS_STDIO_APP       == 2, "ProcessIO.app");
+_Static_assert((int)SDL_PROCESS_STDIO_REDIRECT  == 3, "ProcessIO.redirect");
+
+/* ==================== Sdl/System.lean ==================== */
+
+/* ---- Sandbox (version-open sdl_enum_open) ---- */
+_Static_assert((int)SDL_SANDBOX_NONE              == 0, "Sandbox.none");
+_Static_assert((int)SDL_SANDBOX_UNKNOWN_CONTAINER == 1, "Sandbox.unknownContainer");
+_Static_assert((int)SDL_SANDBOX_FLATPAK           == 2, "Sandbox.flatpak");
+_Static_assert((int)SDL_SANDBOX_SNAP              == 3, "Sandbox.snap");
+_Static_assert((int)SDL_SANDBOX_MACOS             == 4, "Sandbox.macos");
+
+/* ==================== Sdl/Tray.lean ==================== */
+
+/* ---- TrayEntryFlags (sdl_flags) ---- */
+_Static_assert(SDL_TRAYENTRY_BUTTON   == 0x00000001u, "TrayEntryFlags.button");
+_Static_assert(SDL_TRAYENTRY_CHECKBOX == 0x00000002u, "TrayEntryFlags.checkbox");
+_Static_assert(SDL_TRAYENTRY_SUBMENU  == 0x00000004u, "TrayEntryFlags.submenu");
+_Static_assert(SDL_TRAYENTRY_DISABLED == 0x80000000u, "TrayEntryFlags.disabled");
+_Static_assert(SDL_TRAYENTRY_CHECKED  == 0x40000000u, "TrayEntryFlags.checked");
