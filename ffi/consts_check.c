@@ -1354,3 +1354,15 @@ _Static_assert(SDL_HAPTIC_POLAR         == 0, "HapticDirection.polar");
 _Static_assert(SDL_HAPTIC_CARTESIAN     == 1, "HapticDirection.cartesian");
 _Static_assert(SDL_HAPTIC_SPHERICAL     == 2, "HapticDirection.spherical");
 _Static_assert(SDL_HAPTIC_STEERING_AXIS == 3, "HapticDirection.steeringAxis");
+
+/* ==================== Sdl/Camera.lean ==================== */
+
+/* ---- CameraPosition (closed sdl_enum) ---- */
+_Static_assert(SDL_CAMERA_POSITION_UNKNOWN      == 0, "CameraPosition.unknown");
+_Static_assert(SDL_CAMERA_POSITION_FRONT_FACING == 1, "CameraPosition.frontFacing");
+_Static_assert(SDL_CAMERA_POSITION_BACK_FACING  == 2, "CameraPosition.backFacing");
+
+/* ---- CameraPermissionState (hand-rolled; a negative member) ---- */
+_Static_assert(SDL_CAMERA_PERMISSION_STATE_DENIED   == -1, "CameraPermissionState.denied");
+_Static_assert(SDL_CAMERA_PERMISSION_STATE_PENDING  ==  0, "CameraPermissionState.pending");
+_Static_assert(SDL_CAMERA_PERMISSION_STATE_APPROVED ==  1, "CameraPermissionState.approved");

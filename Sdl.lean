@@ -30,6 +30,7 @@ import Sdl.Events
 import Sdl.Dialog
 import Sdl.Audio
 import Sdl.Sensor
+import Sdl.Camera
 import Sdl.Joystick
 import Sdl.Gamepad
 import Sdl.Haptic

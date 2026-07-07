@@ -128,6 +128,18 @@ static inline lean_object *lean_sdl_texture_option(SDL_Texture *t) {
  * balanced and independent handles never alias each other's lifetime. */
 extern lean_external_class *lean_sdl_joystick_class;
 
+/* ffi/camera.c -- holder ptr is an SDL_Surface* (a camera frame), owner is an
+ * owned ref to the frame's Camera external. RELEASE-TO-SOURCE archetype: the
+ * finalizer returns the frame to its camera via
+ * SDL_ReleaseCameraFrame(owner->ptr, ptr) rather than destroying the surface;
+ * RC ordering (the frame owns a camera ref) keeps the camera alive until every
+ * frame is released. The produced Lean values are plain `Surface`s, usable by
+ * every Surface shim (which read the holder ptr generically). The Camera itself
+ * (lean_sdl_camera_class) is finalizer-only and stays module-local. Declared
+ * here because Camera.releaseFrame must class-check a frame it receives typed as
+ * a Surface. */
+extern lean_external_class *lean_sdl_camera_frame_class;
+
 #ifdef __cplusplus
 }
 #endif
