@@ -1847,3 +1847,21 @@ _Static_assert(TTF_STYLE_BOLD          == 0x01u, "Ttf.FontStyle.bold");
 _Static_assert(TTF_STYLE_ITALIC        == 0x02u, "Ttf.FontStyle.italic");
 _Static_assert(TTF_STYLE_UNDERLINE     == 0x04u, "Ttf.FontStyle.underline");
 _Static_assert(TTF_STYLE_STRIKETHROUGH == 0x08u, "Ttf.FontStyle.strikethrough");
+
+/* ==== Sdl/Ttf/Text.lean (SDL3_ttf/SDL_ttf.h + SDL_textengine.h) ==== */
+#include <SDL3_ttf/SDL_textengine.h>
+
+/* ---- GpuTextEngineWinding (INVALID is -1, surfaced as 0xFFFFFFFF) ---- */
+_Static_assert((Uint32)TTF_GPU_TEXTENGINE_WINDING_INVALID == 0xFFFFFFFFu,
+               "Ttf.GpuTextEngineWinding.invalid");
+_Static_assert((int)TTF_GPU_TEXTENGINE_WINDING_CLOCKWISE == 0,
+               "Ttf.GpuTextEngineWinding.clockwise");
+_Static_assert((int)TTF_GPU_TEXTENGINE_WINDING_COUNTER_CLOCKWISE == 1,
+               "Ttf.GpuTextEngineWinding.counterClockwise");
+
+/* ---- SubStringFlags ---- */
+_Static_assert(TTF_SUBSTRING_DIRECTION_MASK == 0x000000FFu, "Ttf.SubStringFlags.directionMask");
+_Static_assert(TTF_SUBSTRING_TEXT_START     == 0x00000100u, "Ttf.SubStringFlags.textStart");
+_Static_assert(TTF_SUBSTRING_LINE_START     == 0x00000200u, "Ttf.SubStringFlags.lineStart");
+_Static_assert(TTF_SUBSTRING_LINE_END       == 0x00000400u, "Ttf.SubStringFlags.lineEnd");
+_Static_assert(TTF_SUBSTRING_TEXT_END       == 0x00000800u, "Ttf.SubStringFlags.textEnd");
