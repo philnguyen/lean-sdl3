@@ -246,3 +246,7 @@ lean_exe «asyncio-01-load-bitmaps» where
 lean_exe «storage-01-user» where
   srcDir := "examples"
   root := `Storage.User
+
+lean_exe «gpu-01-clear» where
+  srcDir := "examples"
+  root := `Gpu.Clear

@@ -48,6 +48,7 @@ demos=(
   "demo-04-bytepusher examples/assets/hello.BytePusher"
   asyncio-01-load-bitmaps
   storage-01-user
+  gpu-01-clear
 )
 
 fail=0
