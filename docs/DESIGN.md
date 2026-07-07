@@ -78,6 +78,15 @@ Archetypes (decide per handle, record in the module's header comment):
 
 Every shim uses `SDL_GET_OR_THROW` (NULL-guard) so post-destroy use is an IO
 error, never UB. Manual destroy = destroy + `ptr = NULL` (+ dec/NULL owner).
+
+Refcounted re-open (joystick/gamepad/sensor): SDL's `Open*` on an already-open
+instance id returns the same pointer with an internal refcount bump, so
+functions that hand back a borrowed pointer to an open device
+(`SDL_Get*FromID`, `SDL_GetGamepadJoystick`) are bound by taking a **fresh
+reference** (`SDL_Open*(id)`) and wrapping that as a new owned root — every
+Lean handle owns its own reference and no borrowed class is needed. Haptic
+lacks documented refcounting; its `getHapticFromID` carries a doc warning
+instead.
 External classes are registered from a per-module `initialize` block in the
 Lean module (runs on the main thread at startup, deterministic). This requires
 `precompileModules := true` on `lean_lib Sdl`: the initializer runs in the

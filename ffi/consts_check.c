@@ -1203,3 +1203,154 @@ _Static_assert(SDL_AUDIO_F32 == SDL_AUDIO_F32LE, "AudioFormat.f32 (native == LE)
 /* ---- AudioDeviceID named members ---- */
 _Static_assert(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK  == 0xFFFFFFFFu, "AudioDeviceID.defaultPlayback");
 _Static_assert(SDL_AUDIO_DEVICE_DEFAULT_RECORDING == 0xFFFFFFFEu, "AudioDeviceID.defaultRecording");
+
+/* ==================== Sdl/Sensor.lean ==================== */
+
+/* ---- SensorType (every member + the INVALID sentinel) ---- */
+_Static_assert((int)SDL_SENSOR_INVALID == -1, "SensorType INVALID sentinel");
+_Static_assert((int)SDL_SENSOR_UNKNOWN == 0,  "SensorType.unknown");
+_Static_assert((int)SDL_SENSOR_ACCEL   == 1,  "SensorType.accel");
+_Static_assert((int)SDL_SENSOR_GYRO    == 2,  "SensorType.gyro");
+_Static_assert((int)SDL_SENSOR_ACCEL_L == 3,  "SensorType.accelL");
+_Static_assert((int)SDL_SENSOR_GYRO_L  == 4,  "SensorType.gyroL");
+_Static_assert((int)SDL_SENSOR_ACCEL_R == 5,  "SensorType.accelR");
+_Static_assert((int)SDL_SENSOR_GYRO_R  == 6,  "SensorType.gyroR");
+
+/* ==================== Sdl/Joystick.lean ==================== */
+
+/* ---- JoystickType (every member) ---- */
+_Static_assert((int)SDL_JOYSTICK_TYPE_UNKNOWN      == 0, "JoystickType.unknown");
+_Static_assert((int)SDL_JOYSTICK_TYPE_GAMEPAD      == 1, "JoystickType.gamepad");
+_Static_assert((int)SDL_JOYSTICK_TYPE_WHEEL        == 2, "JoystickType.wheel");
+_Static_assert((int)SDL_JOYSTICK_TYPE_ARCADE_STICK == 3, "JoystickType.arcadeStick");
+_Static_assert((int)SDL_JOYSTICK_TYPE_FLIGHT_STICK == 4, "JoystickType.flightStick");
+_Static_assert((int)SDL_JOYSTICK_TYPE_DANCE_PAD    == 5, "JoystickType.dancePad");
+_Static_assert((int)SDL_JOYSTICK_TYPE_GUITAR       == 6, "JoystickType.guitar");
+_Static_assert((int)SDL_JOYSTICK_TYPE_DRUM_KIT     == 7, "JoystickType.drumKit");
+_Static_assert((int)SDL_JOYSTICK_TYPE_ARCADE_PAD   == 8, "JoystickType.arcadePad");
+_Static_assert((int)SDL_JOYSTICK_TYPE_THROTTLE     == 9, "JoystickType.throttle");
+
+/* ---- JoystickConnectionState (every member + the INVALID sentinel) ---- */
+_Static_assert((int)SDL_JOYSTICK_CONNECTION_INVALID  == -1, "JoystickConnectionState INVALID sentinel");
+_Static_assert((int)SDL_JOYSTICK_CONNECTION_UNKNOWN  == 0,  "JoystickConnectionState.unknown");
+_Static_assert((int)SDL_JOYSTICK_CONNECTION_WIRED    == 1,  "JoystickConnectionState.wired");
+_Static_assert((int)SDL_JOYSTICK_CONNECTION_WIRELESS == 2,  "JoystickConnectionState.wireless");
+
+/* ---- Hat (all nine values) ---- */
+_Static_assert(SDL_HAT_CENTERED  == 0x00u, "Hat.centered");
+_Static_assert(SDL_HAT_UP        == 0x01u, "Hat.up");
+_Static_assert(SDL_HAT_RIGHT     == 0x02u, "Hat.right");
+_Static_assert(SDL_HAT_DOWN      == 0x04u, "Hat.down");
+_Static_assert(SDL_HAT_LEFT      == 0x08u, "Hat.left");
+_Static_assert(SDL_HAT_RIGHTUP   == 0x03u, "Hat.rightUp");
+_Static_assert(SDL_HAT_RIGHTDOWN == 0x06u, "Hat.rightDown");
+_Static_assert(SDL_HAT_LEFTUP    == 0x09u, "Hat.leftUp");
+_Static_assert(SDL_HAT_LEFTDOWN  == 0x0Cu, "Hat.leftDown");
+
+/* ---- Axis range constants ---- */
+_Static_assert(SDL_JOYSTICK_AXIS_MAX == 32767,  "Joystick.axisMax");
+_Static_assert(SDL_JOYSTICK_AXIS_MIN == -32768, "Joystick.axisMin");
+
+/* ==================== Sdl/Gamepad.lean ==================== */
+
+/* ---- GamepadType (every member + the COUNT sentinel) ---- */
+_Static_assert((int)SDL_GAMEPAD_TYPE_UNKNOWN                      == 0,  "GamepadType.unknown");
+_Static_assert((int)SDL_GAMEPAD_TYPE_STANDARD                     == 1,  "GamepadType.standard");
+_Static_assert((int)SDL_GAMEPAD_TYPE_XBOX360                      == 2,  "GamepadType.xbox360");
+_Static_assert((int)SDL_GAMEPAD_TYPE_XBOXONE                      == 3,  "GamepadType.xboxone");
+_Static_assert((int)SDL_GAMEPAD_TYPE_PS3                          == 4,  "GamepadType.ps3");
+_Static_assert((int)SDL_GAMEPAD_TYPE_PS4                          == 5,  "GamepadType.ps4");
+_Static_assert((int)SDL_GAMEPAD_TYPE_PS5                          == 6,  "GamepadType.ps5");
+_Static_assert((int)SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO          == 7,  "GamepadType.nintendoSwitchPro");
+_Static_assert((int)SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT  == 8,  "GamepadType.nintendoSwitchJoyconLeft");
+_Static_assert((int)SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT == 9,  "GamepadType.nintendoSwitchJoyconRight");
+_Static_assert((int)SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR  == 10, "GamepadType.nintendoSwitchJoyconPair");
+_Static_assert((int)SDL_GAMEPAD_TYPE_GAMECUBE                     == 11, "GamepadType.gamecube");
+_Static_assert((int)SDL_GAMEPAD_TYPE_COUNT                        == 12, "GamepadType COUNT sentinel");
+
+/* ---- GamepadButton (INVALID sentinel through COUNT) ---- */
+_Static_assert((int)SDL_GAMEPAD_BUTTON_INVALID        == -1, "GamepadButton INVALID sentinel");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_SOUTH          == 0,  "GamepadButton.south");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_EAST           == 1,  "GamepadButton.east");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_WEST           == 2,  "GamepadButton.west");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_NORTH          == 3,  "GamepadButton.north");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_BACK           == 4,  "GamepadButton.back");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_GUIDE          == 5,  "GamepadButton.guide");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_START          == 6,  "GamepadButton.start");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LEFT_STICK     == 7,  "GamepadButton.leftStick");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_RIGHT_STICK    == 8,  "GamepadButton.rightStick");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LEFT_SHOULDER  == 9,  "GamepadButton.leftShoulder");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER == 10, "GamepadButton.rightShoulder");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_DPAD_UP        == 11, "GamepadButton.dpadUp");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_DPAD_DOWN      == 12, "GamepadButton.dpadDown");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_DPAD_LEFT      == 13, "GamepadButton.dpadLeft");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_DPAD_RIGHT     == 14, "GamepadButton.dpadRight");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC1          == 15, "GamepadButton.misc1");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1  == 16, "GamepadButton.rightPaddle1");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LEFT_PADDLE1   == 17, "GamepadButton.leftPaddle1");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2  == 18, "GamepadButton.rightPaddle2");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LEFT_PADDLE2   == 19, "GamepadButton.leftPaddle2");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_TOUCHPAD       == 20, "GamepadButton.touchpad");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC2          == 21, "GamepadButton.misc2");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC3          == 22, "GamepadButton.misc3");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC4          == 23, "GamepadButton.misc4");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC5          == 24, "GamepadButton.misc5");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_MISC6          == 25, "GamepadButton.misc6");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_COUNT          == 26, "GamepadButton COUNT sentinel");
+
+/* ---- GamepadButtonLabel (every member) ---- */
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_UNKNOWN  == 0, "GamepadButtonLabel.unknown");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_A        == 1, "GamepadButtonLabel.a");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_B        == 2, "GamepadButtonLabel.b");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_X        == 3, "GamepadButtonLabel.x");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_Y        == 4, "GamepadButtonLabel.y");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_CROSS    == 5, "GamepadButtonLabel.cross");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_CIRCLE   == 6, "GamepadButtonLabel.circle");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_SQUARE   == 7, "GamepadButtonLabel.square");
+_Static_assert((int)SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE == 8, "GamepadButtonLabel.triangle");
+
+/* ---- GamepadAxis (INVALID sentinel through COUNT) ---- */
+_Static_assert((int)SDL_GAMEPAD_AXIS_INVALID       == -1, "GamepadAxis INVALID sentinel");
+_Static_assert((int)SDL_GAMEPAD_AXIS_LEFTX         == 0,  "GamepadAxis.leftx");
+_Static_assert((int)SDL_GAMEPAD_AXIS_LEFTY         == 1,  "GamepadAxis.lefty");
+_Static_assert((int)SDL_GAMEPAD_AXIS_RIGHTX        == 2,  "GamepadAxis.rightx");
+_Static_assert((int)SDL_GAMEPAD_AXIS_RIGHTY        == 3,  "GamepadAxis.righty");
+_Static_assert((int)SDL_GAMEPAD_AXIS_LEFT_TRIGGER  == 4,  "GamepadAxis.leftTrigger");
+_Static_assert((int)SDL_GAMEPAD_AXIS_RIGHT_TRIGGER == 5,  "GamepadAxis.rightTrigger");
+_Static_assert((int)SDL_GAMEPAD_AXIS_COUNT         == 6,  "GamepadAxis COUNT sentinel");
+
+/* ---- GamepadBindingType (GamepadBindingInput/Output tags) ---- */
+_Static_assert((int)SDL_GAMEPAD_BINDTYPE_NONE   == 0, "GamepadBindingType.none");
+_Static_assert((int)SDL_GAMEPAD_BINDTYPE_BUTTON == 1, "GamepadBindingType.button");
+_Static_assert((int)SDL_GAMEPAD_BINDTYPE_AXIS   == 2, "GamepadBindingType.axis");
+_Static_assert((int)SDL_GAMEPAD_BINDTYPE_HAT    == 3, "GamepadBindingType.hat");
+
+/* ==================== Sdl/Haptic.lean ==================== */
+
+/* ---- HapticFeatures (every bound feature bit) ---- */
+_Static_assert(SDL_HAPTIC_CONSTANT     == 0x1u,     "HapticFeatures.constant");
+_Static_assert(SDL_HAPTIC_SINE         == 0x2u,     "HapticFeatures.sine");
+_Static_assert(SDL_HAPTIC_SQUARE       == 0x4u,     "HapticFeatures.square");
+_Static_assert(SDL_HAPTIC_TRIANGLE     == 0x8u,     "HapticFeatures.triangle");
+_Static_assert(SDL_HAPTIC_SAWTOOTHUP   == 0x10u,    "HapticFeatures.sawtoothUp");
+_Static_assert(SDL_HAPTIC_SAWTOOTHDOWN == 0x20u,    "HapticFeatures.sawtoothDown");
+_Static_assert(SDL_HAPTIC_RAMP         == 0x40u,    "HapticFeatures.ramp");
+_Static_assert(SDL_HAPTIC_SPRING       == 0x80u,    "HapticFeatures.spring");
+_Static_assert(SDL_HAPTIC_DAMPER       == 0x100u,   "HapticFeatures.damper");
+_Static_assert(SDL_HAPTIC_INERTIA      == 0x200u,   "HapticFeatures.inertia");
+_Static_assert(SDL_HAPTIC_FRICTION     == 0x400u,   "HapticFeatures.friction");
+_Static_assert(SDL_HAPTIC_LEFTRIGHT    == 0x800u,   "HapticFeatures.leftRight");
+_Static_assert(SDL_HAPTIC_CUSTOM       == 0x8000u,  "HapticFeatures.custom");
+_Static_assert(SDL_HAPTIC_GAIN         == 0x10000u, "HapticFeatures.gain");
+_Static_assert(SDL_HAPTIC_AUTOCENTER   == 0x20000u, "HapticFeatures.autocenter");
+_Static_assert(SDL_HAPTIC_STATUS       == 0x40000u, "HapticFeatures.status");
+_Static_assert(SDL_HAPTIC_PAUSE        == 0x80000u, "HapticFeatures.pause");
+
+/* ---- HapticEffect kind tags (folded into effectType) ---- */
+_Static_assert(SDL_HAPTIC_INFINITY == 0xFFFFFFFFu, "hapticInfinity");
+
+/* ---- HapticDirection type tags ---- */
+_Static_assert(SDL_HAPTIC_POLAR         == 0, "HapticDirection.polar");
+_Static_assert(SDL_HAPTIC_CARTESIAN     == 1, "HapticDirection.cartesian");
+_Static_assert(SDL_HAPTIC_SPHERICAL     == 2, "HapticDirection.spherical");
+_Static_assert(SDL_HAPTIC_STEERING_AXIS == 3, "HapticDirection.steeringAxis");

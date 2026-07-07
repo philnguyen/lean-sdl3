@@ -122,6 +122,12 @@ static inline lean_object *lean_sdl_texture_option(SDL_Texture *t) {
     return lean_sdl_some(ext);
 }
 
+/* ffi/joystick.c -- holder ptr is an SDL_Joystick*, owner always NULL.
+ * Joysticks are internally refcounted by SDL: every handle the binding hands
+ * out took its own SDL_OpenJoystick reference, so finalizer/close are always
+ * balanced and independent handles never alias each other's lifetime. */
+extern lean_external_class *lean_sdl_joystick_class;
+
 #ifdef __cplusplus
 }
 #endif

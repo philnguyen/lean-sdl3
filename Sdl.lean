@@ -29,6 +29,10 @@ import Sdl.Pen
 import Sdl.Events
 import Sdl.Dialog
 import Sdl.Audio
+import Sdl.Sensor
+import Sdl.Joystick
+import Sdl.Gamepad
+import Sdl.Haptic
 import Sdl.Render
 import Sdl.App
 
