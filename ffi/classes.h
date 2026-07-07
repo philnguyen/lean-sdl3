@@ -154,6 +154,40 @@ extern lean_external_class *lean_sdl_joystick_class;
  * a Surface. */
 extern lean_external_class *lean_sdl_camera_frame_class;
 
+/* ffi/gpu.c -- SDL3 GPU core external classes. All resource children hold an
+ * owned ref to the device external ({ptr, deviceExt}); the finalizer reads the
+ * device pointer from the owner holder. Exported here for ffi/gpu_pipeline.c
+ * (shaders/pipelines/render+compute passes), which wraps textures/buffers/
+ * samplers of these types and reads the device from a command buffer's owner. */
+extern lean_external_class *lean_sdl_gpu_device_class;
+extern lean_external_class *lean_sdl_gpu_buffer_class;
+extern lean_external_class *lean_sdl_gpu_texture_class;
+/* Borrowed swapchain-texture class: {ptr, cmdBufExt}; finalize decs owner only;
+ * release/setName throw on it. Same Lean `Gpu.Texture` type, distinct class. */
+extern lean_external_class *lean_sdl_gpu_texture_borrowed_class;
+extern lean_external_class *lean_sdl_gpu_sampler_class;
+/* Consumable command buffer: {ptr, deviceExt}; finalize decs owner only. */
+extern lean_external_class *lean_sdl_gpu_cmdbuf_class;
+
+/* Wrap a freshly-created owned GPU child; `owner` is consumed (an inc'd device
+ * external). Read the device pointer from the owner holder in the finalizer. */
+static inline lean_object *lean_sdl_wrap_gpu_buffer(SDL_GPUBuffer *b, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_gpu_buffer_class, b, owner);
+}
+static inline lean_object *lean_sdl_wrap_gpu_texture(SDL_GPUTexture *t, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_gpu_texture_class, t, owner);
+}
+static inline lean_object *lean_sdl_wrap_gpu_sampler(SDL_GPUSampler *s, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_gpu_sampler_class, s, owner);
+}
+
+/* Wrap a borrowed swapchain texture whose lifetime is tied to `owner` (an
+ * inc'd command-buffer external). Never released by the finalizer. */
+static inline lean_object *lean_sdl_wrap_gpu_texture_borrowed(
+        SDL_GPUTexture *t, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_gpu_texture_borrowed_class, t, owner);
+}
+
 #ifdef __cplusplus
 }
 #endif

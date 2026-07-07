@@ -41,7 +41,7 @@ import Sdl.Process
 import Sdl.LoadSo
 import Sdl.System
 import Sdl.Tray
-import Sdl.Gpu.Enums
+import Sdl.Gpu
 import Sdl.App
 
 /-!

@@ -31,8 +31,14 @@ def checkThrows {α : Type} (name : String) (act : IO α) : IO Unit := do
       pure true
   check name threw
 
-/-- Run one module's tests; an unexpected throw is a failure, not an abort. -/
+/-- Run one module's tests; an unexpected throw is a failure, not an abort.
+When the `SDL_LEAN_TEST_GROUP` env var is set, groups with a different name are
+skipped — used for real-driver spot runs of a single group (e.g. `Gpu`) without
+the window-opening groups running under the real video driver. -/
 def group (name : String) (body : IO Unit) : IO Unit := do
+  if let some only ← IO.getEnv "SDL_LEAN_TEST_GROUP" then
+    if only != name then
+      return
   IO.println s!"-- {name} --"
   try
     body
