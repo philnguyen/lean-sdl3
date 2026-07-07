@@ -1181,3 +1181,25 @@ _Static_assert(offsetof(SDL_Vertex, tex_coord) == 24, "SDL_Vertex.tex_coord offs
 _Static_assert(SDL_RENDERER_VSYNC_DISABLED == 0,  "Renderer.vsyncDisabled");
 _Static_assert(SDL_RENDERER_VSYNC_ADAPTIVE == -1, "Renderer.vsyncAdaptive");
 _Static_assert(SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE == 8, "Sdl.debugTextFontCharacterSize");
+
+/* ==================== Sdl/Audio.lean ==================== */
+
+/* ---- AudioFormat (every member) ---- */
+_Static_assert((unsigned)SDL_AUDIO_UNKNOWN == 0x0000u, "AudioFormat.unknown");
+_Static_assert((unsigned)SDL_AUDIO_U8      == 0x0008u, "AudioFormat.u8");
+_Static_assert((unsigned)SDL_AUDIO_S8      == 0x8008u, "AudioFormat.s8");
+_Static_assert((unsigned)SDL_AUDIO_S16LE   == 0x8010u, "AudioFormat.s16le");
+_Static_assert((unsigned)SDL_AUDIO_S16BE   == 0x9010u, "AudioFormat.s16be");
+_Static_assert((unsigned)SDL_AUDIO_S32LE   == 0x8020u, "AudioFormat.s32le");
+_Static_assert((unsigned)SDL_AUDIO_S32BE   == 0x9020u, "AudioFormat.s32be");
+_Static_assert((unsigned)SDL_AUDIO_F32LE   == 0x8120u, "AudioFormat.f32le");
+_Static_assert((unsigned)SDL_AUDIO_F32BE   == 0x9120u, "AudioFormat.f32be");
+
+/* ---- AudioFormat native-endian aliases (pin the little-endian defs) ---- */
+_Static_assert(SDL_AUDIO_S16 == SDL_AUDIO_S16LE, "AudioFormat.s16 (native == LE)");
+_Static_assert(SDL_AUDIO_S32 == SDL_AUDIO_S32LE, "AudioFormat.s32 (native == LE)");
+_Static_assert(SDL_AUDIO_F32 == SDL_AUDIO_F32LE, "AudioFormat.f32 (native == LE)");
+
+/* ---- AudioDeviceID named members ---- */
+_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK  == 0xFFFFFFFFu, "AudioDeviceID.defaultPlayback");
+_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_RECORDING == 0xFFFFFFFEu, "AudioDeviceID.defaultRecording");

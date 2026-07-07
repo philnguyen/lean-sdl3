@@ -28,6 +28,7 @@ import Sdl.Touch
 import Sdl.Pen
 import Sdl.Events
 import Sdl.Dialog
+import Sdl.Audio
 import Sdl.Render
 import Sdl.App
 

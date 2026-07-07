@@ -12,9 +12,10 @@
  *    no-ops), matching SDL's own remove semantics.
  *
  * 2. Locked slot (`sdl_cb_slot`): for single-instance global callbacks
- *    (SetLogOutputFunction, SetEventFilter, SetRelativeMouseTransform) and,
- *    in M9, per-stream audio callbacks. Replace/clear under the mutex; a
- *    trampoline that already acquired (inc'd) the old closure finishes safely.
+ *    (SetLogOutputFunction, SetEventFilter, SetRelativeMouseTransform) and
+ *    the per-stream audio callbacks (SetAudioStream{Get,Put}Callback, slots
+ *    in the stream's holder). Replace/clear under the mutex; a trampoline
+ *    that already acquired (inc'd) the old closure finishes safely.
  *
  * 3. One-shot closure-as-userdata (dialogs): the owned, mt-marked closure IS
  *    the userdata; the trampoline's lean_apply consumes it. No registry entry

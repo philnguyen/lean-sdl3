@@ -114,7 +114,8 @@ decoded fields; after the first build, diff the exported maker signatures in
 
 ## Callbacks — three primitives (`ffi/callbacks.{h,c}`)
 
-1. **Gen-key registry** (AddTimer, AddEventWatch, AddHintCallback): userdata is
+1. **Gen-key registry** (AddTimer, AddEventWatch, AddHintCallback;
+   SetAudioPostmixCallback with aux = device id, dropped on close): userdata is
    a non-pointer monotone `uint64` key into a mutex-guarded list of
    `{key, fn(owned, lean_mark_mt'd), aux}`. Register into the map **before**
    the SDL add-call (timer callbacks can fire before `SDL_AddTimer` returns).
