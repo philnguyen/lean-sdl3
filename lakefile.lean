@@ -260,3 +260,7 @@ lean_exe «storage-01-user» where
 lean_exe «gpu-01-clear» where
   srcDir := "examples"
   root := `Gpu.Clear
+
+lean_exe «ttf-01-hello» where
+  srcDir := "examples"
+  root := `Ttf.Hello

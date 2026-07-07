@@ -49,6 +49,7 @@ demos=(
   asyncio-01-load-bitmaps
   storage-01-user
   gpu-01-clear
+  ttf-01-hello
 )
 
 fail=0
