@@ -188,6 +188,23 @@ static inline lean_object *lean_sdl_wrap_gpu_texture_borrowed(
     return lean_sdl_wrap(lean_sdl_gpu_texture_borrowed_class, t, owner);
 }
 
+/* ffi/ttf.c -- holder ptr is a TTF_Font*, owner is NULL for file-opened fonts,
+ * an inc'd IOStream external for openFontIO (keeps a const-mem stream and its
+ * backing ByteArray alive), or an inc'd source Font external for copyFont (the
+ * copy shares the original's font data source). Fonts are finalizer-only
+ * (TTF_CloseFont; no manual close -- Texts and fallback configs reference fonts,
+ * same rationale as Window/Renderer). Exported for ffi/ttf_text.c (agent B),
+ * which class-checks Font arguments. TTF_Font is forward-declared so this header
+ * need not pull in SDL_ttf.h. */
+typedef struct TTF_Font TTF_Font;
+extern lean_external_class *lean_sdl_ttf_font_class;
+
+/* Wrap a freshly-opened owned TTF_Font*; `owner` is consumed (NULL, an inc'd
+ * IOStream external, or an inc'd source Font external). */
+static inline lean_object *lean_sdl_wrap_ttf_font(TTF_Font *f, lean_object *owner) {
+    return lean_sdl_wrap(lean_sdl_ttf_font_class, f, owner);
+}
+
 #ifdef __cplusplus
 }
 #endif

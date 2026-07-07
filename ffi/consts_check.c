@@ -1807,3 +1807,43 @@ _Static_assert(sizeof(SDL_GPUIndirectDispatchCommand) == 12, "IndirectDispatchCo
 _Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_x) == 0, "IndirectDispatchCommand.groupcountX");
 _Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_y) == 4, "IndirectDispatchCommand.groupcountY");
 _Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_z) == 8, "IndirectDispatchCommand.groupcountZ");
+
+/* ==== Sdl/Ttf.lean (SDL3_ttf/SDL_ttf.h) ==== */
+#include <SDL3_ttf/SDL_ttf.h>
+
+/* ---- version ---- */
+_Static_assert(SDL_TTF_MAJOR_VERSION == 3, "Ttf major version");
+
+/* ---- Sdl/Ttf.lean: Direction ---- */
+_Static_assert((int)TTF_DIRECTION_INVALID == 0, "Ttf.Direction.invalid");
+_Static_assert((int)TTF_DIRECTION_LTR     == 4, "Ttf.Direction.ltr");
+_Static_assert((int)TTF_DIRECTION_RTL     == 5, "Ttf.Direction.rtl");
+_Static_assert((int)TTF_DIRECTION_TTB     == 6, "Ttf.Direction.ttb");
+_Static_assert((int)TTF_DIRECTION_BTT     == 7, "Ttf.Direction.btt");
+
+/* ---- Sdl/Ttf.lean: Hinting (INVALID is -1, surfaced as 0xFFFFFFFF) ---- */
+_Static_assert((Uint32)TTF_HINTING_INVALID    == 0xFFFFFFFFu, "Ttf.Hinting.invalid");
+_Static_assert((int)TTF_HINTING_NORMAL        == 0, "Ttf.Hinting.normal");
+_Static_assert((int)TTF_HINTING_LIGHT         == 1, "Ttf.Hinting.light");
+_Static_assert((int)TTF_HINTING_MONO          == 2, "Ttf.Hinting.mono");
+_Static_assert((int)TTF_HINTING_NONE          == 3, "Ttf.Hinting.none");
+_Static_assert((int)TTF_HINTING_LIGHT_SUBPIXEL == 4, "Ttf.Hinting.lightSubpixel");
+
+/* ---- Sdl/Ttf.lean: HorizontalAlignment (INVALID is -1) ---- */
+_Static_assert((Uint32)TTF_HORIZONTAL_ALIGN_INVALID == 0xFFFFFFFFu, "Ttf.HorizontalAlignment.invalid");
+_Static_assert((int)TTF_HORIZONTAL_ALIGN_LEFT   == 0, "Ttf.HorizontalAlignment.left");
+_Static_assert((int)TTF_HORIZONTAL_ALIGN_CENTER == 1, "Ttf.HorizontalAlignment.center");
+_Static_assert((int)TTF_HORIZONTAL_ALIGN_RIGHT  == 2, "Ttf.HorizontalAlignment.right");
+
+/* ---- Sdl/Ttf.lean: ImageType ---- */
+_Static_assert((int)TTF_IMAGE_INVALID == 0, "Ttf.ImageType.invalid");
+_Static_assert((int)TTF_IMAGE_ALPHA   == 1, "Ttf.ImageType.alpha");
+_Static_assert((int)TTF_IMAGE_COLOR   == 2, "Ttf.ImageType.color");
+_Static_assert((int)TTF_IMAGE_SDF     == 3, "Ttf.ImageType.sdf");
+
+/* ---- Sdl/Ttf.lean: FontStyle ---- */
+_Static_assert(TTF_STYLE_NORMAL        == 0x00u, "Ttf.FontStyle.none");
+_Static_assert(TTF_STYLE_BOLD          == 0x01u, "Ttf.FontStyle.bold");
+_Static_assert(TTF_STYLE_ITALIC        == 0x02u, "Ttf.FontStyle.italic");
+_Static_assert(TTF_STYLE_UNDERLINE     == 0x04u, "Ttf.FontStyle.underline");
+_Static_assert(TTF_STYLE_STRIKETHROUGH == 0x08u, "Ttf.FontStyle.strikethrough");
