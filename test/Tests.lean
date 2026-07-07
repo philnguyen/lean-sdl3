@@ -7,6 +7,8 @@ import Tests.Timer
 import Tests.Guid
 import Tests.Time
 import Tests.Filesystem
+import Tests.AsyncIO
+import Tests.Storage
 import Tests.CpuInfo
 import Tests.Power
 import Tests.Locale
@@ -47,6 +49,8 @@ def main : IO UInt32 := do
   Harness.group "Guid" Guid.run
   Harness.group "Time" Time.run
   Harness.group "Filesystem" Filesystem.run
+  Harness.group "AsyncIO" AsyncIO.run
+  Harness.group "Storage" Storage.run
   Harness.group "CpuInfo" CpuInfo.run
   Harness.group "Power" Power.run
   Harness.group "Locale" Locale.run

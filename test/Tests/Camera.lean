@@ -47,7 +47,10 @@ def permissionStateTests : IO Unit := do
 Forces the dummy camera driver via a hint, initializes the camera subsystem,
 runs the checks, then quits just the camera subsystem at the end. -/
 def run : IO Unit := do
-  Sdl.setHint Sdl.Hint.cameraDriver "dummy"
+  -- `SDL_SetHint` fails when the same-named env var is already set (env takes
+  -- priority), so only set the hint when the smoke-script env isn't present.
+  if (← IO.getEnv "SDL_CAMERA_DRIVER").isNone then
+    Sdl.setHint Sdl.Hint.cameraDriver "dummy"
   Sdl.initSubSystem .camera
   driverTests
   bogusIdTests

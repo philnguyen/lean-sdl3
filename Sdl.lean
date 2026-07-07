@@ -35,6 +35,12 @@ import Sdl.Joystick
 import Sdl.Gamepad
 import Sdl.Haptic
 import Sdl.Render
+import Sdl.AsyncIO
+import Sdl.Storage
+import Sdl.Process
+import Sdl.LoadSo
+import Sdl.System
+import Sdl.Tray
 import Sdl.App
 
 /-!

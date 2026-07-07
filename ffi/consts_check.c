@@ -1366,3 +1366,18 @@ _Static_assert(SDL_CAMERA_POSITION_BACK_FACING  == 2, "CameraPosition.backFacing
 _Static_assert(SDL_CAMERA_PERMISSION_STATE_DENIED   == -1, "CameraPermissionState.denied");
 _Static_assert(SDL_CAMERA_PERMISSION_STATE_PENDING  ==  0, "CameraPermissionState.pending");
 _Static_assert(SDL_CAMERA_PERMISSION_STATE_APPROVED ==  1, "CameraPermissionState.approved");
+
+/* ==================== Sdl/AsyncIO.lean ==================== */
+
+/* ---- AsyncIOTaskType (closed sdl_enum) ---- */
+_Static_assert((int)SDL_ASYNCIO_TASK_READ  == 0, "AsyncIOTaskType.read");
+_Static_assert((int)SDL_ASYNCIO_TASK_WRITE == 1, "AsyncIOTaskType.write");
+_Static_assert((int)SDL_ASYNCIO_TASK_CLOSE == 2, "AsyncIOTaskType.close");
+
+/* ---- AsyncIOResult (closed sdl_enum) ---- */
+_Static_assert((int)SDL_ASYNCIO_COMPLETE == 0, "AsyncIOResult.complete");
+_Static_assert((int)SDL_ASYNCIO_FAILURE  == 1, "AsyncIOResult.failure");
+_Static_assert((int)SDL_ASYNCIO_CANCELED == 2, "AsyncIOResult.canceled");
+
+/* Sdl/Storage.lean introduces no new enums: GlobFlags / PathInfo /
+ * EnumerationResult are already pinned by the Sdl/Filesystem.lean section. */
