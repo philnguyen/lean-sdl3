@@ -6,17 +6,77 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-macos:
     runs-on: macos-latest
+
+    # Everything (including lean-action's `lake test`) must run headless:
+    # dummy drivers, and never the real camera driver (permission prompt).
+    env:
+      SDL_VIDEO_DRIVER: dummy
+      SDL_AUDIO_DRIVER: dummy
+      SDL_CAMERA_DRIVER: dummy
 
     steps:
       - uses: actions/checkout@v5
       - name: Install SDL3
         run: brew install sdl3 sdl3_ttf
       - uses: leanprover/lean-action@v1
+      - name: Run tests
+        run: lake exe test
       - name: Smoke test
+        run: lake exe sdl
+      - name: Demo smoke test
+        run: scripts/smoke-examples.sh
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    # Ubuntu 24.04 has no SDL3 packages yet, so build the same versions the
+    # project is developed against from source (cached across runs).
+    env:
+      SDL_VERSION: "3.4.10"
+      SDL_TTF_VERSION: "3.2.2"
+      SDL_PREFIX: /home/runner/sdl-prefix
+      SDL_VIDEO_DRIVER: dummy
+      SDL_AUDIO_DRIVER: dummy
+      SDL_CAMERA_DRIVER: dummy
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install build dependencies
         run: |
-          export SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy
-          lake exe sdl
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config libfreetype-dev \
+            libharfbuzz-dev fonts-dejavu-core
+      - name: Cache SDL3 + SDL3_ttf
+        id: cache-sdl
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SDL_PREFIX }}
+          key: sdl-${{ env.SDL_VERSION }}-ttf-${{ env.SDL_TTF_VERSION }}-${{ runner.os }}
+      - name: Build SDL3 + SDL3_ttf from source
+        if: steps.cache-sdl.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch "release-$SDL_VERSION" \
+            https://github.com/libsdl-org/SDL.git
+          cmake -S SDL -B SDL/build -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$SDL_PREFIX"
+          cmake --build SDL/build
+          cmake --install SDL/build
+          git clone --depth 1 --branch "release-$SDL_TTF_VERSION" \
+            https://github.com/libsdl-org/SDL_ttf.git
+          cmake -S SDL_ttf -B SDL_ttf/build -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$SDL_PREFIX" \
+            -DCMAKE_PREFIX_PATH="$SDL_PREFIX" \
+            -DSDLTTF_VENDORED=OFF -DSDLTTF_PLUTOSVG=OFF
+          cmake --build SDL_ttf/build
+          cmake --install SDL_ttf/build
+      - name: Expose SDL to pkg-config
+        run: echo "PKG_CONFIG_PATH=$SDL_PREFIX/lib/pkgconfig" >> "$GITHUB_ENV"
+      - uses: leanprover/lean-action@v1
+      - name: Run tests
+        run: lake exe test
+      - name: Smoke test
+        run: lake exe sdl
       - name: Demo smoke test
         run: scripts/smoke-examples.sh

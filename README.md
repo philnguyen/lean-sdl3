@@ -17,15 +17,16 @@ Comprehensive [Lean 4](https://lean-lang.org) bindings for
   in CI.
 
 Developed against SDL 3.4.10 / SDL_ttf 3.2.2 on macOS (Apple Silicon), Lean
-toolchain `v4.31.0`. Linux should work wherever SDL3 headers/libraries are
-discoverable (see [Portability](#portability)) but is untested — reports and
-PRs welcome.
+toolchain `v4.31.0`. CI builds and tests on both macOS and Linux (see
+[Portability](#portability)). Windows is untested — reports and PRs welcome.
 
 ## Quick start
 
 ```sh
 # Prerequisites: elan (Lean toolchain manager) and SDL3
-brew install sdl3 sdl3_ttf     # macOS; on Linux use your package manager
+brew install sdl3 sdl3_ttf     # macOS. Linux: no distro packages yet — build
+                               # SDL3/SDL3_ttf from source (recipe: the Linux
+                               # job in .github/workflows/lean_action_ci.yml)
 
 lake build                     # builds the library, C shims, tests, and demos
 lake exe sdl                   # prints the linked SDL version — a smoke test
@@ -127,7 +128,7 @@ SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy SDL_CAMERA_DRIVER=dummy lake exe t
 
 800+ runtime checks (event decode round-trips, callback bridges, ownership
 stress, renderer pixel checks, …), all passing headless — this is what CI
-runs on `macos-latest`. Groups that need real hardware (GPU/Metal, camera)
+runs on macOS and Linux. Groups that need real hardware (GPU/Metal, camera)
 detect the dummy driver and assert the skip path instead.
 
 - `SDL_LEAN_TEST_GROUP=<Name>` runs a single group (e.g. `Render`, `Ttf`).
@@ -173,11 +174,14 @@ and non-macOS parts of `SDL_system.h`.
 
 ## Portability
 
-Header discovery is dynamic (pkg-config → `brew --prefix` → standard
-prefixes, with an actionable error if none hit); link flags currently
-hardcode Homebrew's `/opt/homebrew/lib` alongside `-lSDL3 -lSDL3_ttf`, which
-is harmless where that path doesn't exist as long as SDL3 is on the default
-linker path. See the note in [`lakefile.lean`](lakefile.lean).
+Header and link-flag discovery are both dynamic (pkg-config →
+`brew --prefix` → standard prefixes, with an actionable error if headers are
+nowhere to be found); discovered library dirs get an rpath, so binaries run
+without `LD_LIBRARY_PATH`. CI exercises macOS (Homebrew SDL) and Linux
+(Ubuntu, SDL3 + SDL3_ttf built from source since no distro package exists
+yet): full build, the 800+ tests, and all-40-demo headless smoke on both.
+Windows is not supported yet — the C shims are portable C11, but the build
+discovery and the `LEAN_MAIN_USE_THREAD` constructor are POSIX-only.
 
 ## Contributing
 
