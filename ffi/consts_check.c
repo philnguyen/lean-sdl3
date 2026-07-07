@@ -1719,3 +1719,91 @@ _Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_SDR                  == 0, "Swa
 _Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_SDR_LINEAR           == 1, "SwapchainComposition.sdrLinear");
 _Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_HDR_EXTENDED_LINEAR  == 2, "SwapchainComposition.hdrExtendedLinear");
 _Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084         == 3, "SwapchainComposition.hdr10St2084");
+
+/* ==== Sdl/Gpu/Pipeline.lean: packed pipeline sub-struct layouts ====
+ * These pointer-free structs are packed in Lean to the EXACT C layout and
+ * memcpy'd into place; every sizeof + offsetof is pinned here. */
+
+/* ---- SDL_GPUVertexBufferDescription (packVertexBufferDescriptions, stride 16) ---- */
+_Static_assert(sizeof(SDL_GPUVertexBufferDescription) == 16, "VertexBufferDescription size");
+_Static_assert(offsetof(SDL_GPUVertexBufferDescription, slot) == 0, "VertexBufferDescription.slot");
+_Static_assert(offsetof(SDL_GPUVertexBufferDescription, pitch) == 4, "VertexBufferDescription.pitch");
+_Static_assert(offsetof(SDL_GPUVertexBufferDescription, input_rate) == 8, "VertexBufferDescription.inputRate");
+_Static_assert(offsetof(SDL_GPUVertexBufferDescription, instance_step_rate) == 12, "VertexBufferDescription.instanceStepRate");
+
+/* ---- SDL_GPUVertexAttribute (packVertexAttributes, stride 16) ---- */
+_Static_assert(sizeof(SDL_GPUVertexAttribute) == 16, "VertexAttribute size");
+_Static_assert(offsetof(SDL_GPUVertexAttribute, location) == 0, "VertexAttribute.location");
+_Static_assert(offsetof(SDL_GPUVertexAttribute, buffer_slot) == 4, "VertexAttribute.bufferSlot");
+_Static_assert(offsetof(SDL_GPUVertexAttribute, format) == 8, "VertexAttribute.format");
+_Static_assert(offsetof(SDL_GPUVertexAttribute, offset) == 12, "VertexAttribute.offset");
+
+/* ---- SDL_GPUStencilOpState (emitStencilOpState, 16) ---- */
+_Static_assert(sizeof(SDL_GPUStencilOpState) == 16, "StencilOpState size");
+_Static_assert(offsetof(SDL_GPUStencilOpState, fail_op) == 0, "StencilOpState.failOp");
+_Static_assert(offsetof(SDL_GPUStencilOpState, pass_op) == 4, "StencilOpState.passOp");
+_Static_assert(offsetof(SDL_GPUStencilOpState, depth_fail_op) == 8, "StencilOpState.depthFailOp");
+_Static_assert(offsetof(SDL_GPUStencilOpState, compare_op) == 12, "StencilOpState.compareOp");
+
+/* ---- SDL_GPUColorTargetBlendState (emitColorTargetBlendState, 32) ---- */
+_Static_assert(sizeof(SDL_GPUColorTargetBlendState) == 32, "ColorTargetBlendState size");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, src_color_blendfactor) == 0, "ColorTargetBlendState.srcColorBlendfactor");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, dst_color_blendfactor) == 4, "ColorTargetBlendState.dstColorBlendfactor");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, color_blend_op) == 8, "ColorTargetBlendState.colorBlendOp");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, src_alpha_blendfactor) == 12, "ColorTargetBlendState.srcAlphaBlendfactor");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, dst_alpha_blendfactor) == 16, "ColorTargetBlendState.dstAlphaBlendfactor");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, alpha_blend_op) == 20, "ColorTargetBlendState.alphaBlendOp");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, color_write_mask) == 24, "ColorTargetBlendState.colorWriteMask");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, enable_blend) == 25, "ColorTargetBlendState.enableBlend");
+_Static_assert(offsetof(SDL_GPUColorTargetBlendState, enable_color_write_mask) == 26, "ColorTargetBlendState.enableColorWriteMask");
+
+/* ---- SDL_GPUColorTargetDescription (packColorTargetDescriptions, stride 36) ---- */
+_Static_assert(sizeof(SDL_GPUColorTargetDescription) == 36, "ColorTargetDescription size");
+_Static_assert(offsetof(SDL_GPUColorTargetDescription, format) == 0, "ColorTargetDescription.format");
+_Static_assert(offsetof(SDL_GPUColorTargetDescription, blend_state) == 4, "ColorTargetDescription.blendState");
+
+/* ---- SDL_GPURasterizerState (packRasterizerState, 28) ---- */
+_Static_assert(sizeof(SDL_GPURasterizerState) == 28, "RasterizerState size");
+_Static_assert(offsetof(SDL_GPURasterizerState, fill_mode) == 0, "RasterizerState.fillMode");
+_Static_assert(offsetof(SDL_GPURasterizerState, cull_mode) == 4, "RasterizerState.cullMode");
+_Static_assert(offsetof(SDL_GPURasterizerState, front_face) == 8, "RasterizerState.frontFace");
+_Static_assert(offsetof(SDL_GPURasterizerState, depth_bias_constant_factor) == 12, "RasterizerState.depthBiasConstantFactor");
+_Static_assert(offsetof(SDL_GPURasterizerState, depth_bias_clamp) == 16, "RasterizerState.depthBiasClamp");
+_Static_assert(offsetof(SDL_GPURasterizerState, depth_bias_slope_factor) == 20, "RasterizerState.depthBiasSlopeFactor");
+_Static_assert(offsetof(SDL_GPURasterizerState, enable_depth_bias) == 24, "RasterizerState.enableDepthBias");
+_Static_assert(offsetof(SDL_GPURasterizerState, enable_depth_clip) == 25, "RasterizerState.enableDepthClip");
+
+/* ---- SDL_GPUMultisampleState (packMultisampleState, 12) ---- */
+_Static_assert(sizeof(SDL_GPUMultisampleState) == 12, "MultisampleState size");
+_Static_assert(offsetof(SDL_GPUMultisampleState, sample_count) == 0, "MultisampleState.sampleCount");
+_Static_assert(offsetof(SDL_GPUMultisampleState, sample_mask) == 4, "MultisampleState.sampleMask");
+_Static_assert(offsetof(SDL_GPUMultisampleState, enable_mask) == 8, "MultisampleState.enableMask");
+_Static_assert(offsetof(SDL_GPUMultisampleState, enable_alpha_to_coverage) == 9, "MultisampleState.enableAlphaToCoverage");
+
+/* ---- SDL_GPUDepthStencilState (packDepthStencilState, 44) ---- */
+_Static_assert(sizeof(SDL_GPUDepthStencilState) == 44, "DepthStencilState size");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, compare_op) == 0, "DepthStencilState.compareOp");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, back_stencil_state) == 4, "DepthStencilState.backStencilState");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, front_stencil_state) == 20, "DepthStencilState.frontStencilState");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, compare_mask) == 36, "DepthStencilState.compareMask");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, write_mask) == 37, "DepthStencilState.writeMask");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, enable_depth_test) == 38, "DepthStencilState.enableDepthTest");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, enable_depth_write) == 39, "DepthStencilState.enableDepthWrite");
+_Static_assert(offsetof(SDL_GPUDepthStencilState, enable_stencil_test) == 40, "DepthStencilState.enableStencilTest");
+
+/* ---- Indirect-draw command structs (toBytes packers, tightly packed) ---- */
+_Static_assert(sizeof(SDL_GPUIndirectDrawCommand) == 16, "IndirectDrawCommand size");
+_Static_assert(offsetof(SDL_GPUIndirectDrawCommand, num_vertices) == 0, "IndirectDrawCommand.numVertices");
+_Static_assert(offsetof(SDL_GPUIndirectDrawCommand, num_instances) == 4, "IndirectDrawCommand.numInstances");
+_Static_assert(offsetof(SDL_GPUIndirectDrawCommand, first_vertex) == 8, "IndirectDrawCommand.firstVertex");
+_Static_assert(offsetof(SDL_GPUIndirectDrawCommand, first_instance) == 12, "IndirectDrawCommand.firstInstance");
+_Static_assert(sizeof(SDL_GPUIndexedIndirectDrawCommand) == 20, "IndexedIndirectDrawCommand size");
+_Static_assert(offsetof(SDL_GPUIndexedIndirectDrawCommand, num_indices) == 0, "IndexedIndirectDrawCommand.numIndices");
+_Static_assert(offsetof(SDL_GPUIndexedIndirectDrawCommand, num_instances) == 4, "IndexedIndirectDrawCommand.numInstances");
+_Static_assert(offsetof(SDL_GPUIndexedIndirectDrawCommand, first_index) == 8, "IndexedIndirectDrawCommand.firstIndex");
+_Static_assert(offsetof(SDL_GPUIndexedIndirectDrawCommand, vertex_offset) == 12, "IndexedIndirectDrawCommand.vertexOffset");
+_Static_assert(offsetof(SDL_GPUIndexedIndirectDrawCommand, first_instance) == 16, "IndexedIndirectDrawCommand.firstInstance");
+_Static_assert(sizeof(SDL_GPUIndirectDispatchCommand) == 12, "IndirectDispatchCommand size");
+_Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_x) == 0, "IndirectDispatchCommand.groupcountX");
+_Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_y) == 4, "IndirectDispatchCommand.groupcountY");
+_Static_assert(offsetof(SDL_GPUIndirectDispatchCommand, groupcount_z) == 8, "IndirectDispatchCommand.groupcountZ");

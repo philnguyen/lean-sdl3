@@ -32,6 +32,7 @@ import Tests.Input
 import Tests.Gamepad
 import Tests.Camera
 import Tests.Gpu
+import Tests.GpuPipeline
 import Tests.App
 import Tests.Callbacks
 
@@ -79,6 +80,7 @@ def main : IO UInt32 := do
   Harness.group "Gamepad" Gamepad.run
   Harness.group "Camera" Camera.run
   Harness.group "Gpu" Gpu.run
+  Harness.group "GpuPipeline" GpuPipeline.run
   Harness.group "App" App.run
   Harness.group "Callbacks" Callbacks.run
   Harness.summary

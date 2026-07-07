@@ -226,6 +226,16 @@ SDL_AUDIO_DRIVER=dummy`, frame cap via `SDL_LEAN_MAX_FRAMES` env var
   upload/download, offscreen render-pass clear + readback, MSL shader
   pipelines) only when a real backend is available. The gpu-clear demo catches
   device-creation failure, logs, and exits 0 so headless smoke stays green.
+- Lifetime caveat (found by a real-Metal use-after-free at draw time): pass
+  binds do NOT retain, and SDL frees a released
+  GraphicsPipeline/ComputePipeline/Sampler immediately — even while bound in a
+  not-yet-submitted command buffer (buffers/textures are refcount-tracked per
+  command buffer and safe to drop after binding). Lean's eager RC finalizes a
+  local pipeline right after its last syntactic use, so a pipeline whose last
+  use is `bindPipeline` is freed before the draw. Rule (documented on the
+  binds + module doc): keep pipelines/samplers reachable until the command
+  buffer is submitted; `.release` after submit is the idiomatic test/demo
+  shape. Same class as the render-target "keep your reference alive" rule.
 - Metal facts (probe-verified, SDL 3.4.10, macOS arm64): device shader formats
   = MSL|METALLIB (0x30); offscreen work needs no window; swapchain composition
   SDR + present modes VSYNC/IMMEDIATE supported (MAILBOX not); swapchain

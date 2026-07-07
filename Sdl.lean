@@ -42,6 +42,7 @@ import Sdl.LoadSo
 import Sdl.System
 import Sdl.Tray
 import Sdl.Gpu
+import Sdl.Gpu.Pipeline
 import Sdl.App
 
 /-!
