@@ -194,3 +194,27 @@ lean_exe «audio-04-multiple-streams» where
 lean_exe «audio-05-planar-data» where
   srcDir := "examples"
   root := `Audio.PlanarData
+
+lean_exe «input-01-joystick-polling» where
+  srcDir := "examples"
+  root := `Input.JoystickPolling
+
+lean_exe «input-02-joystick-events» where
+  srcDir := "examples"
+  root := `Input.JoystickEvents
+
+lean_exe «input-03-gamepad-polling» where
+  srcDir := "examples"
+  root := `Input.GamepadPolling
+
+lean_exe «input-04-gamepad-events» where
+  srcDir := "examples"
+  root := `Input.GamepadEvents
+
+lean_exe «input-05-gamepad-rumble» where
+  srcDir := "examples"
+  root := `Input.GamepadRumble
+
+lean_exe «demo-01-snake» where
+  srcDir := "examples"
+  root := `Demo.Snake

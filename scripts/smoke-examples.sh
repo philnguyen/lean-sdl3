@@ -35,6 +35,12 @@ demos=(
   audio-03-load-wav
   audio-04-multiple-streams
   audio-05-planar-data
+  input-01-joystick-polling
+  input-02-joystick-events
+  input-03-gamepad-polling
+  input-04-gamepad-events
+  input-05-gamepad-rumble
+  demo-01-snake
 )
 
 fail=0
