@@ -12,3 +12,8 @@ license](https://github.com/libsdl-org/SDL/blob/main/LICENSE.txt).
 | `gamepad_front.png` | input-03-gamepad-polling |
 | `sample.wav` | audio-03-load-wav, audio-04-multiple-streams (a sample from Will Provost's *The Living Proof*, used with permission — see the upstream example's header) |
 | `sword.wav` | audio-04-multiple-streams |
+
+`hello.BytePusher` is not vendored: it is a locally generated
+[BytePusher](https://esolangs.org/wiki/BytePusher) test ROM for
+demo-04-bytepusher (a static gradient plus an idle loop). Regenerate it with
+`python3 scripts/gen-bytepusher-rom.py` from the repository root.

@@ -218,3 +218,23 @@ lean_exe «input-05-gamepad-rumble» where
 lean_exe «demo-01-snake» where
   srcDir := "examples"
   root := `Demo.Snake
+
+lean_exe «camera-01-read-and-draw» where
+  srcDir := "examples"
+  root := `Camera.ReadAndDraw
+
+lean_exe «pen-01-drawing-lines» where
+  srcDir := "examples"
+  root := `Pen.DrawingLines
+
+lean_exe «demo-02-woodeneye-008» where
+  srcDir := "examples"
+  root := `Demo.Woodeneye
+
+lean_exe «demo-03-infinite-monkeys» where
+  srcDir := "examples"
+  root := `Demo.InfiniteMonkeys
+
+lean_exe «demo-04-bytepusher» where
+  srcDir := "examples"
+  root := `Demo.BytePusher

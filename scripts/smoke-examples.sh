@@ -40,13 +40,21 @@ demos=(
   input-03-gamepad-polling
   input-04-gamepad-events
   input-05-gamepad-rumble
+  camera-01-read-and-draw
+  pen-01-drawing-lines
   demo-01-snake
+  demo-02-woodeneye-008
+  demo-03-infinite-monkeys
+  "demo-04-bytepusher examples/assets/hello.BytePusher"
 )
 
 fail=0
 for d in "${demos[@]}"; do
-  if SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy SDL_LEAN_MAX_FRAMES="$frames" \
-      lake exe "$d" >/dev/null 2>&1; then
+  # An entry may carry arguments after the exe name (e.g. a ROM path).
+  read -r -a cmd <<< "$d"
+  if SDL_VIDEO_DRIVER=dummy SDL_AUDIO_DRIVER=dummy SDL_CAMERA_DRIVER=dummy \
+      SDL_LEAN_MAX_FRAMES="$frames" \
+      lake exe "${cmd[@]}" >/dev/null 2>&1; then
     echo "ok   $d"
   else
     echo "FAIL $d (exit $?)"
