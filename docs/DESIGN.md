@@ -155,9 +155,21 @@ is never called (SDL threads are long-lived; bounded TLS leak).
 
 ## Threading / main loop
 
-Lean's `main` runs on the OS main thread — `SDL_Init`, window creation, event
-pump, and all rendering stay there. Never call video/render APIs from
-`Task`/`IO.asTask`. Examples use `Sdl.App` (init/event/iterate/quit record,
+Lean's generated entry point hands the program to `lean_run_main`, which by
+default runs `main` on a **spawned thread** (for stack-size control) — macOS's
+cocoa driver then reports "No available video device" (AppKit requires the
+process's primary thread; the dummy driver doesn't care, so headless tests
+pass regardless). `ffi/util.c` therefore sets `LEAN_MAIN_USE_THREAD=0` from an
+`__attribute__((constructor))` — image-load constructors run on the primary
+thread before `main`, and an explicit value in the environment is not
+overwritten — so `lean_run_main` calls `main` directly on the OS main thread.
+Cost: the OS-default main stack (8 MiB) instead of Lean's configurable thread
+stack; add `-Wl,-stack_size,…` to `moreLinkArgs` if that ever bites.
+`test/Tests/App.lean` asserts `Sdl.isMainThread` so a toolchain that stops
+honoring the variable fails CI.
+
+With that in place, `SDL_Init`, window creation, event pump, and all rendering
+stay on the main thread. Never call video/render APIs from `Task`/`IO.asTask`. Examples use `Sdl.App` (init/event/iterate/quit record,
 mirroring the official examples' `SDL_MAIN_USE_CALLBACKS` shape) driven by
 `App.run` from `main`. Headless verification: `SDL_VIDEO_DRIVER=dummy
 SDL_AUDIO_DRIVER=dummy`, frame cap via `SDL_LEAN_MAX_FRAMES` env var

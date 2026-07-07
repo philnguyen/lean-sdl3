@@ -1,6 +1,20 @@
 #include "util.h"
 
+#include <stdlib.h>
+
 _Thread_local int lean_sdl_thread_ready = 0;
+
+/* Lean's generated entry point runs `main` through `lean_run_main`, which by
+   default moves it onto a spawned thread (stack-size control) — macOS's cocoa
+   video driver then refuses to create a device ("No available video device";
+   AppKit requires the process's primary thread). Image-load constructors run
+   on the primary thread before `main`, so opt out here for every binary that
+   links these bindings. An explicit LEAN_MAIN_USE_THREAD in the environment
+   is not overwritten. */
+__attribute__((constructor))
+static void lean_sdl_force_main_thread(void) {
+    setenv("LEAN_MAIN_USE_THREAD", "0", 0 /* don't overwrite */);
+}
 
 void lean_sdl_holder_foreach(void *data, b_lean_obj_arg fn) {
     sdl_holder *h = (sdl_holder *)data;

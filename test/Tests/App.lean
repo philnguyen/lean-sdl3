@@ -4,6 +4,13 @@ import Tests.Harness
 namespace Tests.App
 open Sdl Tests.Harness
 
+/-- Lean's `main` must run on the OS main thread, or macOS's cocoa video
+driver refuses to initialize. `ffi/util.c` forces this by setting
+`LEAN_MAIN_USE_THREAD=0` from an image-load constructor; this check fails if
+a toolchain update stops honoring that variable. -/
+def mainThread : IO Unit := do
+  check "Lean main runs on the OS main thread" (← isMainThread)
+
 /-- `iterate`-driven run: counts to 5, ends with `.success`, `quit` sees the
 final result exactly once. -/
 def iterateDriven : IO Unit := do
@@ -94,6 +101,7 @@ def exceptionInIterate : IO Unit := do
   check "quit saw failure before rethrow" ((← quitLog.get) == #[.failure])
 
 def run : IO Unit := do
+  mainThread
   iterateDriven
   eventDriven
   initOutcomes
