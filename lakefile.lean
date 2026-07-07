@@ -174,3 +174,23 @@ lean_exe «misc-02-clipboard» where
 lean_exe «misc-03-locale» where
   srcDir := "examples"
   root := `Misc.Locale
+
+lean_exe «audio-01-simple-playback» where
+  srcDir := "examples"
+  root := `Audio.SimplePlayback
+
+lean_exe «audio-02-simple-playback-callback» where
+  srcDir := "examples"
+  root := `Audio.SimplePlaybackCallback
+
+lean_exe «audio-03-load-wav» where
+  srcDir := "examples"
+  root := `Audio.LoadWav
+
+lean_exe «audio-04-multiple-streams» where
+  srcDir := "examples"
+  root := `Audio.MultipleStreams
+
+lean_exe «audio-05-planar-data» where
+  srcDir := "examples"
+  root := `Audio.PlanarData

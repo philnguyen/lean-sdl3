@@ -30,6 +30,11 @@ demos=(
   misc-01-power
   misc-02-clipboard
   misc-03-locale
+  audio-01-simple-playback
+  audio-02-simple-playback-callback
+  audio-03-load-wav
+  audio-04-multiple-streams
+  audio-05-planar-data
 )
 
 fail=0
