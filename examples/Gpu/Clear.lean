@@ -36,7 +36,9 @@ def app (cleared : IO.Ref Nat) : App State where
     Sdl.init .video
     let device ←
       try
-        Gpu.createDevice (.msl ||| .metallib)
+        -- No shaders in this demo, so accept every format: any available
+        -- backend (Metal, Vulkan, D3D12) can match.
+        Gpu.createDevice (.msl ||| .metallib ||| .spirv ||| .dxbc ||| .dxil)
       catch e =>
         -- No GPU backend (always the case under the dummy video driver):
         -- not an error for this demo, just nothing to show.

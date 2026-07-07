@@ -10,11 +10,15 @@ _Thread_local int lean_sdl_thread_ready = 0;
    AppKit requires the process's primary thread). Image-load constructors run
    on the primary thread before `main`, so opt out here for every binary that
    links these bindings. An explicit LEAN_MAIN_USE_THREAD in the environment
-   is not overwritten. */
+   is not overwritten. Applied on all POSIX platforms — some Linux video
+   setups care about the primary thread too, and consistency costs nothing.
+   Skipped on Windows (no setenv; win32 video has no such constraint). */
+#ifndef _WIN32
 __attribute__((constructor))
 static void lean_sdl_force_main_thread(void) {
     setenv("LEAN_MAIN_USE_THREAD", "0", 0 /* don't overwrite */);
 }
+#endif
 
 void lean_sdl_holder_foreach(void *data, b_lean_obj_arg fn) {
     sdl_holder *h = (sdl_holder *)data;

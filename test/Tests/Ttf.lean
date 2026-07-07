@@ -15,12 +15,17 @@ Registers nothing — the entry point wires `test/Tests.lean`.
 namespace Tests.Ttf
 open Sdl Sdl.Ttf Tests.Harness
 
-/-- First of the probed macOS system fonts that exists on disk. -/
+/-- First of the probed system fonts (macOS, then common Linux paths) that
+exists on disk. -/
 def systemFontPath : IO (Option String) := do
   let candidates := [
     "/System/Library/Fonts/Helvetica.ttc",
     "/System/Library/Fonts/Monaco.ttf",
-    "/System/Library/Fonts/Supplemental/Arial.ttf"]
+    "/System/Library/Fonts/Supplemental/Arial.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",     -- Debian/Ubuntu
+    "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",   -- Fedora
+    "/usr/share/fonts/TTF/DejaVuSans.ttf",                 -- Arch
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]
   for p in candidates do
     if ← System.FilePath.pathExists p then
       return some p

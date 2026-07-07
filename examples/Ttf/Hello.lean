@@ -11,9 +11,9 @@ There is no official SDL_ttf example at examples.libsdl.org; this demo mirrors
 the renderer examples' shape using the `Sdl.Ttf` API (M14).
 
 ## Deviations
-- Uses the first available macOS system font (Helvetica/Monaco/Arial); if none
-  exists the demo prints a note and exits successfully, keeping headless smoke
-  runs green on font-less machines.
+- Uses the first available system font (Helvetica/Monaco/Arial on macOS,
+  DejaVu/Liberation on Linux); if none exists the demo prints a note and exits
+  successfully, keeping headless smoke runs green on font-less machines.
 -/
 
 open Sdl Sdl.Ttf
@@ -21,12 +21,16 @@ open Sdl Sdl.Ttf
 def winW : Int32 := 640
 def winH : Int32 := 480
 
-/-- The first macOS system font present on disk (same candidates as `test/`). -/
+/-- The first system font present on disk (same candidates as `test/`). -/
 def findSystemFont : IO (Option String) := do
   let candidates := [
     "/System/Library/Fonts/Helvetica.ttc",
     "/System/Library/Fonts/Monaco.ttf",
-    "/System/Library/Fonts/Supplemental/Arial.ttf"]
+    "/System/Library/Fonts/Supplemental/Arial.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
+    "/usr/share/fonts/TTF/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]
   for p in candidates do
     if ← System.FilePath.pathExists p then
       return some p
