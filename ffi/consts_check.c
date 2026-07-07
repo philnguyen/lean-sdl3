@@ -1407,3 +1407,315 @@ _Static_assert(SDL_TRAYENTRY_CHECKBOX == 0x00000002u, "TrayEntryFlags.checkbox")
 _Static_assert(SDL_TRAYENTRY_SUBMENU  == 0x00000004u, "TrayEntryFlags.submenu");
 _Static_assert(SDL_TRAYENTRY_DISABLED == 0x80000000u, "TrayEntryFlags.disabled");
 _Static_assert(SDL_TRAYENTRY_CHECKED  == 0x40000000u, "TrayEntryFlags.checked");
+
+/* ==================== Sdl/Gpu/Enums.lean ==================== */
+/* ---- SDL_gpu.h (M13) ---- */
+
+/* ---- PrimitiveType (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_PRIMITIVETYPE_TRIANGLELIST  == 0, "PrimitiveType.triangleList");
+_Static_assert((int)SDL_GPU_PRIMITIVETYPE_TRIANGLESTRIP == 1, "PrimitiveType.triangleStrip");
+_Static_assert((int)SDL_GPU_PRIMITIVETYPE_LINELIST      == 2, "PrimitiveType.lineList");
+_Static_assert((int)SDL_GPU_PRIMITIVETYPE_LINESTRIP     == 3, "PrimitiveType.lineStrip");
+_Static_assert((int)SDL_GPU_PRIMITIVETYPE_POINTLIST     == 4, "PrimitiveType.pointList");
+
+/* ---- LoadOp (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_LOADOP_LOAD      == 0, "LoadOp.load");
+_Static_assert((int)SDL_GPU_LOADOP_CLEAR     == 1, "LoadOp.clear");
+_Static_assert((int)SDL_GPU_LOADOP_DONT_CARE == 2, "LoadOp.dontCare");
+
+/* ---- StoreOp (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_STOREOP_STORE            == 0, "StoreOp.store");
+_Static_assert((int)SDL_GPU_STOREOP_DONT_CARE        == 1, "StoreOp.dontCare");
+_Static_assert((int)SDL_GPU_STOREOP_RESOLVE          == 2, "StoreOp.resolve");
+_Static_assert((int)SDL_GPU_STOREOP_RESOLVE_AND_STORE == 3, "StoreOp.resolveAndStore");
+
+/* ---- IndexElementSize (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_INDEXELEMENTSIZE_16BIT == 0, "IndexElementSize.u16");
+_Static_assert((int)SDL_GPU_INDEXELEMENTSIZE_32BIT == 1, "IndexElementSize.u32");
+
+/* ---- TextureFormat (version-open sdl_enum_open) ---- */
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_INVALID              == 0,   "TextureFormat.invalid");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_A8_UNORM             == 1,   "TextureFormat.a8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8_UNORM             == 2,   "TextureFormat.r8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8_UNORM           == 3,   "TextureFormat.r8g8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM       == 4,   "TextureFormat.r8g8b8a8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16_UNORM            == 5,   "TextureFormat.r16Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16_UNORM         == 6,   "TextureFormat.r16g16Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16B16A16_UNORM   == 7,   "TextureFormat.r16g16b16a16Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R10G10B10A2_UNORM    == 8,   "TextureFormat.r10g10b10a2Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_B5G6R5_UNORM         == 9,   "TextureFormat.b5g6r5Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_B5G5R5A1_UNORM       == 10,  "TextureFormat.b5g5r5a1Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_B4G4R4A4_UNORM       == 11,  "TextureFormat.b4g4r4a4Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM       == 12,  "TextureFormat.b8g8r8a8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC1_RGBA_UNORM       == 13,  "TextureFormat.bc1RgbaUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC2_RGBA_UNORM       == 14,  "TextureFormat.bc2RgbaUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM       == 15,  "TextureFormat.bc3RgbaUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC4_R_UNORM          == 16,  "TextureFormat.bc4RUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC5_RG_UNORM         == 17,  "TextureFormat.bc5RgUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC7_RGBA_UNORM       == 18,  "TextureFormat.bc7RgbaUnorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC6H_RGB_FLOAT       == 19,  "TextureFormat.bc6hRgbFloat");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC6H_RGB_UFLOAT      == 20,  "TextureFormat.bc6hRgbUfloat");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8_SNORM             == 21,  "TextureFormat.r8Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8_SNORM          == 22,  "TextureFormat.r8g8Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8B8A8_SNORM       == 23,  "TextureFormat.r8g8b8a8Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16_SNORM            == 24,  "TextureFormat.r16Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16_SNORM         == 25,  "TextureFormat.r16g16Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16B16A16_SNORM   == 26,  "TextureFormat.r16g16b16a16Snorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16_FLOAT            == 27,  "TextureFormat.r16Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16_FLOAT         == 28,  "TextureFormat.r16g16Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT   == 29,  "TextureFormat.r16g16b16a16Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32_FLOAT            == 30,  "TextureFormat.r32Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32_FLOAT         == 31,  "TextureFormat.r32g32Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32B32A32_FLOAT   == 32,  "TextureFormat.r32g32b32a32Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R11G11B10_UFLOAT     == 33,  "TextureFormat.r11g11b10Ufloat");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8_UINT             == 34,  "TextureFormat.r8Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8_UINT           == 35,  "TextureFormat.r8g8Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UINT        == 36,  "TextureFormat.r8g8b8a8Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16_UINT            == 37,  "TextureFormat.r16Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16_UINT         == 38,  "TextureFormat.r16g16Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16B16A16_UINT    == 39,  "TextureFormat.r16g16b16a16Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32_UINT           == 40,  "TextureFormat.r32Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32_UINT         == 41,  "TextureFormat.r32g32Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32B32A32_UINT    == 42,  "TextureFormat.r32g32b32a32Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8_INT             == 43,  "TextureFormat.r8Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8_INT           == 44,  "TextureFormat.r8g8Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8B8A8_INT        == 45,  "TextureFormat.r8g8b8a8Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16_INT            == 46,  "TextureFormat.r16Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16_INT         == 47,  "TextureFormat.r16g16Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R16G16B16A16_INT    == 48,  "TextureFormat.r16g16b16a16Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32_INT           == 49,  "TextureFormat.r32Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32_INT         == 50,  "TextureFormat.r32g32Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R32G32B32A32_INT    == 51,  "TextureFormat.r32g32b32a32Int");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM_SRGB  == 52,  "TextureFormat.r8g8b8a8UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM_SRGB  == 53,  "TextureFormat.b8g8r8a8UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC1_RGBA_UNORM_SRGB  == 54,  "TextureFormat.bc1RgbaUnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC2_RGBA_UNORM_SRGB  == 55,  "TextureFormat.bc2RgbaUnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM_SRGB  == 56,  "TextureFormat.bc3RgbaUnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_BC7_RGBA_UNORM_SRGB  == 57,  "TextureFormat.bc7RgbaUnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_D16_UNORM           == 58,  "TextureFormat.d16Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_D24_UNORM           == 59,  "TextureFormat.d24Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_D32_FLOAT           == 60,  "TextureFormat.d32Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT    == 61,  "TextureFormat.d24UnormS8Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_D32_FLOAT_S8_UINT    == 62,  "TextureFormat.d32FloatS8Uint");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_4x4_UNORM       == 63,  "TextureFormat.astc4x4Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x4_UNORM       == 64,  "TextureFormat.astc5x4Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x5_UNORM       == 65,  "TextureFormat.astc5x5Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x5_UNORM       == 66,  "TextureFormat.astc6x5Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x6_UNORM       == 67,  "TextureFormat.astc6x6Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x5_UNORM       == 68,  "TextureFormat.astc8x5Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x6_UNORM       == 69,  "TextureFormat.astc8x6Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x8_UNORM       == 70,  "TextureFormat.astc8x8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x5_UNORM      == 71,  "TextureFormat.astc10x5Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x6_UNORM      == 72,  "TextureFormat.astc10x6Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x8_UNORM      == 73,  "TextureFormat.astc10x8Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x10_UNORM     == 74,  "TextureFormat.astc10x10Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x10_UNORM     == 75,  "TextureFormat.astc12x10Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x12_UNORM     == 76,  "TextureFormat.astc12x12Unorm");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_4x4_UNORM_SRGB  == 77,  "TextureFormat.astc4x4UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x4_UNORM_SRGB  == 78,  "TextureFormat.astc5x4UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x5_UNORM_SRGB  == 79,  "TextureFormat.astc5x5UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x5_UNORM_SRGB  == 80,  "TextureFormat.astc6x5UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x6_UNORM_SRGB  == 81,  "TextureFormat.astc6x6UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x5_UNORM_SRGB  == 82,  "TextureFormat.astc8x5UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x6_UNORM_SRGB  == 83,  "TextureFormat.astc8x6UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x8_UNORM_SRGB  == 84,  "TextureFormat.astc8x8UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x5_UNORM_SRGB == 85,  "TextureFormat.astc10x5UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x6_UNORM_SRGB == 86,  "TextureFormat.astc10x6UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x8_UNORM_SRGB == 87,  "TextureFormat.astc10x8UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x10_UNORM_SRGB == 88, "TextureFormat.astc10x10UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x10_UNORM_SRGB == 89, "TextureFormat.astc12x10UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x12_UNORM_SRGB == 90, "TextureFormat.astc12x12UnormSrgb");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_4x4_FLOAT       == 91,  "TextureFormat.astc4x4Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x4_FLOAT       == 92,  "TextureFormat.astc5x4Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_5x5_FLOAT       == 93,  "TextureFormat.astc5x5Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x5_FLOAT       == 94,  "TextureFormat.astc6x5Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_6x6_FLOAT       == 95,  "TextureFormat.astc6x6Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x5_FLOAT       == 96,  "TextureFormat.astc8x5Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x6_FLOAT       == 97,  "TextureFormat.astc8x6Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_8x8_FLOAT       == 98,  "TextureFormat.astc8x8Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x5_FLOAT      == 99,  "TextureFormat.astc10x5Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x6_FLOAT      == 100, "TextureFormat.astc10x6Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x8_FLOAT      == 101, "TextureFormat.astc10x8Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_10x10_FLOAT     == 102, "TextureFormat.astc10x10Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x10_FLOAT     == 103, "TextureFormat.astc12x10Float");
+_Static_assert((int)SDL_GPU_TEXTUREFORMAT_ASTC_12x12_FLOAT     == 104, "TextureFormat.astc12x12Float");
+
+/* ---- TextureUsageFlags (sdl_flags, Uint32) ---- */
+_Static_assert(SDL_GPU_TEXTUREUSAGE_SAMPLER                                 == 0x00000001u, "TextureUsageFlags.sampler");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_COLOR_TARGET                            == 0x00000002u, "TextureUsageFlags.colorTarget");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET                    == 0x00000004u, "TextureUsageFlags.depthStencilTarget");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_GRAPHICS_STORAGE_READ                   == 0x00000008u, "TextureUsageFlags.graphicsStorageRead");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_READ                    == 0x00000010u, "TextureUsageFlags.computeStorageRead");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE                   == 0x00000020u, "TextureUsageFlags.computeStorageWrite");
+_Static_assert(SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_SIMULTANEOUS_READ_WRITE == 0x00000040u, "TextureUsageFlags.computeStorageSimultaneousReadWrite");
+
+/* ---- TextureType (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_TEXTURETYPE_2D         == 0, "TextureType.d2");
+_Static_assert((int)SDL_GPU_TEXTURETYPE_2D_ARRAY   == 1, "TextureType.d2Array");
+_Static_assert((int)SDL_GPU_TEXTURETYPE_3D         == 2, "TextureType.d3");
+_Static_assert((int)SDL_GPU_TEXTURETYPE_CUBE       == 3, "TextureType.cube");
+_Static_assert((int)SDL_GPU_TEXTURETYPE_CUBE_ARRAY == 4, "TextureType.cubeArray");
+
+/* ---- SampleCount (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_SAMPLECOUNT_1 == 0, "SampleCount.x1");
+_Static_assert((int)SDL_GPU_SAMPLECOUNT_2 == 1, "SampleCount.x2");
+_Static_assert((int)SDL_GPU_SAMPLECOUNT_4 == 2, "SampleCount.x4");
+_Static_assert((int)SDL_GPU_SAMPLECOUNT_8 == 3, "SampleCount.x8");
+
+/* ---- CubeMapFace (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_POSITIVEX == 0, "CubeMapFace.positiveX");
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_NEGATIVEX == 1, "CubeMapFace.negativeX");
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_POSITIVEY == 2, "CubeMapFace.positiveY");
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_NEGATIVEY == 3, "CubeMapFace.negativeY");
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_POSITIVEZ == 4, "CubeMapFace.positiveZ");
+_Static_assert((int)SDL_GPU_CUBEMAPFACE_NEGATIVEZ == 5, "CubeMapFace.negativeZ");
+
+/* ---- BufferUsageFlags (sdl_flags, Uint32) ---- */
+_Static_assert(SDL_GPU_BUFFERUSAGE_VERTEX                == 0x00000001u, "BufferUsageFlags.vertex");
+_Static_assert(SDL_GPU_BUFFERUSAGE_INDEX                 == 0x00000002u, "BufferUsageFlags.index");
+_Static_assert(SDL_GPU_BUFFERUSAGE_INDIRECT             == 0x00000004u, "BufferUsageFlags.indirect");
+_Static_assert(SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ == 0x00000008u, "BufferUsageFlags.graphicsStorageRead");
+_Static_assert(SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ  == 0x00000010u, "BufferUsageFlags.computeStorageRead");
+_Static_assert(SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE == 0x00000020u, "BufferUsageFlags.computeStorageWrite");
+
+/* ---- TransferBufferUsage (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD   == 0, "TransferBufferUsage.upload");
+_Static_assert((int)SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD == 1, "TransferBufferUsage.download");
+
+/* ---- ShaderStage (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_SHADERSTAGE_VERTEX   == 0, "ShaderStage.vertex");
+_Static_assert((int)SDL_GPU_SHADERSTAGE_FRAGMENT == 1, "ShaderStage.fragment");
+
+/* ---- ShaderFormat (sdl_flags, Uint32) ---- */
+_Static_assert(SDL_GPU_SHADERFORMAT_PRIVATE  == 0x00000001u, "ShaderFormat.private");
+_Static_assert(SDL_GPU_SHADERFORMAT_SPIRV    == 0x00000002u, "ShaderFormat.spirv");
+_Static_assert(SDL_GPU_SHADERFORMAT_DXBC     == 0x00000004u, "ShaderFormat.dxbc");
+_Static_assert(SDL_GPU_SHADERFORMAT_DXIL     == 0x00000008u, "ShaderFormat.dxil");
+_Static_assert(SDL_GPU_SHADERFORMAT_MSL      == 0x00000010u, "ShaderFormat.msl");
+_Static_assert(SDL_GPU_SHADERFORMAT_METALLIB == 0x00000020u, "ShaderFormat.metallib");
+
+/* ---- VertexElementFormat (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_INVALID     == 0,  "VertexElementFormat.invalid");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_INT         == 1,  "VertexElementFormat.int");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_INT2        == 2,  "VertexElementFormat.int2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_INT3        == 3,  "VertexElementFormat.int3");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_INT4        == 4,  "VertexElementFormat.int4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UINT        == 5,  "VertexElementFormat.uint");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UINT2       == 6,  "VertexElementFormat.uint2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UINT3       == 7,  "VertexElementFormat.uint3");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UINT4       == 8,  "VertexElementFormat.uint4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_FLOAT       == 9,  "VertexElementFormat.float");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2      == 10, "VertexElementFormat.float2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3      == 11, "VertexElementFormat.float3");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4      == 12, "VertexElementFormat.float4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_BYTE2       == 13, "VertexElementFormat.byte2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_BYTE4       == 14, "VertexElementFormat.byte4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UBYTE2      == 15, "VertexElementFormat.ubyte2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4      == 16, "VertexElementFormat.ubyte4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_BYTE2_NORM  == 17, "VertexElementFormat.byte2Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_BYTE4_NORM  == 18, "VertexElementFormat.byte4Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UBYTE2_NORM == 19, "VertexElementFormat.ubyte2Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM == 20, "VertexElementFormat.ubyte4Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_SHORT2      == 21, "VertexElementFormat.short2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_SHORT4      == 22, "VertexElementFormat.short4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_USHORT2     == 23, "VertexElementFormat.ushort2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_USHORT4     == 24, "VertexElementFormat.ushort4");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_SHORT2_NORM  == 25, "VertexElementFormat.short2Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_SHORT4_NORM  == 26, "VertexElementFormat.short4Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_USHORT2_NORM == 27, "VertexElementFormat.ushort2Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_USHORT4_NORM == 28, "VertexElementFormat.ushort4Norm");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_HALF2       == 29, "VertexElementFormat.half2");
+_Static_assert((int)SDL_GPU_VERTEXELEMENTFORMAT_HALF4       == 30, "VertexElementFormat.half4");
+
+/* ---- VertexInputRate (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_VERTEXINPUTRATE_VERTEX   == 0, "VertexInputRate.vertex");
+_Static_assert((int)SDL_GPU_VERTEXINPUTRATE_INSTANCE == 1, "VertexInputRate.instance");
+
+/* ---- FillMode (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_FILLMODE_FILL == 0, "FillMode.fill");
+_Static_assert((int)SDL_GPU_FILLMODE_LINE == 1, "FillMode.line");
+
+/* ---- CullMode (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_CULLMODE_NONE  == 0, "CullMode.none");
+_Static_assert((int)SDL_GPU_CULLMODE_FRONT == 1, "CullMode.front");
+_Static_assert((int)SDL_GPU_CULLMODE_BACK  == 2, "CullMode.back");
+
+/* ---- FrontFace (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE == 0, "FrontFace.counterClockwise");
+_Static_assert((int)SDL_GPU_FRONTFACE_CLOCKWISE         == 1, "FrontFace.clockwise");
+
+/* ---- CompareOp (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_COMPAREOP_INVALID          == 0, "CompareOp.invalid");
+_Static_assert((int)SDL_GPU_COMPAREOP_NEVER            == 1, "CompareOp.never");
+_Static_assert((int)SDL_GPU_COMPAREOP_LESS             == 2, "CompareOp.less");
+_Static_assert((int)SDL_GPU_COMPAREOP_EQUAL            == 3, "CompareOp.equal");
+_Static_assert((int)SDL_GPU_COMPAREOP_LESS_OR_EQUAL    == 4, "CompareOp.lessOrEqual");
+_Static_assert((int)SDL_GPU_COMPAREOP_GREATER          == 5, "CompareOp.greater");
+_Static_assert((int)SDL_GPU_COMPAREOP_NOT_EQUAL        == 6, "CompareOp.notEqual");
+_Static_assert((int)SDL_GPU_COMPAREOP_GREATER_OR_EQUAL == 7, "CompareOp.greaterOrEqual");
+_Static_assert((int)SDL_GPU_COMPAREOP_ALWAYS           == 8, "CompareOp.always");
+
+/* ---- StencilOp (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_STENCILOP_INVALID              == 0, "StencilOp.invalid");
+_Static_assert((int)SDL_GPU_STENCILOP_KEEP                 == 1, "StencilOp.keep");
+_Static_assert((int)SDL_GPU_STENCILOP_ZERO                 == 2, "StencilOp.zero");
+_Static_assert((int)SDL_GPU_STENCILOP_REPLACE              == 3, "StencilOp.replace");
+_Static_assert((int)SDL_GPU_STENCILOP_INCREMENT_AND_CLAMP  == 4, "StencilOp.incrementAndClamp");
+_Static_assert((int)SDL_GPU_STENCILOP_DECREMENT_AND_CLAMP  == 5, "StencilOp.decrementAndClamp");
+_Static_assert((int)SDL_GPU_STENCILOP_INVERT               == 6, "StencilOp.invert");
+_Static_assert((int)SDL_GPU_STENCILOP_INCREMENT_AND_WRAP   == 7, "StencilOp.incrementAndWrap");
+_Static_assert((int)SDL_GPU_STENCILOP_DECREMENT_AND_WRAP   == 8, "StencilOp.decrementAndWrap");
+
+/* ---- BlendOp (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_BLENDOP_INVALID          == 0, "BlendOp.invalid");
+_Static_assert((int)SDL_GPU_BLENDOP_ADD              == 1, "BlendOp.add");
+_Static_assert((int)SDL_GPU_BLENDOP_SUBTRACT         == 2, "BlendOp.subtract");
+_Static_assert((int)SDL_GPU_BLENDOP_REVERSE_SUBTRACT == 3, "BlendOp.reverseSubtract");
+_Static_assert((int)SDL_GPU_BLENDOP_MIN              == 4, "BlendOp.min");
+_Static_assert((int)SDL_GPU_BLENDOP_MAX              == 5, "BlendOp.max");
+
+/* ---- BlendFactor (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_BLENDFACTOR_INVALID               == 0,  "BlendFactor.invalid");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ZERO                  == 1,  "BlendFactor.zero");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE                   == 2,  "BlendFactor.one");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_SRC_COLOR             == 3,  "BlendFactor.srcColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_COLOR   == 4,  "BlendFactor.oneMinusSrcColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_DST_COLOR             == 5,  "BlendFactor.dstColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE_MINUS_DST_COLOR   == 6,  "BlendFactor.oneMinusDstColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_SRC_ALPHA             == 7,  "BlendFactor.srcAlpha");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA   == 8,  "BlendFactor.oneMinusSrcAlpha");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_DST_ALPHA             == 9,  "BlendFactor.dstAlpha");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE_MINUS_DST_ALPHA   == 10, "BlendFactor.oneMinusDstAlpha");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_CONSTANT_COLOR        == 11, "BlendFactor.constantColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_ONE_MINUS_CONSTANT_COLOR == 12, "BlendFactor.oneMinusConstantColor");
+_Static_assert((int)SDL_GPU_BLENDFACTOR_SRC_ALPHA_SATURATE    == 13, "BlendFactor.srcAlphaSaturate");
+
+/* ---- ColorComponentFlags (sdl_flags, Uint8) ---- */
+_Static_assert(SDL_GPU_COLORCOMPONENT_R == 0x01u, "ColorComponentFlags.r");
+_Static_assert(SDL_GPU_COLORCOMPONENT_G == 0x02u, "ColorComponentFlags.g");
+_Static_assert(SDL_GPU_COLORCOMPONENT_B == 0x04u, "ColorComponentFlags.b");
+_Static_assert(SDL_GPU_COLORCOMPONENT_A == 0x08u, "ColorComponentFlags.a");
+
+/* ---- Filter (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_FILTER_NEAREST == 0, "Filter.nearest");
+_Static_assert((int)SDL_GPU_FILTER_LINEAR  == 1, "Filter.linear");
+
+/* ---- SamplerMipmapMode (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_SAMPLERMIPMAPMODE_NEAREST == 0, "SamplerMipmapMode.nearest");
+_Static_assert((int)SDL_GPU_SAMPLERMIPMAPMODE_LINEAR  == 1, "SamplerMipmapMode.linear");
+
+/* ---- SamplerAddressMode (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_SAMPLERADDRESSMODE_REPEAT          == 0, "SamplerAddressMode.repeat");
+_Static_assert((int)SDL_GPU_SAMPLERADDRESSMODE_MIRRORED_REPEAT == 1, "SamplerAddressMode.mirroredRepeat");
+_Static_assert((int)SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE   == 2, "SamplerAddressMode.clampToEdge");
+
+/* ---- PresentMode (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_PRESENTMODE_VSYNC     == 0, "PresentMode.vsync");
+_Static_assert((int)SDL_GPU_PRESENTMODE_IMMEDIATE == 1, "PresentMode.immediate");
+_Static_assert((int)SDL_GPU_PRESENTMODE_MAILBOX   == 2, "PresentMode.mailbox");
+
+/* ---- SwapchainComposition (closed sdl_enum) ---- */
+_Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_SDR                  == 0, "SwapchainComposition.sdr");
+_Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_SDR_LINEAR           == 1, "SwapchainComposition.sdrLinear");
+_Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_HDR_EXTENDED_LINEAR  == 2, "SwapchainComposition.hdrExtendedLinear");
+_Static_assert((int)SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084         == 3, "SwapchainComposition.hdr10St2084");

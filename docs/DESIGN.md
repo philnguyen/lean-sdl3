@@ -185,6 +185,52 @@ mirroring the official examples' `SDL_MAIN_USE_CALLBACKS` shape) driven by
 SDL_AUDIO_DRIVER=dummy`, frame cap via `SDL_LEAN_MAX_FRAMES` env var
 (`examples/Common.lean`).
 
+## GPU module (M13)
+
+- Namespace `Sdl.Gpu`; type names drop the C `GPU` prefix (`Gpu.Texture` is a
+  distinct type from render's `Sdl.Texture`). Files: `Sdl/Gpu/Enums.lean`
+  (enums/flags), `Sdl/Gpu.lean` (device, resources, transfer, copy pass,
+  fences, swapchain, helpers) + `ffi/gpu.c`, `Sdl/Gpu/Pipeline.lean` (shaders,
+  pipelines, render/compute passes) + `ffi/gpu_pipeline.c`. Skip list:
+  `SDL_GDKSuspendGPU`/`SDL_GDKResumeGPU` (GDK-only), `SDL_GPUVulkanOptions`
+  (Vulkan-specific device-create option struct; macOS = Metal).
+- Archetypes: `Device` = owned root, **finalizer-only** (children hold owned
+  refs, so RC ordering destroys it last). `Buffer`/`TransferBuffer`/`Texture`/
+  `Sampler`/`Shader`/`ComputePipeline`/`GraphicsPipeline`/`Fence` = owned
+  children `{ptr, deviceExternal}` — finalize = `SDL_ReleaseGPU*(device, ptr)`
+  then dec; manual `release` OK (leaves). `CommandBuffer` = consumable
+  `{ptr, deviceExternal}`: `submit`/`submitAndAcquireFence`/`cancel` NULL the
+  ptr; finalizer decs owner only (a dropped unsubmitted command buffer is
+  leaked to SDL's pool — documented). Passes = consumable
+  `{ptr, cmdBufExternal}`: `finish` (C `SDL_EndGPU*Pass`; `end` is a Lean
+  keyword) NULLs the ptr. Swapchain texture = **borrowed** `Gpu.Texture` class
+  `{ptr, cmdBufExternal}`; `release`/`setName` throw on the borrowed class;
+  stale after the command buffer is submitted (documented cross-handle
+  staleness, as with tray entries).
+- Struct passing: create-info/binding structs are plain Lean structures with
+  C-zero-init defaults. Raw externs take only (a) flattened scalars, (b) Lean
+  arrays of externals (`Array Texture` — element read via `lean_array_*` is
+  not struct-layout knowledge), and (c) ByteArrays packed in pure Lean to the
+  **exact C layout** of pointer-free sub-structs (`RasterizerState`,
+  `MultisampleState`, `DepthStencilState`, `VertexBufferDescription`,
+  `VertexAttribute`, `ColorTargetDescription`, …) — every packed struct's
+  `sizeof` and each field's `offsetof` pinned in `ffi/consts_check.c`, pack
+  strides pinned by Lean `#guard`s (the `Renderer.geometry` `SDL_Vertex`
+  precedent). Structs containing pointers are never byte-packed: object fields
+  travel as separate args/arrays parallel to the scalar blob.
+- Headless: **no SDL_GPU backend exists under the dummy video driver**
+  (probe-verified) — `createDevice` throws "No supported SDL_GPU backend
+  found!". Driver *enumeration* (`getNumDrivers`/`getDriver`) and the
+  device-free format helpers still work. Tests assert the failure path +
+  device-free helpers under dummy and run full round-trips (buffer
+  upload/download, offscreen render-pass clear + readback, MSL shader
+  pipelines) only when a real backend is available. The gpu-clear demo catches
+  device-creation failure, logs, and exits 0 so headless smoke stays green.
+- Metal facts (probe-verified, SDL 3.4.10, macOS arm64): device shader formats
+  = MSL|METALLIB (0x30); offscreen work needs no window; swapchain composition
+  SDR + present modes VSYNC/IMMEDIATE supported (MAILBOX not); swapchain
+  format 12 (B8G8R8A8_UNORM); acquire+cancel of an unused command buffer works.
+
 ## Build (`lakefile.lean`)
 
 `findSdl3IncludeArgs` detects SDL3 at build time (pkg-config → `brew --prefix
