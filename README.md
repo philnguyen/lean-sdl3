@@ -1,5 +1,7 @@
 # lean-sdl3
 
+[![CI](https://github.com/philnguyen/lean-sdl3/actions/workflows/lean_action_ci.yml/badge.svg)](https://github.com/philnguyen/lean-sdl3/actions/workflows/lean_action_ci.yml)
+
 Comprehensive [Lean 4](https://lean-lang.org) bindings for
 [SDL3](https://wiki.libsdl.org/SDL3/FrontPage) and
 [SDL3_ttf](https://wiki.libsdl.org/SDL3_ttf/FrontPage), plus Lean ports of the
