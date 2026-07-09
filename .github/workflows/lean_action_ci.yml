@@ -60,7 +60,8 @@ jobs:
           git clone --depth 1 --branch "release-$SDL_VERSION" \
             https://github.com/libsdl-org/SDL.git
           cmake -S SDL -B SDL/build -GNinja -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX="$SDL_PREFIX"
+            -DCMAKE_INSTALL_PREFIX="$SDL_PREFIX" \
+            -DSDL_UNIX_CONSOLE_BUILD=ON
           cmake --build SDL/build
           cmake --install SDL/build
           git clone --depth 1 --branch "release-$SDL_TTF_VERSION" \
