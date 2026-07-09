@@ -78,9 +78,20 @@ def findLinkArgs : IO (Array String) := do
 -- lakefile elaboration via the standard implemented_by/opaque bridge.
 unsafe def sdlLinkArgsImpl : Array String :=
   unsafeBaseIO do
-    match ← findLinkArgs.toBaseIO with
-    | .ok args => pure args
-    | .error _ => pure #["-lSDL3", "-lSDL3_ttf"]
+    let base ← match ← findLinkArgs.toBaseIO with
+      | .ok args => pure args
+      | .error _ => pure #["-lSDL3", "-lSDL3_ttf"]
+    -- On Linux, an SDL3 built from source links against the host glibc and so
+    -- references symbol versions (e.g. `pthread_join@GLIBC_2.34`) newer than
+    -- the ones in the Lean toolchain's bundled sysroot. Lean links executables
+    -- with `--no-allow-shlib-undefined`, which then rejects those undefined
+    -- symbols in `libSDL3.so` even though the runtime loader resolves them
+    -- against the system libc. Re-allow shared-lib undefineds on Linux only
+    -- (macOS's ld64 neither needs nor understands this flag).
+    if System.Platform.isOSX || System.Platform.isWindows then
+      pure base
+    else
+      pure (base.push "-Wl,--allow-shlib-undefined")
 
 @[implemented_by sdlLinkArgsImpl]
 opaque sdlLinkArgs : Array String

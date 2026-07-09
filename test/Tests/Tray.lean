@@ -68,6 +68,13 @@ def body (tray : Tray) : IO Unit := do
   checkThrows "tray.getMenu after destroy throws" tray.getMenu
 
 def run : IO Unit := do
+  -- On a headless macOS CI runner `createTray` doesn't throw — it trips a
+  -- CoreGraphics assertion (`CGSConnectionByID`: no window server) and calls
+  -- `abort()`, which the `try/catch` below cannot intercept. Skip the whole
+  -- group when the environment tells us there's no window server / GUI session.
+  if (← IO.getEnv "SDL_LEAN_SKIP_TRAY").isSome then
+    check "tray skipped (SDL_LEAN_SKIP_TRAY set — no window server)" true
+    return
   let trayOpt : Option Tray ← try
       pure (some (← createTray none (some "lean-sdl3 test tray")))
     catch _ =>
