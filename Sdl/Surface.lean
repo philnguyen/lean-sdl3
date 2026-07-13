@@ -469,6 +469,14 @@ opaque readPixel (self : @& Surface) (x y : Int32) : IO Color
 @[extern "lean_sdl_read_surface_pixel_float"]
 opaque readPixelFloat (self : @& Surface) (x y : Int32) : IO FColor
 
+/-- Copy the whole pixel buffer into a `ByteArray`: `height` rows of
+`width × bytes-per-pixel` bytes, top to bottom, rows tightly packed (pitch
+padding stripped), in the surface's own format — `convert` first to fix the
+layout. Locks the surface if it must. Throws for formats without whole-byte
+pixels. C: `SDL_Surface.pixels` under `SDL_LockSurface`. -/
+@[extern "lean_sdl_surface_get_pixels"]
+opaque getPixels (self : @& Surface) : IO ByteArray
+
 @[extern "lean_sdl_write_surface_pixel"]
 private opaque writePixelRaw (self : @& Surface) (x y : Int32) (r g b a : UInt8) : IO Unit
 

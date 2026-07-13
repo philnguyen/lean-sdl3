@@ -150,4 +150,14 @@ def run : IO Unit := do
   memIn.close
   check "in-memory BMP round-trip red" ((← memSurf.readPixel 0 0) == ⟨255, 0, 0, 255⟩)
 
+  -- getPixels: tightly packed rows in the surface's own byte layout
+  let px ← Sdl.createSurface 3 2 .rgba32   -- rgba32 = byte order r,g,b,a
+  px.fillRect none (← px.mapRGBA 10 20 30 255)
+  px.writePixel 2 1 ⟨1, 2, 3, 4⟩
+  let bytes ← px.getPixels
+  check "getPixels size = w·h·4" (bytes.size == 3 * 2 * 4)
+  check "getPixels first pixel" (bytes[0]! == 10 && bytes[1]! == 20 && bytes[2]! == 30)
+  check "getPixels last pixel row-major"
+    (bytes[(1 * 3 + 2) * 4]! == 1 && bytes[(1 * 3 + 2) * 4 + 3]! == 4)
+
 end Tests.Surface

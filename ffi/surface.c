@@ -184,6 +184,32 @@ LEAN_EXPORT lean_obj_res lean_sdl_surface_format(b_lean_obj_arg surf, lean_obj_a
     return lean_io_result_mk_ok(lean_box_uint32((uint32_t)s->format));
 }
 
+/* Sdl.Surface.getPixels : IO ByteArray -- the whole pixel buffer, rows
+ * tightly packed (pitch padding stripped), in the surface's own format.
+ * Locks the surface when SDL_MUSTLOCK. */
+LEAN_EXPORT lean_obj_res lean_sdl_surface_get_pixels(b_lean_obj_arg surf, lean_obj_arg w) {
+    (void)w;
+    SDL_SHIM_PROLOGUE();
+    SDL_GET_OR_THROW(SDL_Surface, s, surf);
+    int bpp = SDL_BYTESPERPIXEL(s->format);
+    if (bpp <= 0)
+        return lean_sdl_throw_msg("SDL: surface format has no whole-byte pixels");
+    bool locked = false;
+    if (SDL_MUSTLOCK(s)) {
+        if (!SDL_LockSurface(s)) return lean_sdl_throw();
+        locked = true;
+    }
+    size_t row = (size_t)s->w * (size_t)bpp;
+    size_t total = row * (size_t)s->h;
+    lean_object *arr = lean_alloc_sarray(1, total, total);
+    for (int y = 0; y < s->h; y++) {
+        SDL_memcpy(lean_sarray_cptr(arr) + row * (size_t)y,
+                   (const Uint8 *)s->pixels + (size_t)s->pitch * (size_t)y, row);
+    }
+    if (locked) SDL_UnlockSurface(s);
+    return lean_io_result_mk_ok(arr);
+}
+
 /* Sdl.Surface.flagsRaw : IO UInt32 -- reads SDL_Surface.flags */
 LEAN_EXPORT lean_obj_res lean_sdl_surface_flags(b_lean_obj_arg surf, lean_obj_arg w) {
     (void)w;
