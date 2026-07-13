@@ -67,7 +67,9 @@ def findLinkArgs : IO (Array String) := do
     let args := libs.splitOn " " |>.filter (· ≠ "") |>.toArray
     let rpaths := args.filterMap fun a =>
       if a.startsWith "-L" then some s!"-Wl,-rpath,{a.drop 2}" else none
-    return args ++ rpaths
+    -- Homebrew's .pc files may already carry an rpath; re-adding it makes
+    -- ld64.lld warn about duplicates on every (replayed) link.
+    return args ++ rpaths.filter (fun r => !args.contains r)
   let sdlDir ← findLibDir "sdl3" "libSDL3"
   let ttfDir ← findLibDir "sdl3_ttf" "libSDL3_ttf"
   let dirs := ([sdlDir, ttfDir].filterMap id).eraseDups.toArray
