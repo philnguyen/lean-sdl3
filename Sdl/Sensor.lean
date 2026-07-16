@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
-import Sdl.Events
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.Events
+public meta import Sdl.Events
+
+public section
 
 /-!
 # Sensors (`SDL_sensor.h`)
@@ -158,3 +166,5 @@ opaque getData (self : @& Sensor) (numValues : Int32) : IO FloatArray
 
 end Sensor
 end Sdl
+
+end

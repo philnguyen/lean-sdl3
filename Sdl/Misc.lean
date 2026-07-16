@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Miscellaneous (`SDL_misc.h`)
@@ -16,3 +22,5 @@ C: `SDL_OpenURL`. -/
 opaque openURL (url : @& String) : IO Unit
 
 end Sdl
+
+end

@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Configuration hints (`SDL_hints.h`)
@@ -607,3 +613,5 @@ def penTouchEvents : String := "SDL_PEN_TOUCH_EVENTS"
 
 end Hint
 end Sdl
+
+end

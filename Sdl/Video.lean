@@ -1,9 +1,19 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Pixels
-import Sdl.Rect
-import Sdl.Surface
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Pixels
+public meta import Sdl.Pixels
+public import Sdl.Rect
+public meta import Sdl.Rect
+public import Sdl.Surface
+public meta import Sdl.Surface
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # Display and window management (`SDL_video.h`)
@@ -986,3 +996,5 @@ opaque destroy (context : @& GLContext) : IO Unit
 end GLContext
 
 end Sdl
+
+end

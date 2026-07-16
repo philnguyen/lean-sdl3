@@ -1,52 +1,58 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Init
-import Sdl.Properties
-import Sdl.Hints
-import Sdl.Log
-import Sdl.Timer
-import Sdl.Guid
-import Sdl.Time
-import Sdl.Filesystem
-import Sdl.CpuInfo
-import Sdl.Power
-import Sdl.Locale
-import Sdl.Misc
-import Sdl.Rect
-import Sdl.BlendMode
-import Sdl.Pixels
-import Sdl.IOStream
-import Sdl.Surface
-import Sdl.Video
-import Sdl.Clipboard
-import Sdl.MessageBox
-import Sdl.Scancode
-import Sdl.Keycode
-import Sdl.Keyboard
-import Sdl.Mouse
-import Sdl.Touch
-import Sdl.Pen
-import Sdl.Events
-import Sdl.Dialog
-import Sdl.Audio
-import Sdl.Sensor
-import Sdl.Camera
-import Sdl.Joystick
-import Sdl.Gamepad
-import Sdl.Haptic
-import Sdl.Render
-import Sdl.AsyncIO
-import Sdl.Storage
-import Sdl.Process
-import Sdl.LoadSo
-import Sdl.System
-import Sdl.Tray
-import Sdl.Gpu
-import Sdl.Gpu.Pipeline
-import Sdl.Ttf
-import Sdl.Ttf.Text
-import Sdl.App
+module
+
+public import Sdl.Core.Macros
+public import Sdl.Error
+public import Sdl.Init
+public import Sdl.Properties
+public import Sdl.Hints
+public import Sdl.Log
+public import Sdl.Timer
+public import Sdl.Guid
+public import Sdl.Time
+public import Sdl.Filesystem
+public import Sdl.CpuInfo
+public import Sdl.Power
+public import Sdl.Locale
+public import Sdl.Misc
+public import Sdl.Rect
+public import Sdl.BlendMode
+public import Sdl.Pixels
+public import Sdl.IOStream
+public import Sdl.Surface
+public import Sdl.Video
+public import Sdl.Clipboard
+public import Sdl.MessageBox
+public import Sdl.Scancode
+public import Sdl.Keycode
+public import Sdl.Keyboard
+public import Sdl.Mouse
+public import Sdl.Touch
+public import Sdl.Pen
+public import Sdl.Events
+public import Sdl.Dialog
+public import Sdl.Audio
+public import Sdl.Sensor
+public import Sdl.Camera
+public import Sdl.Joystick
+public import Sdl.Gamepad
+public import Sdl.Haptic
+public import Sdl.Render
+public import Sdl.AsyncIO
+public import Sdl.Storage
+public import Sdl.Process
+public import Sdl.LoadSo
+public import Sdl.System
+public import Sdl.Tray
+public import Sdl.Gpu
+public import Sdl.Gpu.Pipeline
+public import Sdl.Ttf
+public import Sdl.Ttf.Text
+public import Sdl.App
+
+public section
 
 /-!
 Root module of the `Sdl` library: Lean 4 FFI bindings for SDL3.
 -/
+
+end

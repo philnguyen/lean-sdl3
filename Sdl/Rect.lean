@@ -1,4 +1,9 @@
-import Sdl.Core.Macros
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+
+public section
 
 /-!
 # Rectangles and points (`SDL_rect.h`)
@@ -447,3 +452,5 @@ def FRect.lineIntersection (r : FRect) (x1 y1 x2 y2 : Float32) :
 #guard (FRect.mk 0 0 (-1) 10).lineIntersection 2 2 5 5 == none
 
 end Sdl
+
+end

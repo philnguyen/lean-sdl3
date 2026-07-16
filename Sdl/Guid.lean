@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # GUIDs (`SDL_guid.h`)
@@ -43,3 +49,5 @@ throwing. Pure. C: `SDL_StringToGUID`. -/
 def stringToGuid (s : String) : Guid := ⟨stringToGuidRaw s⟩
 
 end Sdl
+
+end

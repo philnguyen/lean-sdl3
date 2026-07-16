@@ -1,4 +1,9 @@
-import Sdl.Gpu
+module
+
+public import Sdl.Gpu
+public meta import Sdl.Gpu
+
+public section
 
 /-!
 # GPU pipelines & passes (`SDL_gpu.h`)
@@ -944,3 +949,5 @@ opaque finish (self : @& ComputePass) : IO Unit
 end ComputePass
 
 end Sdl.Gpu
+
+end

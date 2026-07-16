@@ -1,6 +1,13 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Time
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Time
+public meta import Sdl.Time
+
+public section
 
 /-!
 # Filesystem paths and directory operations (`SDL_filesystem.h`)
@@ -145,3 +152,5 @@ def enumerateDirectory (path : String)
   enumerateDirectoryRaw path fun d f => do return (← cb d f).val
 
 end Sdl
+
+end

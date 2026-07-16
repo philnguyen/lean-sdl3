@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
-import Sdl.IOStream
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.IOStream
+public meta import Sdl.IOStream
+
+public section
 
 /-!
 # Process control (`SDL_process.h`)
@@ -189,3 +197,5 @@ opaque destroy (self : @& Process) : IO Unit
 
 end Process
 end Sdl
+
+end

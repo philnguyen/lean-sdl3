@@ -1,4 +1,9 @@
-import Sdl.Core.Macros
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+
+public section
 
 /-!
 # Keyboard scancodes (`SDL_scancode.h`)
@@ -287,3 +292,5 @@ def Scancode.maxScancodes : Nat := 512
 #guard Scancode.«end».val == 77
 
 end Sdl
+
+end

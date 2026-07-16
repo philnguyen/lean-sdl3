@@ -1,4 +1,9 @@
-import Sdl.Core.Macros
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+
+public section
 
 /-!
 # GPU enums and flags (`SDL_gpu.h`)
@@ -376,3 +381,5 @@ sdl_enum SwapchainComposition : UInt32 where
   | hdr10St2084       => 3  -- C: SDL_GPU_SWAPCHAINCOMPOSITION_HDR10_ST2084
 
 end Sdl.Gpu
+
+end

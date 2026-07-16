@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
-import Sdl.IOStream
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.IOStream
+public meta import Sdl.IOStream
+
+public section
 
 /-!
 # Audio playback, recording, and conversion (`SDL_audio.h`)
@@ -632,3 +640,5 @@ opaque setPutCallback (self : @& AudioStream)
 
 end AudioStream
 end Sdl
+
+end

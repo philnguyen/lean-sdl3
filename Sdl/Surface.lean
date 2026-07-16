@@ -1,10 +1,21 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.IOStream
-import Sdl.Pixels
-import Sdl.Rect
-import Sdl.BlendMode
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.IOStream
+public meta import Sdl.IOStream
+public import Sdl.Pixels
+public meta import Sdl.Pixels
+public import Sdl.Rect
+public meta import Sdl.Rect
+public import Sdl.BlendMode
+public meta import Sdl.BlendMode
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # Software surfaces (`SDL_surface.h`)
@@ -511,3 +522,5 @@ opaque savePNGIO (self : @& Surface) (dst : @& IOStream) : IO Unit
 
 end Surface
 end Sdl
+
+end

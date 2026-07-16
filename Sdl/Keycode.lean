@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Scancode
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Scancode
+public meta import Sdl.Scancode
+
+public section
 
 /-!
 # Virtual keycodes and key modifiers (`SDL_keycode.h`)
@@ -316,3 +322,5 @@ sdl_flags Keymod : UInt16 where
 #guard (Keymod.lGui ||| Keymod.rGui) == Keymod.gui
 
 end Sdl
+
+end

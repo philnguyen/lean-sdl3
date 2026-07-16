@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Filesystem
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Filesystem
+public meta import Sdl.Filesystem
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # Storage containers (`SDL_storage.h`)
@@ -150,3 +158,5 @@ def globDirectory (self : @& Storage) (path : Option String := none)
 
 end Storage
 end Sdl
+
+end

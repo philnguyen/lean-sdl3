@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
-import Sdl.Video
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.Video
+public meta import Sdl.Video
+
+public section
 
 /-!
 # File dialogs (`SDL_dialog.h`)
@@ -122,3 +130,5 @@ def showFileDialogWithProperties (type : FileDialogType)
   showFileDialogWithPropertiesRaw type.val cb props
 
 end Sdl
+
+end

@@ -1,6 +1,13 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Video
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Video
+public meta import Sdl.Video
+
+public section
 
 /-!
 # Message boxes (`SDL_messagebox.h`)
@@ -138,3 +145,5 @@ def showMessageBox (flags : MessageBoxFlags) (title message : @& String)
 #guard (MessageBoxButton.mk .returnkeyDefault 3 "OK").id == 3
 
 end Sdl
+
+end

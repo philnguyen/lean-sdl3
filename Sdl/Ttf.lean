@@ -1,9 +1,19 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Pixels
-import Sdl.Surface
-import Sdl.IOStream
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Pixels
+public meta import Sdl.Pixels
+public import Sdl.Surface
+public meta import Sdl.Surface
+public import Sdl.IOStream
+public meta import Sdl.IOStream
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # TrueType fonts, core (`SDL3_ttf/SDL_ttf.h`)
@@ -634,3 +644,5 @@ def outlineMiterLimit : String := "SDL_ttf.font.outline.miter_limit"
 end Props
 
 end Sdl.Ttf
+
+end

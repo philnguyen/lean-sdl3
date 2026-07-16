@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Power management (`SDL_power.h`)
@@ -45,3 +51,5 @@ C: `SDL_GetPowerInfo`. -/
 opaque getPowerInfo : IO PowerInfo
 
 end Sdl
+
+end

@@ -1,6 +1,13 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # I/O streams (`SDL_iostream.h`)
@@ -235,3 +242,5 @@ C: `SDL_SaveFile`. -/
 opaque saveFile (path : @& String) (data : @& ByteArray) : IO Unit
 
 end Sdl
+
+end

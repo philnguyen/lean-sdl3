@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Locale preferences (`SDL_locale.h`)
@@ -34,3 +40,5 @@ C: `SDL_GetPreferredLocales`. -/
 opaque getPreferredLocales : IO (Array Locale)
 
 end Sdl
+
+end

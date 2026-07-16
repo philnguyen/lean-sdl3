@@ -1,7 +1,15 @@
-import Sdl.Ttf
-import Sdl.Render
-import Sdl.Gpu
-import Sdl.Rect
+module
+
+public import Sdl.Ttf
+public meta import Sdl.Ttf
+public import Sdl.Render
+public meta import Sdl.Render
+public import Sdl.Gpu
+public meta import Sdl.Gpu
+public import Sdl.Rect
+public meta import Sdl.Rect
+
+public section
 
 /-!
 # SDL_ttf text engines and `TTF_Text` (`SDL3_ttf/SDL_ttf.h` + `SDL_textengine.h`)
@@ -441,3 +449,5 @@ def gpuTextEngineAtlasTextureSize : String :=
 end Props
 
 end Sdl.Ttf
+
+end

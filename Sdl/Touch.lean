@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Touch input state (`SDL_touch.h`)
@@ -92,3 +98,5 @@ def fingers (self : TouchId) : IO (Array Finger) :=
 end TouchId
 
 end Sdl
+
+end

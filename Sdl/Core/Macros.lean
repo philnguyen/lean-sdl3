@@ -1,4 +1,8 @@
-import Lean
+module
+
+meta import Lean
+public meta import Std.Data.HashMap.Basic
+public meta import Std.Data.HashSet.Basic
 
 /-!
 # Binding-kit macros
@@ -17,6 +21,8 @@ carry a `-- C: SDL_NAME` comment for greppability. The FFI boundary always
 converts through the generated `val`/`ofVal?`/`ofVal`; a Lean inductive's tag
 is never assumed to equal the C value.
 -/
+
+public meta section
 
 namespace Sdl.Core.Macros
 open Lean
@@ -229,6 +235,8 @@ macro_rules
     return mkNullNode (cmds.map (·.raw))
 
 end Sdl.Core.Macros
+
+end
 
 /-! ## Self-tests (compile-time; no SDL linkage required) -/
 

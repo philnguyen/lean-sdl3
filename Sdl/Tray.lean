@@ -1,6 +1,13 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Surface
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Surface
+public meta import Sdl.Surface
+
+public section
 
 /-!
 # System tray (`SDL_tray.h`)
@@ -203,3 +210,5 @@ if you use trays without processing SDL events. C: `SDL_UpdateTrays`. -/
 opaque updateTrays : IO Unit
 
 end Sdl
+
+end

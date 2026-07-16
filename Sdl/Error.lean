@@ -1,3 +1,7 @@
+module
+
+public section
+
 /-!
 # Error handling (`SDL_error.h`)
 
@@ -24,3 +28,5 @@ the C varargs formatting is not bound). -/
 opaque setError (message : @& String) : IO Unit
 
 end Sdl
+
+end

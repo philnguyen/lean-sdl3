@@ -1,10 +1,21 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Scancode
-import Sdl.Keycode
-import Sdl.Video
-import Sdl.Rect
-import Sdl.Properties
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Scancode
+public meta import Sdl.Scancode
+public import Sdl.Keycode
+public meta import Sdl.Keycode
+public import Sdl.Video
+public meta import Sdl.Video
+public import Sdl.Rect
+public meta import Sdl.Rect
+public import Sdl.Properties
+public meta import Sdl.Properties
+
+public section
 
 /-!
 # Keyboard input state (`SDL_keyboard.h`)
@@ -248,3 +259,5 @@ C: `SDL_ScreenKeyboardShown`. -/
 opaque Window.screenKeyboardShown (self : @& Window) : IO Bool
 
 end Sdl
+
+end

@@ -1,11 +1,23 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Rect
-import Sdl.Pixels
-import Sdl.BlendMode
-import Sdl.Surface
-import Sdl.Properties
-import Sdl.Video
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Rect
+public meta import Sdl.Rect
+public import Sdl.Pixels
+public meta import Sdl.Pixels
+public import Sdl.BlendMode
+public meta import Sdl.BlendMode
+public import Sdl.Surface
+public meta import Sdl.Surface
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.Video
+public meta import Sdl.Video
+
+public section
 
 /-!
 # 2D accelerated rendering (`SDL_render.h`)
@@ -968,3 +980,5 @@ opaque destroy (self : @& Texture) : IO Unit
 end Texture
 
 end Sdl
+
+end

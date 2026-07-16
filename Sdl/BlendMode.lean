@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Blend modes (`SDL_blendmode.h`)
@@ -81,3 +87,5 @@ def composeCustomBlendMode (srcColorFactor dstColorFactor : BlendFactor)
     srcAlphaFactor.val dstAlphaFactor.val alphaOperation.val⟩
 
 end Sdl
+
+end

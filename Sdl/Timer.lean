@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Timers and clocks (`SDL_timer.h`)
@@ -121,3 +127,5 @@ def nsToUs (ns : UInt64) : UInt64 := ns / nsPerUs
 #guard nsToUs 3_999 == 3
 
 end Sdl
+
+end

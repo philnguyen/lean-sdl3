@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # CPU feature detection (`SDL_cpuinfo.h`)
@@ -91,3 +97,5 @@ set in that case). C: `SDL_GetSystemPageSize`. -/
 opaque getSystemPageSize : IO Int32
 
 end Sdl
+
+end

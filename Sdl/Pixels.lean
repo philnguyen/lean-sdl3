@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Pixel formats and palettes (`SDL_pixels.h`)
@@ -519,3 +525,5 @@ def getRGBA (pixel : UInt32) (format : PixelFormat)
   getRGBARaw pixel format.val palette
 
 end Sdl
+
+end

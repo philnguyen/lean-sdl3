@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Clipboard access (`SDL_clipboard.h`)
@@ -95,3 +101,5 @@ def setClipboardData (mimeTypes : Array String)
   setClipboardDataRaw getData mimeTypes
 
 end Sdl
+
+end

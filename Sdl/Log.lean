@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Logging (`SDL_log.h`)
@@ -136,3 +142,5 @@ C: `SDL_SetLogOutputFunction` with `SDL_GetDefaultLogOutputFunction()`. -/
 opaque resetLogOutputFunction : IO Unit
 
 end Sdl
+
+end

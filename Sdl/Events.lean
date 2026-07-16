@@ -1,11 +1,23 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Keyboard
-import Sdl.Mouse
-import Sdl.Touch
-import Sdl.Pen
-import Sdl.Power
-import Sdl.Video
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Keyboard
+public meta import Sdl.Keyboard
+public import Sdl.Mouse
+public meta import Sdl.Mouse
+public import Sdl.Touch
+public meta import Sdl.Touch
+public import Sdl.Pen
+public meta import Sdl.Pen
+public import Sdl.Power
+public meta import Sdl.Power
+public import Sdl.Video
+public meta import Sdl.Video
+
+public section
 
 /-!
 # Event queue and the `SDL_Event` union (`SDL_events.h`)
@@ -1483,3 +1495,5 @@ event. C: `SDL_FilterEvents`. -/
 opaque filterEvents (cb : Event → IO Bool) : IO Unit
 
 end Sdl
+
+end

@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Asynchronous I/O (`SDL_asyncio.h`)
@@ -177,3 +183,5 @@ opaque loadFileAsync (file : @& String) (queue : @& AsyncIOQueue)
     (userdata : UInt64 := 0) : IO Unit
 
 end Sdl
+
+end

@@ -1,12 +1,25 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Properties
-import Sdl.Guid
-import Sdl.Power
-import Sdl.Events
-import Sdl.Sensor
-import Sdl.Joystick
-import Sdl.IOStream
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Properties
+public meta import Sdl.Properties
+public import Sdl.Guid
+public meta import Sdl.Guid
+public import Sdl.Power
+public meta import Sdl.Power
+public import Sdl.Events
+public meta import Sdl.Events
+public import Sdl.Sensor
+public meta import Sdl.Sensor
+public import Sdl.Joystick
+public meta import Sdl.Joystick
+public import Sdl.IOStream
+public meta import Sdl.IOStream
+
+public section
 
 /-!
 # Gamepads (`SDL_gamepad.h`)
@@ -736,3 +749,5 @@ def appleSFSymbolsNameForAxis (self : @& Gamepad) (axis : GamepadAxis) :
 
 end Gamepad
 end Sdl
+
+end

@@ -1,7 +1,15 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Video
-import Sdl.Surface
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Video
+public meta import Sdl.Video
+public import Sdl.Surface
+public meta import Sdl.Surface
+
+public section
 
 /-!
 # Mouse input state and cursors (`SDL_mouse.h`)
@@ -271,3 +279,5 @@ C: `SDL_SetRelativeMouseTransform` with `NULL`. -/
 opaque clearRelativeMouseTransform : IO Unit
 
 end Sdl
+
+end

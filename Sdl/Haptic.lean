@@ -1,6 +1,13 @@
-import Sdl.Core.Macros
-import Sdl.Error
-import Sdl.Joystick
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+public import Sdl.Joystick
+public meta import Sdl.Joystick
+
+public section
 
 /-!
 # Haptics (`SDL_haptic.h`) — partial binding
@@ -417,3 +424,5 @@ opaque stopRumble (self : @& Haptic) : IO Unit
 
 end Haptic
 end Sdl
+
+end

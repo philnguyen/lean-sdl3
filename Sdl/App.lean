@@ -1,5 +1,11 @@
-import Sdl.Init
-import Sdl.Events
+module
+
+public import Sdl.Init
+public meta import Sdl.Init
+public import Sdl.Events
+public meta import Sdl.Events
+
+public section
 
 /-!
 # Application lifecycle (`Sdl.App`)
@@ -104,3 +110,5 @@ where
 end App
 
 end Sdl
+
+end

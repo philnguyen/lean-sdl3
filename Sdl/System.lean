@@ -1,5 +1,11 @@
-import Sdl.Core.Macros
-import Sdl.Error
+module
+
+public import Sdl.Core.Macros
+public meta import Sdl.Core.Macros
+public import Sdl.Error
+public meta import Sdl.Error
+
+public section
 
 /-!
 # Platform-specific system functions (`SDL_system.h`)
@@ -49,3 +55,5 @@ def getSandbox : IO Sandbox := do
   return Sandbox.ofVal (← getSandboxRaw)
 
 end Sdl
+
+end
