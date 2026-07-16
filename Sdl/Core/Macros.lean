@@ -77,8 +77,8 @@ private def mkConstMember (id : Ident) (doc? : Option DocComment)
     (n : Ident) (v : TSyntax `num) : MacroM (Array (TSyntax `command)) := do
   let member := memberName id n
   let d ← match doc? with
-    | some d => `($d:docComment def $member:ident : $id := ⟨$v⟩)
-    | none   => `(def $member:ident : $id := ⟨$v⟩)
+    | some d => `($d:docComment @[expose] def $member:ident : $id := ⟨$v⟩)
+    | none   => `(@[expose] def $member:ident : $id := ⟨$v⟩)
   let g ← `(#guard ($member:ident).val == $v)
   return #[d, g]
 
