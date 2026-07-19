@@ -1093,6 +1093,34 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_texture_scale_mode(
 
 /* ==================== Texture updates / locking ==================== */
 
+/* Clip an update rect to the texture bounds exactly as SDL_UpdateTexture does
+ * (SDL reads nothing outside the intersection). Returns the effective w/h;
+ * false = empty update (SDL no-ops). */
+static bool lean_sdl_update_rect(SDL_Texture *t, const SDL_Rect *rect,
+                                 int *w, int *h) {
+    SDL_Rect full = { 0, 0, t->w, t->h }, r = full;
+    if (rect && !SDL_GetRectIntersection(rect, &full, &r)) return false;
+    if (r.w <= 0 || r.h <= 0) return false;
+    *w = r.w;
+    *h = r.h;
+    return true;
+}
+
+/* Minimum plane size SDL may read: `rows` rows of `row_bytes`, `pitch` apart. */
+static size_t lean_sdl_plane_bytes(int rows, int pitch, size_t row_bytes) {
+    return (size_t)(rows - 1) * (size_t)pitch + row_bytes;
+}
+
+/* Throw unless `n >= need` (guards SDL's read of a caller-supplied buffer). */
+#define SDL_CHECK_PLANE(n, need) \
+    do { if ((n) < (need)) \
+        return lean_sdl_throw_msg("SDL: pixel buffer smaller than update size"); \
+    } while (0)
+
+#define SDL_CHECK_PITCH(p) \
+    do { if ((p) <= 0) return lean_sdl_throw_msg("SDL: pitch must be positive"); \
+    } while (0)
+
 /* Sdl.Texture.updateRaw (hasRect ...) (pixels : @& ByteArray) (pitch : Int32)
  * -- C: SDL_UpdateTexture (copies synchronously; the ByteArray stays owned by
  * Lean). */
@@ -1104,6 +1132,34 @@ LEAN_EXPORT lean_obj_res lean_sdl_update_texture(
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_Texture, t, self);
     SDL_RECT_ARG(rect, has_rect, x, y, rw, rh);
+    SDL_CHECK_PITCH(pitch);
+    int uw, uh;
+    if (lean_sdl_update_rect(t, rect, &uw, &uh)) {
+        /* Single-pointer planar updates read the Y plane (uh rows at pitch)
+         * followed by contiguous 4:2:0 chroma planes at (pitch+1)/2 (three-
+         * plane) or 2*((pitch+1)/2) (interleaved-UV) — the layout documented
+         * on SDL_UpdateTexture. Packed/linear formats read uh rows of
+         * uw * bytes-per-pixel. */
+        size_t need;
+        size_t bpp = SDL_BYTESPERPIXEL(t->format);
+        switch (t->format) {
+        case SDL_PIXELFORMAT_YV12:
+        case SDL_PIXELFORMAT_IYUV:
+            need = (size_t)uh * (size_t)pitch
+                 + 2u * (size_t)((uh + 1) / 2) * (size_t)((pitch + 1) / 2);
+            break;
+        case SDL_PIXELFORMAT_NV12:
+        case SDL_PIXELFORMAT_NV21:
+        case SDL_PIXELFORMAT_P010:
+            need = (size_t)uh * (size_t)pitch
+                 + (size_t)((uh + 1) / 2) * 2u * (size_t)((pitch + 1) / 2);
+            break;
+        default:
+            need = lean_sdl_plane_bytes(uh, pitch, (size_t)uw * bpp);
+            break;
+        }
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)pixels), need);
+    }
     SDL_BOOL_TO_IO(SDL_UpdateTexture(
         t, rect, lean_sarray_cptr((lean_object *)pixels), (int)pitch));
 }
@@ -1120,6 +1176,20 @@ LEAN_EXPORT lean_obj_res lean_sdl_update_yuv_texture(
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_Texture, t, self);
     SDL_RECT_ARG(rect, has_rect, x, y, rw, rh);
+    SDL_CHECK_PITCH(ypitch);
+    SDL_CHECK_PITCH(upitch);
+    SDL_CHECK_PITCH(vpitch);
+    int uw, uh;
+    if (lean_sdl_update_rect(t, rect, &uw, &uh)) {
+        /* YV12/IYUV: Y is uh x uw samples; U/V are 4:2:0 (rounded-up halves). */
+        int cw = (uw + 1) / 2, ch = (uh + 1) / 2;
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)yplane),
+                        lean_sdl_plane_bytes(uh, ypitch, (size_t)uw));
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)uplane),
+                        lean_sdl_plane_bytes(ch, upitch, (size_t)cw));
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)vplane),
+                        lean_sdl_plane_bytes(ch, vpitch, (size_t)cw));
+    }
     SDL_BOOL_TO_IO(SDL_UpdateYUVTexture(
         t, rect,
         (const Uint8 *)lean_sarray_cptr((lean_object *)yplane), (int)ypitch,
@@ -1138,6 +1208,19 @@ LEAN_EXPORT lean_obj_res lean_sdl_update_nv_texture(
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_Texture, t, self);
     SDL_RECT_ARG(rect, has_rect, x, y, rw, rh);
+    SDL_CHECK_PITCH(ypitch);
+    SDL_CHECK_PITCH(uvpitch);
+    int uw, uh;
+    if (lean_sdl_update_rect(t, rect, &uw, &uh)) {
+        /* NV12/NV21 (1 byte/sample) or P010 (2): Y plane + interleaved UV
+         * plane of (uh+1)/2 rows, 2 samples per chroma pair. */
+        size_t sample = SDL_BYTESPERPIXEL(t->format);
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)yplane),
+                        lean_sdl_plane_bytes(uh, ypitch, (size_t)uw * sample));
+        SDL_CHECK_PLANE(lean_sarray_size((lean_object *)uvplane),
+                        lean_sdl_plane_bytes((uh + 1) / 2, uvpitch,
+                                             (size_t)((uw + 1) / 2) * 2u * sample));
+    }
     SDL_BOOL_TO_IO(SDL_UpdateNVTexture(
         t, rect,
         (const Uint8 *)lean_sarray_cptr((lean_object *)yplane), (int)ypitch,

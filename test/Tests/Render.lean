@@ -88,6 +88,16 @@ def run : IO Unit := do
   ren.texture tex
   let shot4 ← ren.readPixels
   check "update texture renders white" (colorNear (← shot4.readPixel 5 5) 255 255 255 0)
+  -- undersized buffers and bad pitches must throw, not read out of bounds
+  checkThrows "update with empty buffer throws" (tex.update none ByteArray.empty 16)
+  checkThrows "update with short buffer throws"
+    (tex.update none (ByteArray.mk (Array.replicate 63 0)) 16)
+  checkThrows "update with zero pitch throws" (tex.update none white 0)
+  checkThrows "update with negative pitch throws" (tex.update none white (-16))
+  -- exact tight size for a sub-rect ((h-1)*pitch + w*bpp) is accepted
+  tex.update (some ⟨0, 0, 2, 2⟩) (ByteArray.mk (Array.replicate 24 0xFF)) 16
+  -- fully out-of-bounds rect clips to empty: SDL no-ops, no size demand
+  tex.update (some ⟨64, 64, 4, 4⟩) ByteArray.empty 16
 
   -- 5. texture from surface
   let srcSurf ← createSurface 4 4 .rgba32
