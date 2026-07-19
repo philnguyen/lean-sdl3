@@ -777,6 +777,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_gamepad_sensor_data(
         return lean_sdl_throw_msg("SDL: getSensorData numValues must be non-negative");
     size_t n = (size_t)num_values;
     float *buf = (float *)SDL_malloc(n ? n * sizeof(float) : 1);
+    if (!buf) return lean_sdl_throw_msg("SDL: out of memory");
     if (!SDL_GetGamepadSensorData(g, (SDL_SensorType)type, buf, num_values)) {
         SDL_free(buf);
         return lean_sdl_throw();

@@ -193,9 +193,15 @@ LEAN_EXPORT lean_obj_res lean_sdl_set_clipboard_data(
     }
     lean_mark_mt(fn);
     lean_sdl_clipboard_ctx *ctx = malloc(sizeof(lean_sdl_clipboard_ctx));
+    if (!ctx) { lean_dec(fn); return lean_sdl_throw_msg("SDL: out of memory"); }
     ctx->fn = fn;
     ctx->last = NULL;
     const char **mimes = SDL_malloc(n * sizeof(const char *));
+    if (!mimes) {
+        lean_dec(fn);
+        free(ctx);
+        return lean_sdl_throw_msg("SDL: out of memory");
+    }
     for (size_t i = 0; i < n; i++)
         mimes[i] = lean_string_cstr(lean_array_get_core(mime_types, i));
     bool ok = SDL_SetClipboardData(lean_sdl_clipboard_data_tramp,

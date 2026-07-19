@@ -162,6 +162,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_attach_virtual_joystick(
     SDL_VirtualJoystickTouchpadDesc *tp = NULL;
     if (nt) {
         tp = (SDL_VirtualJoystickTouchpadDesc *)SDL_calloc(nt, sizeof(*tp));
+        if (!tp) return lean_sdl_throw_msg("SDL: out of memory");
         for (size_t i = 0; i < nt; i++)
             tp[i].nfingers = (Uint16)lean_unbox(lean_array_get_core(touchpad_fingers, i));
     }
@@ -173,6 +174,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_attach_virtual_joystick(
     SDL_VirtualJoystickSensorDesc *sd = NULL;
     if (ns) {
         sd = (SDL_VirtualJoystickSensorDesc *)SDL_calloc(ns, sizeof(*sd));
+        if (!sd) { SDL_free(tp); return lean_sdl_throw_msg("SDL: out of memory"); }
         for (size_t i = 0; i < ns; i++) {
             sd[i].type = (SDL_SensorType)lean_unbox_uint32(lean_array_get_core(sensor_types, i));
             sd[i].rate = (float)rates[i];
@@ -685,6 +687,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_send_joystick_virtual_sensor_data(
     size_t n = lean_sarray_size(data);
     const double *src = lean_float_array_cptr((lean_object *)data);
     float *buf = (float *)SDL_malloc(n ? n * sizeof(float) : 1);
+    if (!buf) return lean_sdl_throw_msg("SDL: out of memory");
     for (size_t i = 0; i < n; i++) buf[i] = (float)src[i];
     bool ok = SDL_SendJoystickVirtualSensorData(j, (SDL_SensorType)type, ts, buf, (int)n);
     SDL_free(buf);
