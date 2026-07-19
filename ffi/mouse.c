@@ -227,13 +227,21 @@ LEAN_EXPORT lean_obj_res lean_sdl_redraw_cursor(lean_obj_arg w) {
     SDL_BOOL_TO_IO(SDL_SetCursor(NULL));
 }
 
-/* Sdl.getCursor : IO (Option Cursor) -- C: SDL_GetCursor (borrowed wrap, owner
- * NULL; NULL -> none; handle identity is NOT preserved). */
+/* Sdl.getCursor : IO (Option Cursor) -- C: SDL_GetCursor (NULL -> none). When
+ * the active cursor was set through the binding, return the same retained
+ * external (identity-preserving; a fresh borrowed wrap would dangle once
+ * setCursor's active slot releases the cursor). Otherwise (the default
+ * cursor, alive for the video subsystem's lifetime) wrap borrowed. */
 LEAN_EXPORT lean_obj_res lean_sdl_get_cursor(lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_Cursor *c = SDL_GetCursor();
     if (!c) return lean_io_result_mk_ok(lean_sdl_none());
+    if (lean_sdl_active_cursor &&
+            lean_sdl_holder_of(lean_sdl_active_cursor)->ptr == c) {
+        lean_inc(lean_sdl_active_cursor);
+        return lean_io_result_mk_ok(lean_sdl_some(lean_sdl_active_cursor));
+    }
     return lean_io_result_mk_ok(
         lean_sdl_some(lean_sdl_wrap(lean_sdl_cursor_borrowed_class, c, NULL)));
 }

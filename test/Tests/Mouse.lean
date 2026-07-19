@@ -55,6 +55,15 @@ def run : IO Unit := do
     let cur ← createCursor bytes bytes 16 16 0 0
     setCursor cur
     check "getCursor isSome after setCursor" ((← getCursor).isSome)
+    -- identity + safety: the returned handle is the retained active cursor, so
+    -- it stays valid even after the active slot moves on to another cursor
+    let got ← getCursor
+    let cur2 ← createCursor bytes bytes 16 16 0 0
+    setCursor cur2
+    match got with
+    | some g => setCursor g  -- would deref a freed cursor before the fix
+    | none => check "getCursor identity handle usable" false
+    setCursor cur2
     redrawCursor
     check "createCursor/setCursor/redrawCursor no-throw" true
   catch _ =>

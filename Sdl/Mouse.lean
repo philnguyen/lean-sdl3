@@ -234,9 +234,10 @@ opaque setCursor (cursor : @& Cursor) : IO Unit
 @[extern "lean_sdl_redraw_cursor"]
 opaque redrawCursor : IO Unit
 
-/-- The active cursor, or `none` if there is no mouse. The returned handle is a
-fresh borrowed wrapper — handle identity is **not** preserved (unlike windows),
-so do not compare cursor handles. C: `SDL_GetCursor`. -/
+/-- The active cursor, or `none` if there is no mouse. When the active cursor
+was set via `setCursor`, this returns the **same handle** (identity-preserving,
+kept alive by the active-cursor slot); otherwise (e.g. the default cursor) it is
+a fresh borrowed wrapper. C: `SDL_GetCursor`. -/
 @[extern "lean_sdl_get_cursor"]
 opaque getCursor : IO (Option Cursor)
 
