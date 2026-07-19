@@ -50,13 +50,13 @@ private opaque registerClasses : IO Unit
 initialize registerClasses
 
 /-- The instance id of a haptic device (`0` is invalid). C: `SDL_HapticID`. -/
-sdl_id HapticID : UInt32
+sdl_id HapticId : UInt32
 
 /-- The id of an uploaded haptic effect (`-1` is invalid). C:
 `SDL_HapticEffectID` (a plain `int` handle returned by
 `SDL_CreateHapticEffect`). Deviation: modelled with `sdl_id … : Int32` rather
 than a `UInt`-typed id, matching the signed C handle. -/
-sdl_id HapticEffectID : Int32
+sdl_id HapticEffectId : Int32
 
 /-- The haptic features a device can support (a bitmask). Bits `0`..`15` are
 effect types; bits `16`..`19` are device capabilities. C: `SDL_HAPTIC_*`. -/
@@ -205,14 +205,14 @@ private opaque getHapticsRaw : IO (Array UInt32)
 
 /-- The currently-connected haptic devices. Throws on failure.
 C: `SDL_GetHaptics`. -/
-def getHaptics : IO (Array HapticID) := do
+def getHaptics : IO (Array HapticId) := do
   return (← getHapticsRaw).map (⟨·⟩)
 
 @[extern "lean_sdl_open_haptic"]
 private opaque openHapticRaw (id : UInt32) : IO Haptic
 
 /-- Open a haptic device for use. Throws on failure. C: `SDL_OpenHaptic`. -/
-def openHaptic (id : HapticID) : IO Haptic := openHapticRaw id.val
+def openHaptic (id : HapticId) : IO Haptic := openHapticRaw id.val
 
 @[extern "lean_sdl_get_haptic_from_id"]
 private opaque getHapticFromIDRaw (id : UInt32) : IO (Option Haptic)
@@ -222,7 +222,7 @@ opened. Takes a fresh reference (`SDL_OpenHaptic(id)`). ⚠️ SDL's haptic open
 not documented as refcounted: prefer keeping a single `Haptic` handle per device
 — closing any handle closes the device for all of them.
 C: `SDL_GetHapticFromID`. -/
-def getHapticFromID (id : HapticID) : IO (Option Haptic) := getHapticFromIDRaw id.val
+def getHapticFromID (id : HapticId) : IO (Option Haptic) := getHapticFromIDRaw id.val
 
 /-- Whether the current mouse has haptic capabilities. C: `SDL_IsMouseHaptic`. -/
 @[extern "lean_sdl_is_mouse_haptic"]
@@ -243,16 +243,16 @@ C: `SDL_OpenHapticFromJoystick`. -/
 @[extern "lean_sdl_open_haptic_from_joystick"]
 opaque openHapticFromJoystick (joystick : @& Joystick) : IO Haptic
 
-namespace HapticID
+namespace HapticId
 
 @[extern "lean_sdl_get_haptic_name_for_id"]
 private opaque nameRaw (id : UInt32) : IO String
 
 /-- The implementation-dependent name of a haptic device. Throws if no name is
 available. C: `SDL_GetHapticNameForID`. -/
-def name (self : HapticID) : IO String := nameRaw self.val
+def name (self : HapticId) : IO String := nameRaw self.val
 
-end HapticID
+end HapticId
 
 /-! ## `Haptic` methods -/
 
@@ -270,7 +270,7 @@ private opaque getIDRaw (self : @& Haptic) : IO UInt32
 
 /-- The instance id of the haptic device. Throws (`0`) on failure.
 C: `SDL_GetHapticID`. -/
-def getID (self : @& Haptic) : IO HapticID := do return ⟨← getIDRaw self⟩
+def getID (self : @& Haptic) : IO HapticId := do return ⟨← getIDRaw self⟩
 
 /-- The implementation-dependent name of the haptic device, or `none` if it has
 no name. C: `SDL_GetHapticName`. -/
@@ -326,7 +326,7 @@ private opaque createEffectRaw (self : @& Haptic)
 
 /-- Create a new effect on the device, returning its id. Throws (`-1`) on
 failure. C: `SDL_CreateHapticEffect`. -/
-def createEffect (self : @& Haptic) (effect : @& HapticEffect) : IO HapticEffectID := do
+def createEffect (self : @& Haptic) (effect : @& HapticEffect) : IO HapticEffectId := do
   let r := effect.toRaw
   return ⟨← createEffectRaw self r.effectType r.dirType r.dir0 r.dir1 r.dir2 r.length
     r.delay r.button r.interval r.level r.period r.magnitude r.offset r.phase
@@ -343,7 +343,7 @@ private opaque updateEffectRaw (self : @& Haptic) (id : Int32)
 
 /-- Update the properties of an existing effect (the effect type cannot change).
 Throws on failure. C: `SDL_UpdateHapticEffect`. -/
-def updateEffect (self : @& Haptic) (id : HapticEffectID) (effect : @& HapticEffect) : IO Unit :=
+def updateEffect (self : @& Haptic) (id : HapticEffectId) (effect : @& HapticEffect) : IO Unit :=
   let r := effect.toRaw
   updateEffectRaw self id.val r.effectType r.dirType r.dir0 r.dir1 r.dir2 r.length
     r.delay r.button r.interval r.level r.period r.magnitude r.offset r.phase
@@ -355,21 +355,21 @@ private opaque runEffectRaw (self : @& Haptic) (id : Int32) (iterations : UInt32
 
 /-- Run an effect. Pass `hapticInfinity` as `iterations` to repeat forever.
 Throws on failure. C: `SDL_RunHapticEffect`. -/
-def runEffect (self : @& Haptic) (id : HapticEffectID) (iterations : UInt32) : IO Unit :=
+def runEffect (self : @& Haptic) (id : HapticEffectId) (iterations : UInt32) : IO Unit :=
   runEffectRaw self id.val iterations
 
 @[extern "lean_sdl_stop_haptic_effect"]
 private opaque stopEffectRaw (self : @& Haptic) (id : Int32) : IO Unit
 
 /-- Stop a running effect. Throws on failure. C: `SDL_StopHapticEffect`. -/
-def stopEffect (self : @& Haptic) (id : HapticEffectID) : IO Unit := stopEffectRaw self id.val
+def stopEffect (self : @& Haptic) (id : HapticEffectId) : IO Unit := stopEffectRaw self id.val
 
 @[extern "lean_sdl_destroy_haptic_effect"]
 private opaque destroyEffectRaw (self : @& Haptic) (id : Int32) : IO Unit
 
 /-- Destroy an effect (stopping it first if running). Effects are automatically
 destroyed when the device is closed. C: `SDL_DestroyHapticEffect` (void). -/
-def destroyEffect (self : @& Haptic) (id : HapticEffectID) : IO Unit := destroyEffectRaw self id.val
+def destroyEffect (self : @& Haptic) (id : HapticEffectId) : IO Unit := destroyEffectRaw self id.val
 
 @[extern "lean_sdl_get_haptic_effect_status"]
 private opaque effectStatusRaw (self : @& Haptic) (id : Int32) : IO Bool
@@ -377,7 +377,7 @@ private opaque effectStatusRaw (self : @& Haptic) (id : Int32) : IO Bool
 /-- Whether an effect is currently playing. Requires the `.status` feature;
 returns `false` if the effect is not playing or status is unsupported.
 C: `SDL_GetHapticEffectStatus`. -/
-def effectStatus (self : @& Haptic) (id : HapticEffectID) : IO Bool := effectStatusRaw self id.val
+def effectStatus (self : @& Haptic) (id : HapticEffectId) : IO Bool := effectStatusRaw self id.val
 
 /-- Set the global gain of the device (`0`..`100`). Requires the `.gain`
 feature. Throws on failure. C: `SDL_SetHapticGain`. -/

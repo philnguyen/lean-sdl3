@@ -29,7 +29,7 @@ structure Sound where
 /-- Load `fname`, wrap it in an audio stream (source format = the wav's format,
 dest format left unset until bound), and bind that stream to `device`.
 C: `init_sound`. -/
-def initSound (device : AudioDeviceID) (fname : String) : IO Sound := do
+def initSound (device : AudioDeviceId) (fname : String) : IO Sound := do
   let (spec, data) ← loadWAV (← Examples.assetPath fname).toString
   -- Create an audio stream. Set the source format to the wav's format; leave
   -- the dest format unset here (it changes to what the device wants once bound).
@@ -41,7 +41,7 @@ def initSound (device : AudioDeviceID) (fname : String) : IO Sound := do
 structure State where
   window : Window
   renderer : Renderer
-  device : AudioDeviceID
+  device : AudioDeviceId
   sounds : Array Sound
 
 def app : App State where

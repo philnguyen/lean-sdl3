@@ -8,6 +8,8 @@ public import Sdl.Properties
 public meta import Sdl.Properties
 public import Sdl.IOStream
 public meta import Sdl.IOStream
+public import Sdl.Events
+public meta import Sdl.Events
 
 public section
 
@@ -15,7 +17,7 @@ public section
 # Audio playback, recording, and conversion (`SDL_audio.h`)
 
 All audio in SDL3 flows through an `AudioStream`. An app opens an
-`AudioDeviceID` (a *logical* device), binds streams to it, and feeds/consumes
+`AudioDeviceId` (a *logical* device), binds streams to it, and feeds/consumes
 data through those streams. `AudioStream` is also a standalone format converter
 and queue.
 
@@ -26,14 +28,14 @@ and queue.
   *manual* destroy that NULLs the handle, so later use is a clean IO error.
   Destroying a stream returned by `openAudioDeviceStream` also closes the audio
   device that was opened alongside it (SDL semantics).
-* An `AudioDeviceID` is a plain numeric id (not a handle): close it with
-  `AudioDeviceID.close` when you opened it with `openAudioDevice`.
+* An `AudioDeviceId` is a plain numeric id (not a handle): close it with
+  `AudioDeviceId.close` when you opened it with `openAudioDevice`.
 
 The stream's external holder carries the two per-stream callback closures
 (`AudioStream.setGetCallback`/`setPutCallback`, locked-slot primitive):
 replaced under the stream lock, released by the finalizer after
 `SDL_DestroyAudioStream` (see `docs/DESIGN.md` §"Callbacks", primitive 2).
-The device postmix callback (`AudioDeviceID.setPostmixCallback`) uses the
+The device postmix callback (`AudioDeviceId.setPostmixCallback`) uses the
 gen-key registry (primitive 1) keyed by device id and is dropped on `close`.
 
 ## Skipped (documented plan-level omissions)
@@ -120,13 +122,19 @@ end AudioFormat
 
 /-! ## Audio device ids -/
 
-/-- The instance id of a logical or physical audio device. Zero is never a
-valid id. C: `SDL_AudioDeviceID`. -/
-sdl_id AudioDeviceID : UInt32 where
-  /-- Request a default playback device. C: `SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK`. -/
-  | defaultPlayback := 0xFFFFFFFF
-  /-- Request a default recording device. C: `SDL_AUDIO_DEVICE_DEFAULT_RECORDING`. -/
-  | defaultRecording := 0xFFFFFFFE
+-- `AudioDeviceId` (C: `SDL_AudioDeviceID`) is defined in `Sdl/Events.lean`
+-- because event payloads carry it (so `AudioDeviceEvent.which` is directly
+-- usable with this module's API); here we add the default-device constants.
+
+namespace AudioDeviceId
+
+/-- Request a default playback device. C: `SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK`. -/
+def defaultPlayback : AudioDeviceId := ⟨0xFFFFFFFF⟩
+
+/-- Request a default recording device. C: `SDL_AUDIO_DEVICE_DEFAULT_RECORDING`. -/
+def defaultRecording : AudioDeviceId := ⟨0xFFFFFFFE⟩
+
+end AudioDeviceId
 
 /-! ## Audio specs -/
 
@@ -209,7 +217,7 @@ private opaque getAudioPlaybackDevicesRaw : IO (Array UInt32)
 
 /-- The currently-connected physical audio playback devices. Throws on failure.
 C: `SDL_GetAudioPlaybackDevices`. -/
-def getAudioPlaybackDevices : IO (Array AudioDeviceID) := do
+def getAudioPlaybackDevices : IO (Array AudioDeviceId) := do
   return (← getAudioPlaybackDevicesRaw).map (⟨·⟩)
 
 @[extern "lean_sdl_get_audio_recording_devices"]
@@ -217,7 +225,7 @@ private opaque getAudioRecordingDevicesRaw : IO (Array UInt32)
 
 /-- The currently-connected physical audio recording devices. Throws on failure.
 C: `SDL_GetAudioRecordingDevices`. -/
-def getAudioRecordingDevices : IO (Array AudioDeviceID) := do
+def getAudioRecordingDevices : IO (Array AudioDeviceId) := do
   return (← getAudioRecordingDevicesRaw).map (⟨·⟩)
 
 /-! ## Opening devices and streams -/
@@ -228,10 +236,10 @@ private opaque openAudioDeviceRaw (devid : UInt32)
 
 /-- Open a logical audio device on top of the physical device `devid` (or
 `.defaultPlayback`/`.defaultRecording`). `spec` is only a hint; streams convert
-as needed. Close the returned device with `AudioDeviceID.close`. Throws on
+as needed. Close the returned device with `AudioDeviceId.close`. Throws on
 failure. C: `SDL_OpenAudioDevice`. -/
-def openAudioDevice (devid : AudioDeviceID) (spec : Option AudioSpec := none) :
-    IO AudioDeviceID := do
+def openAudioDevice (devid : AudioDeviceId) (spec : Option AudioSpec := none) :
+    IO AudioDeviceId := do
   let (hs, f, c, fr) := optSpecArgs spec
   return ⟨← openAudioDeviceRaw devid.val hs f c fr⟩
 
@@ -257,7 +265,7 @@ data), and bind them, returning just the stream. The device begins **paused** �
 call `AudioStream.resumeDevice` to start it. Destroying the returned stream also
 closes the device. Throws on failure. C: `SDL_OpenAudioDeviceStream` (with a
 `NULL` callback; see the module note on stream callbacks). -/
-def openAudioDeviceStream (devid : AudioDeviceID) (spec : Option AudioSpec := none) :
+def openAudioDeviceStream (devid : AudioDeviceId) (spec : Option AudioSpec := none) :
     IO AudioStream :=
   let (hs, f, c, fr) := optSpecArgs spec
   openAudioDeviceStreamRaw devid.val hs f c fr
@@ -328,14 +336,14 @@ C: `SDL_UnbindAudioStreams`. -/
 @[extern "lean_sdl_unbind_audio_streams"]
 opaque unbindAudioStreams (streams : @& Array AudioStream) : IO Unit
 
-namespace AudioDeviceID
+namespace AudioDeviceId
 
 @[extern "lean_sdl_get_audio_device_name"]
 private opaque nameRaw (devid : UInt32) : IO String
 
 /-- The human-readable name of the device. Throws on failure.
 C: `SDL_GetAudioDeviceName`. -/
-def name (self : AudioDeviceID) : IO String := nameRaw self.val
+def name (self : AudioDeviceId) : IO String := nameRaw self.val
 
 @[extern "lean_sdl_get_audio_device_format"]
 private opaque getFormatRaw (devid : UInt32) : IO (AudioSpec × Int32)
@@ -343,14 +351,14 @@ private opaque getFormatRaw (devid : UInt32) : IO (AudioSpec × Int32)
 /-- The device's current audio format together with its buffer size, in sample
 frames (the amount fed to the hardware per chunk). Throws on failure.
 C: `SDL_GetAudioDeviceFormat`. -/
-def getFormat (self : AudioDeviceID) : IO (AudioSpec × Int32) := getFormatRaw self.val
+def getFormat (self : AudioDeviceId) : IO (AudioSpec × Int32) := getFormatRaw self.val
 
 @[extern "lean_sdl_get_audio_device_channel_map"]
 private opaque getChannelMapRaw (devid : UInt32) : IO (Option (Array Int32))
 
 /-- The device's channel map, or `none` for the default channel order (which is
 not an error). C: `SDL_GetAudioDeviceChannelMap`. -/
-def getChannelMap (self : AudioDeviceID) : IO (Option (Array Int32)) :=
+def getChannelMap (self : AudioDeviceId) : IO (Option (Array Int32)) :=
   getChannelMapRaw self.val
 
 @[extern "lean_sdl_is_audio_device_physical"]
@@ -358,35 +366,35 @@ private opaque isPhysicalRaw (devid : UInt32) : IO Bool
 
 /-- Whether the device id is a physical device (vs a logical one from
 `openAudioDevice`). C: `SDL_IsAudioDevicePhysical`. -/
-def isPhysical (self : AudioDeviceID) : IO Bool := isPhysicalRaw self.val
+def isPhysical (self : AudioDeviceId) : IO Bool := isPhysicalRaw self.val
 
 @[extern "lean_sdl_is_audio_device_playback"]
 private opaque isPlaybackRaw (devid : UInt32) : IO Bool
 
 /-- Whether the device is a playback device (vs a recording device).
 C: `SDL_IsAudioDevicePlayback`. -/
-def isPlayback (self : AudioDeviceID) : IO Bool := isPlaybackRaw self.val
+def isPlayback (self : AudioDeviceId) : IO Bool := isPlaybackRaw self.val
 
 @[extern "lean_sdl_pause_audio_device"]
 private opaque pauseRaw (devid : UInt32) : IO Unit
 
 /-- Pause audio processing on the (logical) device. Throws on failure.
 C: `SDL_PauseAudioDevice`. -/
-def pause (self : AudioDeviceID) : IO Unit := pauseRaw self.val
+def pause (self : AudioDeviceId) : IO Unit := pauseRaw self.val
 
 @[extern "lean_sdl_resume_audio_device"]
 private opaque resumeRaw (devid : UInt32) : IO Unit
 
 /-- Resume audio processing on the (logical) device. Throws on failure.
 C: `SDL_ResumeAudioDevice`. -/
-def resume (self : AudioDeviceID) : IO Unit := resumeRaw self.val
+def resume (self : AudioDeviceId) : IO Unit := resumeRaw self.val
 
 @[extern "lean_sdl_audio_device_paused"]
 private opaque pausedRaw (devid : UInt32) : IO Bool
 
 /-- Whether the device is valid and paused (physical/invalid ids report
 `false`). C: `SDL_AudioDevicePaused`. -/
-def paused (self : AudioDeviceID) : IO Bool := pausedRaw self.val
+def paused (self : AudioDeviceId) : IO Bool := pausedRaw self.val
 
 @[extern "lean_sdl_get_audio_device_gain"]
 private opaque getGainRaw (devid : UInt32) : IO Float32
@@ -394,28 +402,28 @@ private opaque getGainRaw (devid : UInt32) : IO Float32
 /-- The device gain (volume; `1.0` is unchanged). Throws on failure (physical
 devices always fail here, returning the `-1.0` sentinel).
 C: `SDL_GetAudioDeviceGain`. -/
-def getGain (self : AudioDeviceID) : IO Float32 := getGainRaw self.val
+def getGain (self : AudioDeviceId) : IO Float32 := getGainRaw self.val
 
 @[extern "lean_sdl_set_audio_device_gain"]
 private opaque setGainRaw (devid : UInt32) (gain : Float32) : IO Unit
 
 /-- Set the device gain (`1.0` is unchanged, `0.0` is silence). Only logical
 devices can change gain. Throws on failure. C: `SDL_SetAudioDeviceGain`. -/
-def setGain (self : AudioDeviceID) (gain : Float32) : IO Unit := setGainRaw self.val gain
+def setGain (self : AudioDeviceId) (gain : Float32) : IO Unit := setGainRaw self.val gain
 
 @[extern "lean_sdl_close_audio_device"]
 private opaque closeRaw (devid : UInt32) : IO Unit
 
 /-- Close a logical device previously opened with `openAudioDevice`. Only close
 ids you opened. C: `SDL_CloseAudioDevice`. -/
-def close (self : AudioDeviceID) : IO Unit := closeRaw self.val
+def close (self : AudioDeviceId) : IO Unit := closeRaw self.val
 
 @[extern "lean_sdl_bind_audio_stream"]
 private opaque bindStreamRaw (devid : UInt32) (stream : @& AudioStream) : IO Unit
 
 /-- Bind `stream` to the device so data flows through it. Throws on failure
 (e.g. the stream is already bound). C: `SDL_BindAudioStream`. -/
-def bindStream (self : AudioDeviceID) (stream : @& AudioStream) : IO Unit :=
+def bindStream (self : AudioDeviceId) (stream : @& AudioStream) : IO Unit :=
   bindStreamRaw self.val stream
 
 @[extern "lean_sdl_bind_audio_streams"]
@@ -423,7 +431,7 @@ private opaque bindStreamsRaw (devid : UInt32) (streams : @& Array AudioStream) 
 
 /-- Bind every stream in `streams` to the device atomically. Throws on failure
 or if any element was already destroyed. C: `SDL_BindAudioStreams`. -/
-def bindStreams (self : AudioDeviceID) (streams : @& Array AudioStream) : IO Unit :=
+def bindStreams (self : AudioDeviceId) (streams : @& Array AudioStream) : IO Unit :=
   bindStreamsRaw self.val streams
 
 @[extern "lean_sdl_set_audio_postmix_callback"]
@@ -438,11 +446,11 @@ only the first `min` input-length elements are written). The callback stays
 registered until replaced, removed, or the device is closed. An exception
 thrown by the callback leaves the buffer as SDL mixed it.
 C: `SDL_SetAudioPostmixCallback`. -/
-def setPostmixCallback (self : AudioDeviceID)
+def setPostmixCallback (self : AudioDeviceId)
     (cb : Option (AudioSpec → FloatArray → IO FloatArray)) : IO Unit :=
   setPostmixCallbackRaw self.val cb
 
-end AudioDeviceID
+end AudioDeviceId
 
 namespace AudioStream
 
@@ -604,7 +612,7 @@ private opaque getDeviceRaw (self : @& AudioStream) : IO UInt32
 
 /-- The device the stream is currently bound to, or `none` if unbound/invalid.
 C: `SDL_GetAudioStreamDevice`. -/
-def getDevice (self : @& AudioStream) : IO (Option AudioDeviceID) := do
+def getDevice (self : @& AudioStream) : IO (Option AudioDeviceId) := do
   let id ← getDeviceRaw self
   return if id == 0 then none else some ⟨id⟩
 

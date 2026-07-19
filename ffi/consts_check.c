@@ -1201,8 +1201,8 @@ _Static_assert(SDL_AUDIO_S32 == SDL_AUDIO_S32LE, "AudioFormat.s32 (native == LE)
 _Static_assert(SDL_AUDIO_F32 == SDL_AUDIO_F32LE, "AudioFormat.f32 (native == LE)");
 
 /* ---- AudioDeviceID named members ---- */
-_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK  == 0xFFFFFFFFu, "AudioDeviceID.defaultPlayback");
-_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_RECORDING == 0xFFFFFFFEu, "AudioDeviceID.defaultRecording");
+_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK  == 0xFFFFFFFFu, "AudioDeviceId.defaultPlayback");
+_Static_assert(SDL_AUDIO_DEVICE_DEFAULT_RECORDING == 0xFFFFFFFEu, "AudioDeviceId.defaultRecording");
 
 /* ==================== Sdl/Sensor.lean ==================== */
 

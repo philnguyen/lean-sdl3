@@ -216,7 +216,7 @@ def hapticTests : IO Unit := do
   let _ ← getHaptics
   check "getHaptics succeeds" true
   checkThrows "openHaptic bogus id throws" (openHaptic ⟨0xDEADBEEF⟩)
-  checkThrows "HapticID.name bogus id throws" (HapticID.name ⟨0xDEADBEEF⟩)
+  checkThrows "HapticId.name bogus id throws" (HapticId.name ⟨0xDEADBEEF⟩)
   let _ ← isMouseHaptic
   check "isMouseHaptic runs" true
   check "HapticFeatures.gain ||| .autocenter has gain"
