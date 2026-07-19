@@ -124,8 +124,11 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_clipboard_mime_types(lean_obj_arg w) {
 
 typedef struct {
     lean_object *fn;   /* owned, mt-marked: String -> IO ByteArray */
-    lean_object *last; /* last provided ByteArray, or NULL */
+    lean_object *last; /* last provided ByteArray (mt-marked), or NULL */
 } lean_sdl_clipboard_ctx;
+
+/* Guards ctx->last: data requests may fire concurrently on any thread. */
+static SDL_SpinLock lean_sdl_clipboard_lock;
 
 /* May fire on any thread whenever someone requests a mime type; with
  * text-only or headless backends it can fire synchronously inside
@@ -144,8 +147,15 @@ static const void *SDLCALL lean_sdl_clipboard_data_tramp(
     lean_object *ba = lean_io_result_get_value(res);
     lean_inc(ba);
     lean_dec(res);
-    if (ctx->last) lean_dec(ctx->last);
+    /* The ByteArray's refcount is touched from whichever threads request or
+     * clean up, so it must be atomic; the slot swap itself is under a lock
+     * (two concurrent requests must not both dec the same old value). */
+    lean_mark_mt(ba);
+    SDL_LockSpinlock(&lean_sdl_clipboard_lock);
+    lean_object *old = ctx->last;
     ctx->last = ba;
+    SDL_UnlockSpinlock(&lean_sdl_clipboard_lock);
+    if (old) lean_dec(old);
     *size = lean_sarray_size(ba);
     return lean_sarray_cptr(ba);
 }
@@ -154,7 +164,11 @@ static void SDLCALL lean_sdl_clipboard_cleanup_tramp(void *userdata) {
     lean_sdl_clipboard_ctx *ctx = (lean_sdl_clipboard_ctx *)userdata;
     lean_sdl_ensure_thread();
     lean_dec(ctx->fn);
-    if (ctx->last) lean_dec(ctx->last);
+    SDL_LockSpinlock(&lean_sdl_clipboard_lock);
+    lean_object *last = ctx->last;
+    ctx->last = NULL;
+    SDL_UnlockSpinlock(&lean_sdl_clipboard_lock);
+    if (last) lean_dec(last);
     free(ctx);
 }
 

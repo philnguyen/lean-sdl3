@@ -66,9 +66,13 @@ static lean_object *lean_sdl_display_mode_obj(const SDL_DisplayMode *m) {
 }
 
 /* Wrap a freshly-created owned SDL_Window* and register it for lookups. `owner`
- * is consumed (NULL for top-level, inc'd parent external for popups). */
+ * is consumed (NULL for top-level, inc'd parent external for popups). The
+ * external is mt-marked here (on the main thread, before it can be seen
+ * elsewhere): the relative-mouse-transform trampoline incs it from SDL's mouse
+ * input thread via lean_sdl_window_option, so its RC ops must be atomic. */
 static lean_object *lean_sdl_wrap_window(SDL_Window *win, lean_object *owner) {
     lean_object *ext = lean_sdl_wrap(lean_sdl_window_class, win, owner);
+    lean_mark_mt(ext);
     SDL_SetPointerProperty(SDL_GetWindowProperties(win), LEAN_SDL_WINDOW_PROP, ext);
     return ext;
 }
