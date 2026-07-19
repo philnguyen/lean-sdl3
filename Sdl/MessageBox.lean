@@ -35,10 +35,18 @@ sdl_flags MessageBoxFlags : UInt32 where
   | buttonsLeftToRight := 0x80   -- C: SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT
   | buttonsRightToLeft := 0x100  -- C: SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT
 
+#guard MessageBoxFlags.error.val == 0x10
+#guard MessageBoxFlags.information.val == 0x40
+#guard MessageBoxFlags.buttonsRightToLeft.val == 0x100
+#guard (MessageBoxFlags.error ||| MessageBoxFlags.buttonsLeftToRight).val == 0x90
+
 /-- Per-button behavior flags. C: `SDL_MessageBoxButtonFlags`. -/
 sdl_flags MessageBoxButtonFlags : UInt32 where
   | returnkeyDefault := 0x1  -- C: SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT
   | escapekeyDefault := 0x2  -- C: SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT
+
+#guard MessageBoxButtonFlags.returnkeyDefault.val == 0x1
+#guard MessageBoxButtonFlags.escapekeyDefault.val == 0x2
 
 /-- A single message box button. `id` is returned by `showMessageBox` when this
 button is pressed. C: `SDL_MessageBoxButtonData` (`buttonID` → `id`). -/
@@ -50,6 +58,9 @@ structure MessageBoxButton where
   /-- UTF-8 button text. -/
   text : String
 deriving Repr, BEq, Inhabited
+
+#guard ({ id := 5, text := "OK" : MessageBoxButton }).flags == .none
+#guard (MessageBoxButton.mk .returnkeyDefault 3 "OK").id == 3
 
 /-- An RGB value in a message box color scheme. C: `SDL_MessageBoxColor`. -/
 structure MessageBoxColor where
@@ -132,17 +143,6 @@ def showMessageBox (flags : MessageBoxFlags) (title message : @& String)
     | some cs => ((1 : UInt8), packColorScheme cs)
     | none    => ((0 : UInt8), ByteArray.empty)
   showMessageBoxRaw flags.val title message metaBytes texts hasScheme scheme window
-
-/-! ## Compile-time checks -/
-
-#guard MessageBoxFlags.error.val == 0x10
-#guard MessageBoxFlags.information.val == 0x40
-#guard MessageBoxFlags.buttonsRightToLeft.val == 0x100
-#guard (MessageBoxFlags.error ||| MessageBoxFlags.buttonsLeftToRight).val == 0x90
-#guard MessageBoxButtonFlags.returnkeyDefault.val == 0x1
-#guard MessageBoxButtonFlags.escapekeyDefault.val == 0x2
-#guard ({ id := 5, text := "OK" : MessageBoxButton }).flags == .none
-#guard (MessageBoxButton.mk .returnkeyDefault 3 "OK").id == 3
 
 end Sdl
 

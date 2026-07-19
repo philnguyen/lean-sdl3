@@ -10,7 +10,6 @@
  * and then SDL_free'd. GetClipboardMimeTypes returns a NULL-terminated char**
  * in a SINGLE allocation: the individual strings are NOT separately freed. */
 #include "util.h"
-#include "callbacks.h"
 
 /* Sdl.setClipboardText (text : @& String) : IO Unit -- C: SDL_SetClipboardText. */
 LEAN_EXPORT lean_obj_res lean_sdl_set_clipboard_text(b_lean_obj_arg text, lean_obj_arg w) {
