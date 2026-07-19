@@ -32,7 +32,7 @@ structure State where
   texHeight : Float
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Rotating Textures" "1.0"
       "com.example.renderer-rotating-textures"
     Sdl.init .video
@@ -44,10 +44,10 @@ def app : App State where
     let texHeight := (← surface.height).toFloat
     let texture ← renderer.createTextureFromSurface surface
     return (.continue, some { window, renderer, texture, texWidth, texHeight })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- rotate a full circle (360 degrees) over two seconds (2000 ms).
     let rotation : Float := ((now % 2000).toFloat / 2000.0) * 360.0

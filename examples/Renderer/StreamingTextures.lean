@@ -33,7 +33,7 @@ structure State where
   texture : Texture
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Streaming Textures" "1.0"
       "com.example.renderer-streaming-textures"
     Sdl.init .video
@@ -42,10 +42,10 @@ def app : App State where
     renderer.setLogicalPresentation 640 480 .letterbox
     let texture ← renderer.createTexture .rgba8888 .streaming textureSize textureSize
     return (.continue, some { window, renderer, texture })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- some color moves around over a few seconds.
     let direction : Float := if now % 2000 ≥ 1000 then 1.0 else -1.0

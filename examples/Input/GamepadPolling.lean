@@ -99,7 +99,7 @@ def drawGamepad (r : Renderer) (texture : Texture) (g : Gamepad) (now : UInt64)
   drawTrigger r g .rightTrigger 481.0
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Input Gamepad Polling" "1.0"
       "com.example.input-gamepad-polling"
     Sdl.init (.video ||| .gamepad)
@@ -113,7 +113,7 @@ def app : App State where
     let leftThumbLast ← IO.mkRef 0xFFFFFFFF
     let rightThumbLast ← IO.mkRef 0xFFFFFFFF
     return (.continue, some { window, renderer, texture, gamepad, leftThumbLast, rightThumbLast })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .gamepadAdded e =>
@@ -131,7 +131,7 @@ def app : App State where
           s.gamepad.set none
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let now ← getTicks
     let gamepad? ← s.gamepad.get

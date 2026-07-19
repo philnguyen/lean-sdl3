@@ -67,7 +67,7 @@ def drawCenteredText (r : Renderer) (rw y : Int32) (str : String) : IO Int32 := 
   return y + debugTextFontCharacterSize * 2
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Input Gamepad Rumble" "1.0"
       "com.example.input-gamepad-rumble"
     Sdl.init (.video ||| .gamepad)
@@ -75,7 +75,7 @@ def app : App State where
       createWindowAndRenderer "examples/input/gamepad-rumble" 640 480 .resizable
     let slots ← IO.mkRef (Array.replicate 16 none)
     return (.continue, some { window, renderer, slots })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .gamepadAdded e =>
@@ -107,7 +107,7 @@ def app : App State where
         s.slots.modify (setAction · e.which "idle")
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let (rw, _rh) ← r.getCurrentOutputSize
     r.setDrawColor 0 0 0 255  -- clear to black
@@ -124,6 +124,6 @@ def app : App State where
       | some (id, _, action) => y ← drawCenteredText r rw y s!"{← id.gamepadName}: {action}"
     r.present
     return .continue
-  quit := fun _ _ => Sdl.quit
+  quit _ _ := Sdl.quit
 
 def main : IO UInt32 := Examples.runApp app

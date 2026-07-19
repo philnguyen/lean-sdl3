@@ -32,7 +32,7 @@ structure State where
   texHeight : Float
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Scaling Textures" "1.0"
       "com.example.renderer-scaling-textures"
     Sdl.init .video
@@ -44,10 +44,10 @@ def app : App State where
     let texHeight := (← surface.height).toFloat
     let texture ← renderer.createTextureFromSurface surface
     return (.continue, some { window, renderer, texture, texWidth, texHeight })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- grow and shrink the texture over a few seconds.
     let direction : Float := if now % 2000 ≥ 1000 then 1.0 else -1.0

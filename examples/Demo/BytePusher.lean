@@ -257,7 +257,7 @@ def computeZoom : IO Nat := do
   catch _ => return 2
 
 def app : App State where
-  init := fun args => do
+  init args := do
     setAppMetadata "SDL 3 BytePusher" "1.0" "com.example.SDL3BytePusher"
     -- Extended metadata (C: the `extended_metadata[]` table).
     setAppMetadataProperty "SDL.app.metadata.url" "https://examples.libsdl.org/SDL3/demo/04-bytepusher/"
@@ -310,7 +310,7 @@ def app : App State where
         return (.failure, none)
     | none => pure ()
     return (.continue, some s)
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .dropFile de =>
@@ -336,7 +336,7 @@ def app : App State where
       s.keystate.modify (· &&& (~~~ mask))
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let tick ← getTicksNS
     let delta := tick - (← s.lastTick.get)
     s.lastTick.set tick

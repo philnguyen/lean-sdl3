@@ -57,7 +57,7 @@ structure State where
 
 def app (textures : IO.Ref (Array (Option Texture))) (loaded : IO.Ref Nat) :
     App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Async IO Load Bitmaps" "1.0"
       "com.example.asyncio-load-bitmaps"
     Sdl.init .video
@@ -70,11 +70,11 @@ def app (textures : IO.Ref (Array (Option Texture))) (loaded : IO.Ref Nat) :
       let path ← Examples.assetPath pngs[i]!
       Sdl.loadFileAsync path.toString queue (userdata := i.toUInt64)
     return (.continue, some { window, renderer, queue, textures, loaded })
-  event := fun _s e => do
+  event _ e := do
     match e with
     | .quit _ => return .success
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     -- One completed load per frame, like the C original.
     if let some outcome ← s.queue.getResult then
       if outcome.result == .complete then

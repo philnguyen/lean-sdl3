@@ -192,7 +192,7 @@ def renderButton (r : Renderer) (playingSound : Int32) (rect : FRect)
   r.debugText x y str
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Audio Planar Data" "1.0" "com.example.audio-planar-data"
     Sdl.init (.video ||| .audio)
     let (window, renderer) ←
@@ -209,7 +209,7 @@ def app : App State where
     stream.resumeDevice
     let playingSound ← IO.mkRef (0 : Int32)
     return (.continue, some { window, renderer, stream, left, right, playingSound })
-  event := fun s e => do
+  event s e := do
     -- C calls SDL_ConvertEventToRenderCoordinates on every event; here we map
     -- the mouse coordinates through the renderer only where we use them.
     match e with
@@ -229,7 +229,7 @@ def app : App State where
           s.playingSound.set 1  -- right is playing
     | _ => pure ()
     return .continue
-  iterate := fun s => do
+  iterate s := do
     if (← s.playingSound.get) != 0 then
       if (← s.stream.queued) == 0 then  -- sound is done? play a new sound now.
         s.playingSound.set 0

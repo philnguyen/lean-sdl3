@@ -58,7 +58,7 @@ def trySetBlend (t : Texture) (mode : BlendMode) : IO Bool := do
     return false
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Blending" "1.0" "com.example.blending"
     Sdl.init .video
     let (window, renderer) ←
@@ -98,7 +98,7 @@ def app : App State where
     let alpha ← IO.mkRef (255 : UInt8)
     return (.continue, some
       { window, renderer, redTex, greenTex, blueTex, panels, blendModes, blendModeNames, alpha })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .keyDown ke =>
@@ -111,7 +111,7 @@ def app : App State where
         if a >= 8 then s.alpha.set (a - 8)
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     r.setDrawColor 0 0 0 255
     r.clear

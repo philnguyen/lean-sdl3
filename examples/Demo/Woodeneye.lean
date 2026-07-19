@@ -529,7 +529,7 @@ def handleKeyUp (s : GameState) (ev : KeyboardEvent) : IO AppResult := do
   | none => return .continue
 
 def app : App GameState where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example splitscreen shooter game" "1.0" "com.example.woodeneye-008"
     -- C: the `extended_metadata[]` table (SDL_PROP_APP_METADATA_* strings).
     setAppMetadataProperty "SDL.app.metadata.url"
@@ -553,7 +553,7 @@ def app : App GameState where
     let debugStr ← IO.mkRef ""
     return (.continue, some
       { window, renderer, edges := initEdges, players, playerCount, rng, past, last, accu, debugStr })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .mouseRemoved ev => handleMouseRemoved s ev.which; return .continue
@@ -563,7 +563,7 @@ def app : App GameState where
     | .keyDown ev => handleKeyDown s ev; return .continue
     | .keyUp ev => handleKeyUp s ev
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicksNS
     let dtNs := now - (← s.past.get)
     let count ← s.playerCount.get

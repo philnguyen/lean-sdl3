@@ -54,14 +54,14 @@ structure State where
   renderer : Renderer
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     Sdl.init .video
     let (window, renderer) ← createWindowAndRenderer "clear" 640 480 .resizable
     return (.continue, some { window, renderer })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now := (← getTicks).toFloat / 1000.0
     s.renderer.setDrawColorFloat (0.5 + 0.5 * Float.sin now).toFloat32 0.3 0.6 1.0
     s.renderer.clear

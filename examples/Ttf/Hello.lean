@@ -44,7 +44,7 @@ structure State where
   frames : IO.Ref Nat
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Ttf Hello" "1.0" "com.example.ttf-hello"
     let some path ← findSystemFont
       | IO.eprintln "ttf-hello: no system font found, skipping"
@@ -63,10 +63,10 @@ def app : App State where
     caption.setFont capFont
     caption.setColor ⟨160, 160, 160, 255⟩
     return (.continue, some { window, renderer, text, caption, frames := ← IO.mkRef 0 })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     r.setDrawColor 20 20 30 255
     r.clear
@@ -83,7 +83,7 @@ def app : App State where
     r.present
     s.frames.modify (· + 1)
     return .continue
-  quit := fun s _res => do
+  quit s _ := do
     IO.println s!"ttf-hello: drew {← s.frames.get} frames"
 
 def main : IO UInt32 := Examples.runApp app

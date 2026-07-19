@@ -309,7 +309,7 @@ def draw (r : Renderer) (ctx : SnakeContext) : IO Unit := do
 def selfDriveKeys : Array Scancode := #[Scancode.right, Scancode.down, Scancode.left, Scancode.up]
 
 def app : App AppState where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Snake game" "1.0" "com.example.Snake"
     -- Extended metadata (C: the `extended_metadata[]` table).
     setAppMetadataProperty "SDL.app.metadata.url" "https://examples.libsdl.org/SDL3/demo/01-snake/"
@@ -328,7 +328,7 @@ def app : App AppState where
     let frame ← IO.mkRef 0
     let selfDrive := (← IO.getEnv "SDL_LEAN_MAX_FRAMES").isSome
     return (.continue, some { window, renderer, ctx, lastStep, joystick, frame, selfDrive })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .joystickAdded e =>
@@ -347,7 +347,7 @@ def app : App AppState where
     | .joystickHatMotion e => handleHatEvent s.ctx ⟨e.value⟩
     | .keyDown e => handleKeyEvent s.ctx e.scancode
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- Run game logic if we're at or past the time to run it; if we're really
     -- behind, run it several times.

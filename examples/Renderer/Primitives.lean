@@ -27,7 +27,7 @@ structure State where
   points : Array FPoint
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Primitives" "1.0" "com.example.renderer-primitives"
     Sdl.init .video
     let (window, renderer) ←
@@ -40,10 +40,10 @@ def app : App State where
       let ry := (← IO.rand 0 999999).toFloat / 1000000.0
       points := points.push { x := (rx * 440.0 + 100.0).toFloat32, y := (ry * 280.0 + 100.0).toFloat32 }
     return (.continue, some { window, renderer, points })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     -- as you can see from this, rendering draws over whatever was drawn before it.
     s.renderer.setDrawColor 33 33 33 255  -- dark gray, full alpha
     s.renderer.clear                       -- start with a blank canvas.

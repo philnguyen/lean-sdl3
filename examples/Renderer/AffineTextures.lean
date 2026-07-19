@@ -34,7 +34,7 @@ structure State where
   texture : Texture
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Affine Textures" "1.0"
       "com.example.renderer-affine-textures"
     Sdl.init .video
@@ -44,10 +44,10 @@ def app : App State where
     let surface ← loadPNG (← Examples.assetPath "sample.png").toString
     let texture ← renderer.createTextureFromSurface surface
     return (.continue, some { window, renderer, texture })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let x0 := 0.5 * windowWidth
     let y0 := 0.5 * windowHeight
     let px := (min windowWidth windowHeight) / Float.sqrt 3.0

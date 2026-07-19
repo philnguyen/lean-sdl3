@@ -60,7 +60,7 @@ def feedTheAudioStreamMore (sampleRef : IO.Ref Int32)
     remaining := remaining - total
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Simple Audio Playback Callback" "1.0"
       "com.example.audio-simple-playback-callback"
     Sdl.init (.video ||| .audio)
@@ -77,10 +77,10 @@ def app : App State where
     -- SDL_OpenAudioDeviceStream starts the device paused. You have to start it!
     stream.resumeDevice
     return (.continue, some { window, renderer, stream, currentSineSample })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     -- all the work of feeding the audio stream happens in the callback.
     -- we're not doing anything with the renderer, so just blank it out.
     s.renderer.clear

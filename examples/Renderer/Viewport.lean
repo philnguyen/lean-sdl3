@@ -35,7 +35,7 @@ structure State where
   textureHeight : Float32
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Viewport" "1.0" "com.example.renderer-viewport"
     Sdl.init .video
     let (window, renderer) ←
@@ -53,10 +53,10 @@ def app : App State where
     let texture ← renderer.createTextureFromSurface surface
     -- (the surface is dropped here; the texture has a copy of the pixels now.)
     return (.continue, some { window, renderer, texture, textureWidth, textureHeight })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let dstRect : FRect := { x := 0, y := 0, w := s.textureWidth, h := s.textureHeight }
     -- Setting a viewport has the effect of limiting the area that rendering
     -- can happen, and making coordinate (0, 0) live somewhere else in the
@@ -81,6 +81,6 @@ def app : App State where
     s.renderer.texture s.texture none (some { dstRect with y := -50 })
     s.renderer.present                  -- put it all on the screen!
     return .continue
-  quit := fun s _ => s.texture.destroy
+  quit s _ := s.texture.destroy
 
 def main : IO UInt32 := Examples.runApp app

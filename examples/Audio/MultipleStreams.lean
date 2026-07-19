@@ -45,7 +45,7 @@ structure State where
   sounds : Array Sound
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Audio Multiple Streams" "1.0" "com.example.audio-multiple-streams"
     Sdl.init (.video ||| .audio)
     let (window, renderer) ←
@@ -57,10 +57,10 @@ def app : App State where
     let sound0 ← initSound device "sample.wav"
     let sound1 ← initSound device "sword.wav"
     return (.continue, some { window, renderer, device, sounds := #[sound0, sound1] })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     for sound in s.sounds do
       -- If less than a full copy of the audio is queued for playback, put
       -- another copy in there. Overkill, but easy when lots of RAM is cheap.

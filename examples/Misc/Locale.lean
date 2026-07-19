@@ -23,17 +23,17 @@ structure State where
   renderer : Renderer
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Misc Locale" "1.0" "com.example.misc-locale"
     Sdl.init .video
     let (window, renderer) ←
       createWindowAndRenderer "examples/misc/locale" 640 480 .resizable
     renderer.setLogicalPresentation 640 480 .letterbox
     return (.continue, some { window, renderer })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let charSize := (debugTextFontCharacterSize).toFloat32
     let frame : FRect := ⟨0, 0, 640, 480⟩

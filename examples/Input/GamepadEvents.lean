@@ -84,7 +84,7 @@ partial def renderMessages (r : Renderer) (now : UInt64) (winw winh : Float)
       return (m :: keptRest)
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Input Gamepad Events" "1.0"
       "com.example.input-gamepad-events"
     Sdl.init (.video ||| .gamepad)
@@ -100,7 +100,7 @@ def app : App State where
     let s := { window, renderer, messages, openedGamepads, colors, axisCooldown }
     addMessage s ⟨0⟩ "Please plug in a gamepad."
     return (.continue, some s)
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .gamepadAdded e =>
@@ -145,7 +145,7 @@ def app : App State where
           s!"Gamepad #{e.which.val} battery -> {batteryStateString e.state} - {e.percent}%"
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let now ← getTicks
     r.setDrawColor 0 0 0 255
@@ -155,6 +155,6 @@ def app : App State where
     s.messages.set kept.toArray
     r.present
     return .continue
-  quit := fun _ _ => Sdl.quit
+  quit _ _ := Sdl.quit
 
 def main : IO UInt32 := Examples.runApp app

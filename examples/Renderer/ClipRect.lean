@@ -31,7 +31,7 @@ structure State where
   lastTime : IO.Ref UInt64
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Clipping Rectangle" "1.0" "com.example.renderer-cliprect"
     Sdl.init .video
     let (window, renderer) ←
@@ -44,10 +44,10 @@ def app : App State where
     let surface ← loadPNG (← Examples.assetPath "sample.png").toString
     let texture ← renderer.createTextureFromSurface surface
     return (.continue, some { window, renderer, texture, position, direction, lastTime })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let pos ← s.position.get
     let cliprect : Rect := ⟨pos.x.round.toInt32, pos.y.round.toInt32,
       cliprectSize.toInt32, cliprectSize.toInt32⟩

@@ -36,17 +36,17 @@ def pad3 (n : Int32) : String :=
   "".pushn ' ' (3 - s.length) ++ s
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Misc Power" "1.0" "com.example.misc-power"
     Sdl.init .video
     let (window, renderer) ←
       createWindowAndRenderer "examples/misc/power" 640 480 .resizable
     renderer.setLogicalPresentation 640 480 .letterbox
     return (.continue, some { window, renderer })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let charSize := (debugTextFontCharacterSize).toFloat32
     let frame : FRect := ⟨100, 200, 440, 80⟩  -- the percentage bar dimensions.

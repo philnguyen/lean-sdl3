@@ -51,7 +51,7 @@ structure State where
   lastTime : IO.Ref UInt64
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Points" "1.0" "com.example.renderer-points"
     Sdl.init .video
     let (window, renderer) ←
@@ -67,10 +67,10 @@ def app : App State where
     let pointSpeeds ← IO.mkRef speeds
     let lastTime ← IO.mkRef (← getTicks)
     return (.continue, some { window, renderer, points, pointSpeeds, lastTime })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- seconds since last iteration
     let elapsed := ((now - (← s.lastTime.get)).toFloat / 1000.0).toFloat32

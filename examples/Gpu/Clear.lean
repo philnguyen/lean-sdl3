@@ -31,7 +31,7 @@ structure State where
   cleared : IO.Ref Nat
 
 def app (cleared : IO.Ref Nat) : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example GPU Clear" "1.0" "com.example.gpu-clear"
     Sdl.init .video
     let device ←
@@ -47,10 +47,10 @@ def app (cleared : IO.Ref Nat) : App State where
     let window ← createWindow "examples/gpu/clear" 640 480 .resizable
     device.claimWindow window
     return (.continue, some { window, device, cleared })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let cmd ← s.device.acquireCommandBuffer
     -- `none` here means too many frames in flight or a minimized window —
     -- cancel this command buffer and try again next frame.
@@ -70,7 +70,7 @@ def app (cleared : IO.Ref Nat) : App State where
     cmd.submit
     s.cleared.modify (· + 1)
     return .continue
-  quit := fun s _ => do
+  quit s _ := do
     -- Drain in-flight work before the window/device finalizers run.
     s.device.waitForIdle
 

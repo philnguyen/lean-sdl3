@@ -35,7 +35,7 @@ structure State where
   texture : IO.Ref (Option Texture)
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Camera Read and Draw" "1.0" "com.example.camera-read-and-draw"
     Sdl.init (.video ||| .camera)
     let (window, renderer) ←
@@ -50,7 +50,7 @@ def app : App State where
     let camera ← openCamera devices[0]!
     let texture ← IO.mkRef none
     return (.continue, some { window, renderer, camera, texture })
-  event := fun _s e => do
+  event _ e := do
     match e with
     | .quit _ => return .success
     | .cameraDeviceApproved _ =>
@@ -60,7 +60,7 @@ def app : App State where
       Sdl.log "Camera use denied by user!"
       return .failure
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     -- C: SDL_AcquireCameraFrame. `none` = no new frame ready yet (normal).
     if let some (frame, _ts) ← s.camera.acquireFrame then
       -- Some platforms don't know what the camera offers until access is

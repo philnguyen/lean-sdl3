@@ -28,7 +28,7 @@ structure State where
   textureHeight : Float32
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Color Mods" "1.0" "com.example.renderer-color-mods"
     Sdl.init .video
     let (window, renderer) ←
@@ -39,10 +39,10 @@ def app : App State where
     let texture ← renderer.createTextureFromSurface surface
     let (textureWidth, textureHeight) ← texture.getSize
     return (.continue, some { window, renderer, texture, textureWidth, textureHeight })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now := (← getTicks).toFloat / 1000.0  -- milliseconds to seconds
     -- The sine wave trick makes the center texture fade between colors smoothly.
     let red   := (0.5 + 0.5 * Float.sin now).toFloat32

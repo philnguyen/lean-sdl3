@@ -270,7 +270,7 @@ def captionString (s : AppState) (m : MonkeyState) : IO String := do
   return s!"Monkeys: {s.monkeys} - {hours}H:{minutes}M:{seconds}S"
 
 def app : App AppState where
-  init := fun args => do
+  init args := do
     setAppMetadata "Infinite Monkeys" "1.0" "com.example.infinite-monkeys"
     Sdl.init .video
     let (window, renderer) ←
@@ -306,7 +306,7 @@ def app : App AppState where
     let st ← IO.mkRef (initialMonkeyState text rng rows cols)
     let endTime ← IO.mkRef none
     return (.continue, some { window, renderer, st, startTime, endTime, monkeys })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .windowPixelSizeChanged _ =>
@@ -318,7 +318,7 @@ def app : App AppState where
           monkeyChars := Array.replicate cols ' ' }
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     -- Let each monkey take a turn: fetch the next typable character (skipping
     -- freebies), then attempt one random keypress. C: the `for` loop.
     let mut nextChar : Option Char := none

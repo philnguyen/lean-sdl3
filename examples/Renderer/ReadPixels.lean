@@ -38,7 +38,7 @@ structure State where
   textureHeight : Float32
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Read Pixels" "1.0" "com.example.renderer-read-pixels"
     Sdl.init .video
     let (window, renderer) ←
@@ -49,10 +49,10 @@ def app : App State where
     let texture ← renderer.createTextureFromSurface surface
     let (textureWidth, textureHeight) ← texture.getSize
     return (.continue, some { window, renderer, texture, textureWidth, textureHeight })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     let r := s.renderer
     -- rotate the texture around over 2 seconds (2000 ms); 360 degrees in a circle.

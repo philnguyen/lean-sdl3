@@ -24,17 +24,17 @@ structure State where
   renderer : Renderer
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Debug Texture" "1.0" "com.example.renderer-debug-text"
     Sdl.init .video
     let (window, renderer) ←
       createWindowAndRenderer "examples/renderer/debug-text" 640 480 .resizable
     renderer.setLogicalPresentation 640 480 .letterbox
     return (.continue, some { window, renderer })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let charsize := debugTextFontCharacterSize
     let r := s.renderer
 

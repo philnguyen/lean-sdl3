@@ -44,7 +44,7 @@ def feedStream (stream : AudioStream) (sampleRef : IO.Ref Int32) : IO Unit := do
   stream.putDataF32 samples
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Audio Simple Playback" "1.0" "com.example.audio-simple-playback"
     Sdl.init (.video ||| .audio)
     -- we don't _need_ a window for audio-only things but it's good policy to have one.
@@ -59,10 +59,10 @@ def app : App State where
     stream.resumeDevice
     let currentSineSample ← IO.mkRef (0 : Int32)
     return (.continue, some { window, renderer, stream, currentSineSample })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     -- see if we need to feed the audio stream more data yet. We're being lazy:
     -- if there's less than half a second queued, generate more. 8000 float
     -- samples per second, half of that.

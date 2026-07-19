@@ -259,13 +259,13 @@ def driveSelfCheck (r : Refs) : IO Unit := do
   | _ => pure ()
 
 def app (refs : Refs) : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "User Storage Example" "1.0" "com.example.storage-user"
     Sdl.init .video
     let (window, renderer) ←
       createWindowAndRenderer "examples/storage/user" 640 480 .none
     return (.continue, some { window, renderer, refs })
-  event := fun s e => do
+  event s e := do
     let r := s.refs
     match e with
     | .quit _ => return .success
@@ -277,7 +277,7 @@ def app (refs : Refs) : App State where
         startWorker r (me.button == MouseButton.left)
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.refs
     let st ← r.saveState.get
     -- Reap a finished worker (C: SDL_WaitThread on SAVE_STATE_FINAL_CHECK).
@@ -298,7 +298,7 @@ def app (refs : Refs) : App State where
     if r.maxFrames.isSome then driveSelfCheck r
     return .continue
 
-  quit := fun s _ => do
+  quit s _ := do
     -- If a worker is still running, wait for it (C: SDL_WaitThread at shutdown).
     if let some t ← s.refs.task.get then
       let _ ← IO.wait t

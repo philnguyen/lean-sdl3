@@ -46,7 +46,7 @@ def runApp (app : Sdl.App σ) (args : List String := []) : IO UInt32 := do
   | some cap =>
     let frames ← IO.mkRef 0
     let capped := { app with
-      iterate := fun s => do
+      iterate s := do
         if (← frames.get) ≥ cap then return .success
         frames.modify (· + 1)
         app.iterate s }

@@ -31,7 +31,7 @@ structure State where
   wavData : ByteArray
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Audio Load Wave" "1.0" "com.example.audio-load-wav"
     Sdl.init (.video ||| .audio)
     -- we don't _need_ a window for audio-only things but it's good policy to have one.
@@ -46,10 +46,10 @@ def app : App State where
     -- SDL_OpenAudioDeviceStream starts the device paused. You have to start it!
     stream.resumeDevice
     return (.continue, some { window, renderer, stream, wavData })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     -- if there's less than the entire wav file left to play, shove a whole copy
     -- of it into the queue, so we always have _tons_ of data queued for playback.
     if (← s.stream.queued).toNatClampNeg < s.wavData.size then

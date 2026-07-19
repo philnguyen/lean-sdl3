@@ -33,7 +33,7 @@ structure State where
   tiltY : IO.Ref Float32
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Pen Drawing Lines" "1.0" "com.example.pen-drawing-lines"
     Sdl.init .video
     let (_window, renderer) ←
@@ -54,7 +54,7 @@ def app : App State where
     let tiltX ← IO.mkRef (0.0 : Float32)
     let tiltY ← IO.mkRef (0.0 : Float32)
     return (.continue, some { renderer, renderTarget, pressure, prevX, prevY, tiltX, tiltY })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     -- We only look at motion and pressure, for simplicity.
@@ -81,7 +81,7 @@ def app : App State where
       | _ => pure ()
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     -- Make sure we're drawing to the window and not the render target.
     s.renderer.setTarget none
     s.renderer.setDrawColor 0 0 0 255

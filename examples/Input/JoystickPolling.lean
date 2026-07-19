@@ -103,7 +103,7 @@ def drawHats (r : Renderer) (j : Joystick) (colors : Array Color)
     x := x + (size * 2.0)
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Input Joystick Polling" "1.0"
       "com.example.input-joystick-polling"
     Sdl.init (.video ||| .joystick)
@@ -114,7 +114,7 @@ def app : App State where
       colors := colors.push (← randomColor)
     let joystick ← IO.mkRef none
     return (.continue, some { window, renderer, joystick, colors })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .joystickAdded e =>
@@ -133,7 +133,7 @@ def app : App State where
           s.joystick.set none
       return .continue
     | _ => return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let mut text := "Plug in a joystick, please."
     let joy? ← s.joystick.get

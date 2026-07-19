@@ -25,17 +25,17 @@ structure State where
   renderer : Renderer
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Renderer Rectangles" "1.0" "com.example.renderer-rectangles"
     Sdl.init .video
     let (window, renderer) ←
       createWindowAndRenderer "examples/renderer/rectangles" 640 480 .resizable
     renderer.setLogicalPresentation 640 480 .letterbox
     return (.continue, some { window, renderer })
-  event := fun _ e => do
+  event _ e := do
     if let .quit _ := e then return .success
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let now ← getTicks
     -- we'll have the rectangles grow and shrink over a few seconds.
     let direction : Float32 := if now % 2000 >= 1000 then 1.0 else -1.0

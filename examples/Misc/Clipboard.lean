@@ -80,7 +80,7 @@ def renderPastedText (r : Renderer) (rect : FRect) (str : String) : IO Unit := d
     r.debugText x y (lines.getLast!.take maxCharsPerLine).toString
 
 def app : App State where
-  init := fun _args => do
+  init _ := do
     setAppMetadata "Example Misc Clipboard" "1.0" "com.example.misc-clipboard"
     Sdl.init .video
     let (window, renderer) ←
@@ -109,7 +109,7 @@ def app : App State where
     return (.continue, some {
       window, renderer, currentTimeRect, copyButtonRect, pasteTextRect,
       pasteButtonRect, copyPressed, pastePressed, currentTime, pastedStr })
-  event := fun s e => do
+  event s e := do
     match e with
     | .quit _ => return .success
     | .mouseButtonDown e =>
@@ -130,7 +130,7 @@ def app : App State where
         s.pastePressed.set false
     | _ => pure ()
     return .continue
-  iterate := fun s => do
+  iterate s := do
     let r := s.renderer
     let charSize := (debugTextFontCharacterSize).toFloat32
 
