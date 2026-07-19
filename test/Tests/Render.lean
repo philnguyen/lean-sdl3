@@ -57,6 +57,20 @@ def run : IO Unit := do
   check "fillRect green: inside pixel" (colorNear (← shot2.readPixel 15 15) 0 255 0 0)
   check "fillRect green: outside pixel still red"
     (colorNear (← shot2.readPixel 0 0) 255 0 0 0)
+  -- packed batch variants: same wire format as the pack helpers
+  check "packFPoints layout (1.0f, 2.0f LE)" ((packFPoints #[⟨1.0, 2.0⟩]).toList ==
+    [0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x40])
+  check "packIndices layout (1, -1 LE)" ((packIndices #[1, -1]).toList ==
+    [1, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF])
+  check "packVertices stride is 32" ((packVertices #[default]).size == 32)
+  ren.setDrawColor 255 0 255 255
+  ren.fillRectsPacked (packFRects #[⟨40, 40, 8, 8⟩, ⟨60, 60, 8, 8⟩])
+  let shotP ← ren.readPixels
+  check "fillRectsPacked: first rect drawn" (colorNear (← shotP.readPixel 44 44) 255 0 255 0)
+  check "fillRectsPacked: second rect drawn" (colorNear (← shotP.readPixel 64 64) 255 0 255 0)
+  ren.pointsPacked (packFPoints #[⟨100.0, 100.0⟩])
+  let shotQ ← ren.readPixels
+  check "pointsPacked: point drawn" (colorNear (← shotQ.readPixel 100 100) 255 0 255 0)
   ren.setDrawColorFloat 0.5 0.25 1.0 1.0
   let (fr, fg, fb, fa) ← ren.getDrawColorFloat
   check "getDrawColorFloat round-trip"

@@ -201,42 +201,46 @@ private def fpointArgs : Option FPoint → UInt8 × Float32 × Float32
   | some p => (1, p.x, p.y)
   | none   => (0, 0, 0)
 
+/-- `ByteArray.push` of 4 little-endian bytes in a single runtime call (the
+batch-draw packers below run per frame; four separate byte pushes were the
+dominant packing cost). Behaves exactly like four `push`es. -/
+@[extern "lean_sdl_byte_array_push_u32le"]
+private opaque pushU32LE (b : ByteArray) (v : UInt32) : ByteArray
+
 /-- Append `f` to `b` as 4 little-endian bytes (its IEEE-754 bit pattern). Used
 to pack `SDL_FPoint[]`/`SDL_FRect[]`/`SDL_Vertex[]`; all supported targets are
 little-endian. -/
 private def pushFloat32LE (b : ByteArray) (f : Float32) : ByteArray :=
-  let u := f.toBits
-  b.push u.toUInt8 |>.push (u >>> 8).toUInt8 |>.push (u >>> 16).toUInt8
-    |>.push (u >>> 24).toUInt8
+  pushU32LE b f.toBits
 
 /-- Append `v` to `b` as 4 little-endian bytes (its two's-complement bit pattern).
 Used to pack the `int[]` index array for `geometry`. -/
 private def pushInt32LE (b : ByteArray) (v : Int32) : ByteArray :=
-  let u := v.toUInt32
-  b.push u.toUInt8 |>.push (u >>> 8).toUInt8 |>.push (u >>> 16).toUInt8
-    |>.push (u >>> 24).toUInt8
+  pushU32LE b v.toUInt32
 
 /-- Pack an `Array FPoint` into a `ByteArray` matching `SDL_FPoint[]` (two
-little-endian float32s each). -/
-private def packFPoints (pts : Array FPoint) : ByteArray := Id.run do
+little-endian float32s each, 8 bytes per point). `points`/`lines` do this per
+call; pack once and reuse with `pointsPacked`/`linesPacked` when the data is
+static across frames. -/
+def packFPoints (pts : Array FPoint) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (pts.size * 8)
   for p in pts do
     bytes := pushFloat32LE (pushFloat32LE bytes p.x) p.y
   return bytes
 
 /-- Pack an `Array FRect` into a `ByteArray` matching `SDL_FRect[]` (four
-little-endian float32s each). -/
-private def packFRects (rs : Array FRect) : ByteArray := Id.run do
+little-endian float32s each, 16 bytes per rect). See `packFPoints` on reuse. -/
+def packFRects (rs : Array FRect) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (rs.size * 16)
   for r in rs do
     bytes := pushFloat32LE (pushFloat32LE (pushFloat32LE (pushFloat32LE bytes r.x) r.y) r.w) r.h
   return bytes
 
 /-- Pack an `Array Vertex` into a `ByteArray` matching `SDL_Vertex[]` (eight
-little-endian float32s each: `position.x`, `position.y`, `color.r`, `g`, `b`,
-`a`, `texCoord.x`, `texCoord.y` — exactly `SDL_Vertex`'s field layout, see
-`ffi/consts_check.c`). -/
-private def packVertices (vs : Array Vertex) : ByteArray := Id.run do
+little-endian float32s each, 32 bytes per vertex: `position.x`, `position.y`,
+`color.r`, `g`, `b`, `a`, `texCoord.x`, `texCoord.y` — exactly `SDL_Vertex`'s
+field layout, see `ffi/consts_check.c`). See `packFPoints` on reuse. -/
+def packVertices (vs : Array Vertex) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (vs.size * 32)
   for v in vs do
     bytes := pushFloat32LE bytes v.position.x
@@ -250,8 +254,8 @@ private def packVertices (vs : Array Vertex) : ByteArray := Id.run do
   return bytes
 
 /-- Pack an `Array Int32` into a `ByteArray` matching `int[]` (four
-little-endian bytes each). -/
-private def packIndices (idx : Array Int32) : ByteArray := Id.run do
+little-endian bytes each). See `packFPoints` on reuse. -/
+def packIndices (idx : Array Int32) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (idx.size * 4)
   for i in idx do
     bytes := pushInt32LE bytes i
@@ -548,6 +552,13 @@ def points (self : @& Renderer) (points : Array FPoint) : IO Unit := do
   if points.isEmpty then return
   pointsRaw self (packFPoints points) (Int32.ofNat points.size)
 
+/-- `points` from a pre-packed `SDL_FPoint[]` buffer (`packFPoints` layout);
+draws `bytes.size / 8` points. Pack once and reuse across frames instead of
+re-packing an unchanged `Array FPoint` every call. C: `SDL_RenderPoints`. -/
+def pointsPacked (self : @& Renderer) (bytes : @& ByteArray) : IO Unit := do
+  if bytes.size < 8 then return
+  pointsRaw self bytes (Int32.ofNat (bytes.size / 8))
+
 /-- Draw a line between two points at subpixel precision. Throws on failure.
 C: `SDL_RenderLine`. -/
 @[extern "lean_sdl_render_line"]
@@ -561,6 +572,13 @@ An empty array is a no-op. Throws on failure. C: `SDL_RenderLines`. -/
 def lines (self : @& Renderer) (points : Array FPoint) : IO Unit := do
   if points.isEmpty then return
   linesRaw self (packFPoints points) (Int32.ofNat points.size)
+
+/-- `lines` from a pre-packed `SDL_FPoint[]` buffer (`packFPoints` layout);
+draws through `bytes.size / 8` points. See `pointsPacked` on reuse.
+C: `SDL_RenderLines`. -/
+def linesPacked (self : @& Renderer) (bytes : @& ByteArray) : IO Unit := do
+  if bytes.size < 8 then return
+  linesRaw self bytes (Int32.ofNat (bytes.size / 8))
 
 @[extern "lean_sdl_render_rect"]
 private opaque rectRaw (self : @& Renderer) (hasRect : UInt8)
@@ -581,6 +599,13 @@ def rects (self : @& Renderer) (rects : Array FRect) : IO Unit := do
   if rects.isEmpty then return
   rectsRaw self (packFRects rects) (Int32.ofNat rects.size)
 
+/-- `rects` from a pre-packed `SDL_FRect[]` buffer (`packFRects` layout);
+outlines `bytes.size / 16` rectangles. See `pointsPacked` on reuse.
+C: `SDL_RenderRects`. -/
+def rectsPacked (self : @& Renderer) (bytes : @& ByteArray) : IO Unit := do
+  if bytes.size < 16 then return
+  rectsRaw self bytes (Int32.ofNat (bytes.size / 16))
+
 @[extern "lean_sdl_render_fill_rect"]
 private opaque fillRectRaw (self : @& Renderer) (hasRect : UInt8)
   (x y w h : Float32) : IO Unit
@@ -599,6 +624,13 @@ no-op. Throws on failure. C: `SDL_RenderFillRects`. -/
 def fillRects (self : @& Renderer) (rects : Array FRect) : IO Unit := do
   if rects.isEmpty then return
   fillRectsRaw self (packFRects rects) (Int32.ofNat rects.size)
+
+/-- `fillRects` from a pre-packed `SDL_FRect[]` buffer (`packFRects` layout);
+fills `bytes.size / 16` rectangles. See `pointsPacked` on reuse.
+C: `SDL_RenderFillRects`. -/
+def fillRectsPacked (self : @& Renderer) (bytes : @& ByteArray) : IO Unit := do
+  if bytes.size < 16 then return
+  fillRectsRaw self bytes (Int32.ofNat (bytes.size / 16))
 
 /-! ### Texture copies -/
 
@@ -714,6 +746,17 @@ def geometry (self : @& Renderer) (texture : Option Texture)
     (vertices : Array Vertex) (indices : Array Int32 := #[]) : IO Unit :=
   geometryRaw self texture (packVertices vertices) (Int32.ofNat vertices.size)
     (packIndices indices) (Int32.ofNat indices.size)
+
+/-- `geometry` from pre-packed buffers: `vertices` in `SDL_Vertex[]` layout
+(`packVertices`, 32 bytes each), `indices` in `int[]` layout (`packIndices`,
+4 bytes each; empty = sequential order). Draws `vertices.size / 32` vertices /
+`indices.size / 4` indices. Pack once and reuse across frames when the mesh is
+static — re-packing an `Array Vertex` per frame is the dominant cost of
+`geometry` for large meshes. C: `SDL_RenderGeometry`. -/
+def geometryPacked (self : @& Renderer) (texture : Option Texture)
+    (vertices : @& ByteArray) (indices : @& ByteArray := .empty) : IO Unit :=
+  geometryRaw self texture vertices (Int32.ofNat (vertices.size / 32))
+    indices (Int32.ofNat (indices.size / 4))
 
 @[extern "lean_sdl_set_render_texture_address_mode"]
 private opaque setTextureAddressModeRaw (self : @& Renderer) (u v : UInt32) : IO Unit

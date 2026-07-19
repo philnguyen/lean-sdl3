@@ -36,3 +36,25 @@ lean_object *lean_sdl_wrap(lean_external_class *cls, void *ptr, lean_object *own
     h->owner = owner;
     return lean_alloc_external(cls, h);
 }
+
+/* ByteArray.push of 4 little-endian bytes in one runtime call. Hot-path
+ * packing helper for the per-frame SDL_FPoint[]/SDL_FRect[]/SDL_Vertex[]/int[]
+ * buffers in Sdl/Render.lean (pure @[extern]; byte-order explicit, so the
+ * result is identical on any host). */
+LEAN_EXPORT lean_object *lean_sdl_byte_array_push_u32le(lean_obj_arg b, uint32_t v) {
+    size_t sz = lean_sarray_size(b);
+    if (lean_is_exclusive(b) && lean_sarray_capacity(b) >= sz + 4) {
+        uint8_t *p = lean_sarray_cptr(b) + sz;
+        p[0] = (uint8_t)v;
+        p[1] = (uint8_t)(v >> 8);
+        p[2] = (uint8_t)(v >> 16);
+        p[3] = (uint8_t)(v >> 24);
+        lean_sarray_set_size(b, sz + 4);
+        return b;
+    }
+    /* Shared or full: fall back to the runtime's copy/grow push. */
+    lean_object *r = lean_byte_array_push(b, (uint8_t)v);
+    r = lean_byte_array_push(r, (uint8_t)(v >> 8));
+    r = lean_byte_array_push(r, (uint8_t)(v >> 16));
+    return lean_byte_array_push(r, (uint8_t)(v >> 24));
+}
