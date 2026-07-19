@@ -52,8 +52,13 @@ extern lean_object *lean_sdl_mk_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a
 static SDL_Palette *lean_sdl_opt_palette(b_lean_obj_arg opt, bool *destroyed) {
     *destroyed = false;
     if (lean_is_scalar(opt)) return NULL; /* none = lean_box(0) */
-    sdl_holder *h = lean_sdl_holder_of(lean_ctor_get(opt, 0));
-    if (!h->ptr) { *destroyed = true; return NULL; }
+    lean_object *pal = lean_ctor_get(opt, 0);
+    sdl_holder *h = lean_sdl_holder_of(pal);
+    if (!h->ptr ||
+        lean_sdl_borrowed_stale(pal, lean_sdl_palette_borrowed_class)) {
+        *destroyed = true;
+        return NULL;
+    }
     return (SDL_Palette *)h->ptr;
 }
 
@@ -133,7 +138,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_palette_ncolors(
         b_lean_obj_arg palette, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_Palette, p, palette);
+    SDL_GET_BORROWED_OR_THROW(SDL_Palette, p, palette, lean_sdl_palette_borrowed_class);
     return lean_io_result_mk_ok(lean_box_uint32((uint32_t)p->ncolors));
 }
 
@@ -146,7 +151,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_set_palette_colors(
         lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_Palette, p, palette);
+    SDL_GET_BORROWED_OR_THROW(SDL_Palette, p, palette, lean_sdl_palette_borrowed_class);
     size_t n = lean_sarray_size(colors) / 4;
     SDL_BOOL_TO_IO(SDL_SetPaletteColors(
         p, (const SDL_Color *)lean_sarray_cptr((lean_object *)colors),
@@ -159,7 +164,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_palette_colors(
         b_lean_obj_arg palette, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_Palette, p, palette);
+    SDL_GET_BORROWED_OR_THROW(SDL_Palette, p, palette, lean_sdl_palette_borrowed_class);
     size_t n = p->ncolors > 0 ? (size_t)p->ncolors : 0;
     lean_object *arr = lean_alloc_array(n, n);
     for (size_t i = 0; i < n; i++) {

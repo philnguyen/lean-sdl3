@@ -190,7 +190,8 @@ C: `SDL_WaitProcess`. -/
 opaque wait (self : @& Process) (block : Bool := true) : IO (Option Int32)
 
 /-- Destroy the SDL object tracking the process (does **not** stop the child;
-closes any piped streams). The handle must not be used afterwards.
+closes any piped streams). The handle must not be used afterwards; stream
+handles previously obtained from `getInput`/`getOutput` throw on use.
 C: `SDL_DestroyProcess`. -/
 @[extern "lean_sdl_destroy_process"]
 opaque destroy (self : @& Process) : IO Unit

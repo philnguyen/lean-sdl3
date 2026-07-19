@@ -840,8 +840,10 @@ palette can be dropped afterwards). Throws on failure. C: `SDL_SetTexturePalette
 opaque setPalette (self : @& Texture) (palette : @& Palette) : IO Unit
 
 /-- The palette used by the texture, or `none` if it has none. The returned
-palette is **borrowed** (owned by the texture). Note SDL also returns `NULL` on
-error, which is reported here as `none`. C: `SDL_GetTexturePalette`. -/
+palette is **borrowed** (owned by the texture): after `Texture.destroy` its use
+throws, and after a `setPalette` replacing the texture's palette the handle must
+not be used (drop it and re-fetch). Note SDL also returns `NULL` on error, which
+is reported here as `none`. C: `SDL_GetTexturePalette`. -/
 @[extern "lean_sdl_get_texture_palette"]
 opaque getPalette (self : @& Texture) : IO (Option Palette)
 

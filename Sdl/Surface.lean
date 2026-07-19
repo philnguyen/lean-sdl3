@@ -186,7 +186,9 @@ Fails if the surface has no indexed format. C: `SDL_CreateSurfacePalette`. -/
 opaque createPalette (self : @& Surface) : IO Palette
 
 /-- The palette used by the surface, or `none` if it has none (not an error).
-The returned palette is **borrowed**. C: `SDL_GetSurfacePalette`. -/
+The returned palette is **borrowed** (owned by the surface): after a
+`setPalette` replacing the surface's palette the handle must not be used (drop
+it and re-fetch). C: `SDL_GetSurfacePalette`. -/
 @[extern "lean_sdl_get_surface_palette"]
 opaque getPalette (self : @& Surface) : IO (Option Palette)
 

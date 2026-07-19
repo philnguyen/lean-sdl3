@@ -49,8 +49,8 @@ graphics/compute pipelines and render/compute passes live in
 * Swapchain `Texture` — a **borrowed** `Texture` handle backed by a distinct
   external class `{ptr, commandBufferExternal}`. `release` / `setName` throw on
   it. It is only valid until its command buffer is submitted or canceled
-  (documented cross-handle staleness); canceling a command buffer after
-  acquiring a swapchain texture is an SDL error.
+  (use afterwards throws); canceling a command buffer after acquiring a
+  swapchain texture is an SDL error.
 
 ## Headless behavior
 

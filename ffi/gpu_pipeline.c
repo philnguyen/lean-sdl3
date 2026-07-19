@@ -68,11 +68,24 @@ GPU_CHILD_RELEASE(lean_sdl_gpu_release_graphics_pipeline, SDL_GPUGraphicsPipelin
 static uint32_t rd_u32(const uint8_t *p) { uint32_t v; SDL_memcpy(&v, p, 4); return v; }
 static float rd_f32(const uint8_t *p) { float v; SDL_memcpy(&v, p, 4); return v; }
 
-/* SDL_GPUTexture* of an `Option Texture` element: scalar (none) -> NULL, else
- * the wrapped external's holder ptr. */
-static SDL_GPUTexture *opt_texture_ptr(b_lean_obj_arg opt) {
+/* SDL_GPUTexture* of a Texture external: NULL when released, or when a
+ * borrowed swapchain texture's command buffer was already consumed (the
+ * pointer is then stale). */
+static SDL_GPUTexture *texture_ptr_checked(b_lean_obj_arg ext) {
+    if (lean_sdl_borrowed_stale(ext, lean_sdl_gpu_texture_borrowed_class))
+        return NULL;
+    return (SDL_GPUTexture *)lean_sdl_holder_of(ext)->ptr;
+}
+
+/* SDL_GPUTexture* of an `Option Texture` element: scalar (none) -> NULL with
+ * `*stale` false; `some t` -> the checked ptr, flagging `*stale` when the
+ * handle is released/stale (callers must throw, not silently pass NULL). */
+static SDL_GPUTexture *opt_texture_ptr(b_lean_obj_arg opt, bool *stale) {
+    *stale = false;
     if (lean_is_scalar(opt)) return NULL;
-    return (SDL_GPUTexture *)lean_sdl_holder_of(lean_ctor_get(opt, 0))->ptr;
+    SDL_GPUTexture *t = texture_ptr_checked(lean_ctor_get(opt, 0));
+    if (!t) *stale = true;
+    return t;
 }
 
 /* ==================== Shaders & pipelines ==================== */
@@ -207,8 +220,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_begin_render_pass(
     const uint8_t *sb = (const uint8_t *)lean_sarray_cptr((lean_object *)scalars);
     for (size_t i = 0; i < n; i++) {
         const uint8_t *p = sb + i * 44;
-        SDL_GPUTexture *t =
-            (SDL_GPUTexture *)lean_sdl_holder_of(lean_array_get_core(textures, i))->ptr;
+        SDL_GPUTexture *t = texture_ptr_checked(lean_array_get_core(textures, i));
         if (!t) return lean_sdl_throw_msg("SDL: handle used after destroy/release");
         cti[i].texture = t;
         cti[i].mip_level = rd_u32(p + 0);
@@ -219,7 +231,11 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_begin_render_pass(
         cti[i].clear_color.a = rd_f32(p + 20);
         cti[i].load_op = (SDL_GPULoadOp)rd_u32(p + 24);
         cti[i].store_op = (SDL_GPUStoreOp)rd_u32(p + 28);
-        cti[i].resolve_texture = opt_texture_ptr(lean_array_get_core(resolve_textures, i));
+        bool resolve_stale;
+        cti[i].resolve_texture =
+            opt_texture_ptr(lean_array_get_core(resolve_textures, i), &resolve_stale);
+        if (resolve_stale)
+            return lean_sdl_throw_msg("SDL: handle used after destroy/release");
         cti[i].resolve_mip_level = rd_u32(p + 32);
         cti[i].resolve_layer = rd_u32(p + 36);
         cti[i].cycle = p[40] != 0;
@@ -229,8 +245,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_begin_render_pass(
     SDL_GPUDepthStencilTargetInfo *dsp = NULL;
     if (has_depth != 0) {
         SDL_zero(ds);
-        SDL_GPUTexture *dt = opt_texture_ptr(ds_texture);
+        bool ds_stale;
+        SDL_GPUTexture *dt = opt_texture_ptr(ds_texture, &ds_stale);
         if (!dt) return lean_sdl_throw_msg("SDL: handle used after destroy/release");
+        (void)ds_stale;
         const uint8_t *d = (const uint8_t *)lean_sarray_cptr((lean_object *)ds_scalars);
         ds.texture = dt;
         ds.clear_depth = rd_f32(d + 0);
@@ -353,7 +371,7 @@ static lean_obj_res gpu_bind_samplers(
         (n ? n : 1) * sizeof(SDL_GPUTextureSamplerBinding));
     if (!tsb) return lean_sdl_throw_msg("SDL: out of memory building sampler bindings");
     for (size_t i = 0; i < n; i++) {
-        SDL_GPUTexture *t = (SDL_GPUTexture *)lean_sdl_holder_of(lean_array_get_core(textures, i))->ptr;
+        SDL_GPUTexture *t = texture_ptr_checked(lean_array_get_core(textures, i));
         SDL_GPUSampler *s = (SDL_GPUSampler *)lean_sdl_holder_of(lean_array_get_core(samplers, i))->ptr;
         if (!t || !s) { SDL_free(tsb); return lean_sdl_throw_msg("SDL: handle used after destroy/release"); }
         tsb[i].texture = t;
@@ -373,7 +391,7 @@ static lean_obj_res gpu_bind_storage_textures(
         (SDL_GPUTexture **)SDL_malloc((n ? n : 1) * sizeof(SDL_GPUTexture *));
     if (!arr) return lean_sdl_throw_msg("SDL: out of memory building storage textures");
     for (size_t i = 0; i < n; i++) {
-        SDL_GPUTexture *t = (SDL_GPUTexture *)lean_sdl_holder_of(lean_array_get_core(textures, i))->ptr;
+        SDL_GPUTexture *t = texture_ptr_checked(lean_array_get_core(textures, i));
         if (!t) { SDL_free(arr); return lean_sdl_throw_msg("SDL: handle used after destroy/release"); }
         arr[i] = t;
     }

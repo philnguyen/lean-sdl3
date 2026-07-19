@@ -87,6 +87,15 @@ def failureTests : IO Unit := do
   let p ← createProcess #["/bin/echo", "z"]
   p.destroy
   checkThrows "use after destroy throws" (p.wait (block := false))
+  -- a borrowed stream handle outliving its process's destroy throws, never UB
+  let p2 ← createProcess #["/bin/cat"] (pipeStdio := true)
+  let inp ← p2.getInput
+  let out ← p2.getOutput
+  p2.kill (force := true)
+  discard <| p2.wait (block := true)
+  p2.destroy
+  checkThrows "stale stdin stream after destroy throws" (inp.write "x".toUTF8)
+  checkThrows "stale stdout stream after destroy throws" (out.read 8)
 
 def run : IO Unit := do
   echoTests

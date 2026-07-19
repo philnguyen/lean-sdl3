@@ -116,6 +116,34 @@ static inline sdl_holder *lean_sdl_holder_of(b_lean_obj_arg o) {
     T *var = (T *)lean_sdl_holder_of(obj)->ptr; \
     if (!var) return lean_sdl_throw_msg("SDL: handle used after destroy/release")
 
+/* True when `ext` is of `borrowed_cls` and the handle owning the borrowed
+ * pointer has been manually destroyed or consumed — the pointer is then stale
+ * even though `ext`'s own ptr is non-NULL. Requires `owner` to be an
+ * sdl_holder-backed external, which holds for every borrowed class (palette →
+ * surface/texture, stream → process, swapchain texture → command buffer). */
+static inline bool lean_sdl_borrowed_stale(b_lean_obj_arg ext,
+                                           lean_external_class *borrowed_cls) {
+    if (lean_get_external_class((lean_object *)ext) != borrowed_cls) return false;
+    sdl_holder *h = (sdl_holder *)lean_get_external_data(ext);
+    return h->owner &&
+           !((sdl_holder *)lean_get_external_data(h->owner))->ptr;
+}
+
+/* SDL_GET_OR_THROW for handle types with a borrowed class whose owner can be
+ * manually destroyed/consumed: a stale borrowed handle (texture palette after
+ * Texture.destroy, process stream after Process.destroy, swapchain texture
+ * after submit) is an IO error, never a dangling deref. */
+#define SDL_GET_BORROWED_OR_THROW(T, var, obj, borrowed_cls) \
+    T *var; \
+    do { \
+        if (lean_sdl_borrowed_stale(obj, borrowed_cls)) \
+            return lean_sdl_throw_msg( \
+                "SDL: borrowed handle's owner was destroyed or consumed"); \
+        var = (T *)lean_sdl_holder_of(obj)->ptr; \
+        if (!var) \
+            return lean_sdl_throw_msg("SDL: handle used after destroy/release"); \
+    } while (0)
+
 /* Define an owned external class over sdl_holder. DESTROY_STMT may use
  * `self` (a void*). Registration must be called from the module's Lean
  * `initialize` block (main thread, deterministic). */

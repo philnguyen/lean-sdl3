@@ -78,6 +78,14 @@ Archetypes (decide per handle, record in the module's header comment):
 
 Every shim uses `SDL_GET_OR_THROW` (NULL-guard) so post-destroy use is an IO
 error, never UB. Manual destroy = destroy + `ptr = NULL` (+ dec/NULL owner).
+Handle types with a borrowed class whose **owner** can be manually
+destroyed/consumed (texture palettes, process streams, swapchain textures) use
+`SDL_GET_BORROWED_OR_THROW`, which additionally throws when the owning handle's
+holder ptr is NULL — a stale borrowed pointer is an IO error too. Remaining
+documented-not-enforced staleness: a palette handle across a palette-replacing
+`setPalette`, a window-surface handle across `Window.destroySurface`, and a
+process stdin handle across `closeInput` (the parent lives on, so the owner
+check cannot see these).
 
 Refcounted re-open (joystick/gamepad/sensor): SDL's `Open*` on an already-open
 instance id returns the same pointer with an internal refcount bump, so

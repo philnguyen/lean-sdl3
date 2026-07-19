@@ -612,7 +612,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_generate_mipmaps(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_GPUCommandBuffer, cmd, self);
-    SDL_GET_OR_THROW(SDL_GPUTexture, t, texture);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, t, texture, lean_sdl_gpu_texture_borrowed_class);
     SDL_GenerateMipmapsForGPUTexture(cmd, t);
     return lean_sdl_unit_ok();
 }
@@ -630,8 +630,8 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_blit_texture(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_GPUCommandBuffer, cmd, self);
-    SDL_GET_OR_THROW(SDL_GPUTexture, st, src_tex);
-    SDL_GET_OR_THROW(SDL_GPUTexture, dt, dst_tex);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, st, src_tex, lean_sdl_gpu_texture_borrowed_class);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, dt, dst_tex, lean_sdl_gpu_texture_borrowed_class);
     SDL_GPUBlitInfo info;
     SDL_zero(info);
     info.source.texture = st;
@@ -752,7 +752,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_upload_to_texture(
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_GPUCopyPass, cp, self);
     SDL_GET_OR_THROW(SDL_GPUTransferBuffer, tbuf, tb);
-    SDL_GET_OR_THROW(SDL_GPUTexture, t, tex);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, t, tex, lean_sdl_gpu_texture_borrowed_class);
     SDL_GPUTextureTransferInfo src = { tbuf, offset, ppr, rpl };
     SDL_GPUTextureRegion dst = { t, mip, layer, x, y, z, rw, rh, rd };
     SDL_UploadToGPUTexture(cp, &src, &dst, cycle != 0);
@@ -786,8 +786,8 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_copy_texture_to_texture(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_GPUCopyPass, cp, self);
-    SDL_GET_OR_THROW(SDL_GPUTexture, st, src_tex);
-    SDL_GET_OR_THROW(SDL_GPUTexture, dt, dst_tex);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, st, src_tex, lean_sdl_gpu_texture_borrowed_class);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, dt, dst_tex, lean_sdl_gpu_texture_borrowed_class);
     SDL_GPUTextureLocation src = { st, s_mip, s_layer, s_x, s_y, s_z };
     SDL_GPUTextureLocation dst = { dt, d_mip, d_layer, d_x, d_y, d_z };
     SDL_CopyGPUTextureToTexture(cp, &src, &dst, rw, rh, rd, cycle != 0);
@@ -819,7 +819,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_gpu_download_from_texture(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(SDL_GPUCopyPass, cp, self);
-    SDL_GET_OR_THROW(SDL_GPUTexture, t, tex);
+    SDL_GET_BORROWED_OR_THROW(SDL_GPUTexture, t, tex, lean_sdl_gpu_texture_borrowed_class);
     SDL_GET_OR_THROW(SDL_GPUTransferBuffer, tbuf, tb);
     SDL_GPUTextureRegion src = { t, mip, layer, x, y, z, rw, rh, rd };
     SDL_GPUTextureTransferInfo dst = { tbuf, offset, ppr, rpl };

@@ -93,7 +93,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_close_io(b_lean_obj_arg io, lean_obj_arg w) {
 LEAN_EXPORT lean_obj_res lean_sdl_get_io_properties(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     SDL_PropertiesID id = SDL_GetIOProperties(s);
     if (id == 0) return lean_sdl_throw();
     lean_inc(io);
@@ -104,7 +104,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_io_properties(b_lean_obj_arg io, lean_obj_
 LEAN_EXPORT lean_obj_res lean_sdl_get_io_status(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     return lean_io_result_mk_ok(lean_box_uint32((uint32_t)SDL_GetIOStatus(s)));
 }
 
@@ -112,7 +112,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_io_status(b_lean_obj_arg io, lean_obj_arg 
 LEAN_EXPORT lean_obj_res lean_sdl_get_io_size(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     Sint64 sz = SDL_GetIOSize(s);
     if (sz < 0) return lean_sdl_throw();
     return lean_io_result_mk_ok(lean_box_uint64((uint64_t)sz));
@@ -124,7 +124,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_seek_io(
         b_lean_obj_arg io, int64_t offset, uint32_t whence, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     Sint64 r = SDL_SeekIO(s, (Sint64)offset, (SDL_IOWhence)whence);
     if (r < 0) return lean_sdl_throw();
     return lean_io_result_mk_ok(lean_box_uint64((uint64_t)r));
@@ -134,7 +134,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_seek_io(
 LEAN_EXPORT lean_obj_res lean_sdl_tell_io(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     Sint64 r = SDL_TellIO(s);
     if (r < 0) return lean_sdl_throw();
     return lean_io_result_mk_ok(lean_box_uint64((uint64_t)r));
@@ -147,7 +147,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_read_io(
         b_lean_obj_arg io, size_t max_bytes, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     lean_object *arr = lean_alloc_sarray(1, max_bytes, max_bytes);
     size_t n = SDL_ReadIO(s, lean_sarray_cptr(arr), max_bytes);
     if (n == 0 && SDL_GetIOStatus(s) == SDL_IO_STATUS_ERROR) {
@@ -164,7 +164,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_write_io(
         b_lean_obj_arg io, b_lean_obj_arg data, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     size_t size = lean_sarray_size(data);
     size_t n = SDL_WriteIO(s, lean_sarray_cptr((lean_object *)data), size);
     if (n < size) return lean_sdl_throw();
@@ -175,7 +175,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_write_io(
 LEAN_EXPORT lean_obj_res lean_sdl_flush_io(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     SDL_BOOL_TO_IO(SDL_FlushIO(s));
 }
 
@@ -184,7 +184,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_flush_io(b_lean_obj_arg io, lean_obj_arg w) {
 LEAN_EXPORT lean_obj_res lean_sdl_load_file_io(b_lean_obj_arg io, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     size_t datasize = 0;
     void *data = SDL_LoadFile_IO(s, &datasize, false);
     if (!data) return lean_sdl_throw();
@@ -200,7 +200,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_save_file_io(
         b_lean_obj_arg io, b_lean_obj_arg data, lean_obj_arg w) {
     (void)w;
     SDL_SHIM_PROLOGUE();
-    SDL_GET_OR_THROW(SDL_IOStream, s, io);
+    SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);
     size_t size = lean_sarray_size(data);
     SDL_BOOL_TO_IO(SDL_SaveFile_IO(s, lean_sarray_cptr((lean_object *)data), size, false));
 }
@@ -213,7 +213,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_save_file_io(
     LEAN_EXPORT lean_obj_res name(b_lean_obj_arg io, lean_obj_arg w) {          \
         (void)w;                                                               \
         SDL_SHIM_PROLOGUE();                                                   \
-        SDL_GET_OR_THROW(SDL_IOStream, s, io);                                 \
+        SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);                                 \
         ctype v = 0;                                                           \
         if (!sdlfn(s, &v)) return lean_sdl_throw();                            \
         return lean_io_result_mk_ok(boxexpr);                                  \
@@ -224,7 +224,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_save_file_io(
             b_lean_obj_arg io, ptype value, lean_obj_arg w) {                  \
         (void)w;                                                               \
         SDL_SHIM_PROLOGUE();                                                   \
-        SDL_GET_OR_THROW(SDL_IOStream, s, io);                                 \
+        SDL_GET_BORROWED_OR_THROW(SDL_IOStream, s, io, lean_sdl_iostream_borrowed_class);                                 \
         SDL_BOOL_TO_IO(sdlfn(s, (sdltype)value));                             \
     }
 
