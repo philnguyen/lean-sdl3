@@ -304,7 +304,7 @@ initialize registerClasses
 /-! ## Top-level -/
 
 @[extern "lean_sdl_gpu_supports_shader_formats"]
-private opaque supportsShaderFormatsRaw (formats : UInt32) (name : Option String) : IO Bool
+private opaque supportsShaderFormatsRaw (formats : UInt32) (name : @& Option String) : IO Bool
 
 /-- Whether a GPU backend supporting all of `formats` (optionally the named
 driver) is available. Works with no device. C: `SDL_GPUSupportsShaderFormats`. -/
@@ -319,7 +319,7 @@ opaque supportsProperties (props : @& Sdl.Properties) : IO Bool
 
 @[extern "lean_sdl_gpu_create_device"]
 private opaque createDeviceRaw (formatFlags : UInt32) (debugMode : Bool)
-    (name : Option String) : IO Device
+    (name : @& Option String) : IO Device
 
 /-- Create a GPU device supporting shader `formatFlags`. `name` selects a
 specific driver (e.g. `"metal"`), or picks the best available if `none`.

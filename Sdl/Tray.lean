@@ -80,17 +80,18 @@ the `tooltip` (shown on hover; not supported on all platforms) are optional.
 Requires the video subsystem and the main thread. Throws if the tray could not
 be created. C: `SDL_CreateTray`. -/
 @[extern "lean_sdl_create_tray"]
-opaque createTray (icon : Option Surface := none) (tooltip : Option String := none) : IO Tray
+opaque createTray (icon : @& Option Surface := none) (tooltip : @& Option String := none) :
+  IO Tray
 
 namespace Tray
 
 /-- Replace the tray icon (or clear it with `none`). C: `SDL_SetTrayIcon`. -/
 @[extern "lean_sdl_set_tray_icon"]
-opaque setIcon (self : @& Tray) (icon : Option Surface) : IO Unit
+opaque setIcon (self : @& Tray) (icon : @& Option Surface) : IO Unit
 
 /-- Replace the tray tooltip (or clear it with `none`). C: `SDL_SetTrayTooltip`. -/
 @[extern "lean_sdl_set_tray_tooltip"]
-opaque setTooltip (self : @& Tray) (tooltip : Option String) : IO Unit
+opaque setTooltip (self : @& Tray) (tooltip : @& Option String) : IO Unit
 
 /-- Create the tray's top-level menu (call at most once per tray). Throws on
 failure. C: `SDL_CreateTrayMenu`. -/
@@ -161,7 +162,7 @@ opaque remove (self : @& TrayEntry) : IO Unit
 /-- Set the entry's label. Cannot convert between a separator (`none`) and an
 ordinary entry — SDL silently ignores such a change. C: `SDL_SetTrayEntryLabel`. -/
 @[extern "lean_sdl_set_tray_entry_label"]
-opaque setLabel (self : @& TrayEntry) (label : Option String) : IO Unit
+opaque setLabel (self : @& TrayEntry) (label : @& Option String) : IO Unit
 
 /-- The entry's label, or `none` if it is a separator. Caveat: the macOS
 backend reports a separator's label as the empty string, so a separator decodes
