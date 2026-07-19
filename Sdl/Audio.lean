@@ -534,8 +534,10 @@ opaque putData (self : @& AudioStream) (data : @& ByteArray) : IO Unit
 
 /-- Queue `samples` into the stream as 32-bit float (`f32le`) data: each Lean
 64-bit `Float` is narrowed to a `Float32`. The stream's input format must be
-`f32le`. Throws on failure. C: `SDL_PutAudioStreamData` (after a float32
-conversion). -/
+`f32le`. The narrowing allocates and converts per call (`FloatArray` is
+f64-only); for hot streaming paths, `putData` with f32le bytes in a `ByteArray`
+is the allocation-free route. Throws on failure. C: `SDL_PutAudioStreamData`
+(after a float32 conversion). -/
 @[extern "lean_sdl_put_audio_stream_data_f32"]
 opaque putDataF32 (self : @& AudioStream) (samples : @& FloatArray) : IO Unit
 

@@ -90,7 +90,9 @@ thread must be pumping events (`Sdl.pumpEvents`) for it to fire; with
 Any exception raised by `f` is swallowed (there is nowhere for it to propagate
 from an SDL callback) and logged via `SDL_Log`. Throws if SDL could not schedule
 the call. Beware deadlocks: do not have the main thread wait on this thread while
-calling with `waitComplete := true`. C: `SDL_RunOnMainThread`. -/
+calling with `waitComplete := true`. With `waitComplete := false`, a callback
+still queued when the process exits (main thread stops pumping events) is never
+run and its closure leaks — bounded, exit-time only. C: `SDL_RunOnMainThread`. -/
 def runOnMainThread (f : IO Unit) (waitComplete : Bool := true) : IO Unit :=
   runOnMainThreadRaw f waitComplete
 

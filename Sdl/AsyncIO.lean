@@ -148,8 +148,11 @@ opaque create : IO AsyncIOQueue
 
 /-- Destroy the queue. If tasks are still pending this blocks until they finish;
 their results are lost and `loadFileAsync` buffers still in the queue are freed
-by SDL. Consumes the handle (later use throws). Never call while another thread
-is blocked in `waitResult` on this queue. C: `SDL_DestroyAsyncIOQueue`. -/
+by SDL. The staging buffer of a **completed but never-retrieved** `read`/`write`
+task leaks (its only free site is result retrieval) — drain with `getResult`
+until `none` before destroying. Consumes the handle (later use throws). Never
+call while another thread is blocked in `waitResult` on this queue.
+C: `SDL_DestroyAsyncIOQueue`. -/
 @[extern "lean_sdl_destroy_asyncio_queue"]
 opaque destroy (self : @& AsyncIOQueue) : IO Unit
 
