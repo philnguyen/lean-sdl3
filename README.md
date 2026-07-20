@@ -209,4 +209,6 @@ commits small and self-contained.
 
 Apache-2.0 (see [`LICENSE`](LICENSE)). The files under `examples/assets/` are
 copied from the SDL repository's `test/` directory and remain under SDL's
-zlib license (see `examples/assets/README.md`).
+zlib license (a copy is included as
+[`examples/assets/LICENSE.txt`](examples/assets/LICENSE.txt); see
+`examples/assets/README.md` for the file inventory).

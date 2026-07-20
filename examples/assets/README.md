@@ -3,8 +3,8 @@
 Files vendored from the [SDL repository](https://github.com/libsdl-org/SDL)'s
 `test/` directory (tag `release-3.4.10`), used by the demos under `examples/`.
 
-Like SDL itself they are distributed under the [zlib
-license](https://github.com/libsdl-org/SDL/blob/main/LICENSE.txt).
+Like SDL itself they are distributed under the zlib license — a copy is
+included here as [`LICENSE.txt`](LICENSE.txt).
 
 | File | Used by |
 |---|---|
