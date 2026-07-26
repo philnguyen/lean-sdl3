@@ -2,11 +2,18 @@
  * block is pinned against the real SDL headers here. A wrong Lean literal
  * shows up as a build failure. Grouped by Lean module. */
 #include <SDL3/SDL.h>
-#include <stddef.h> /* offsetof (SDL_Vertex layout checks) */
+#include <stddef.h> /* offsetof (packed-struct layout checks) */
 
 /* ---- ABI assumptions ---- */
 _Static_assert(sizeof(SDL_Event) == 128, "SDL_Event ABI size");
 _Static_assert(sizeof(bool) == 1, "bool size");
+/* Every packed-ByteArray path writes explicit little-endian scalars that C then
+ * reinterprets as native structs (Sdl/Render.lean's pack*, Sdl/Video.lean's
+ * updateSurfaceRects, Sdl/MessageBox.lean, Sdl/Gpu/Pipeline.lean's packers and
+ * ffi/gpu_pipeline.c's rd_u32/rd_f32). On a big-endian host they would all
+ * silently produce byte-swapped garbage, so fail the build instead. */
+_Static_assert(SDL_BYTEORDER == SDL_LIL_ENDIAN,
+               "packed ByteArray paths assume a little-endian host");
 
 /* ---- Sdl/Init.lean: InitFlags ---- */
 _Static_assert(SDL_INIT_AUDIO    == 0x00000010u, "InitFlags.audio");
@@ -1176,6 +1183,23 @@ _Static_assert(sizeof(SDL_Vertex) == 32, "SDL_Vertex size");
 _Static_assert(offsetof(SDL_Vertex, position)  == 0,  "SDL_Vertex.position offset");
 _Static_assert(offsetof(SDL_Vertex, color)     == 8,  "SDL_Vertex.color offset");
 _Static_assert(offsetof(SDL_Vertex, tex_coord) == 24, "SDL_Vertex.tex_coord offset");
+
+/* ==== Sdl/Render.lean : SDL_FPoint / SDL_FRect ABI (points/lines pack 2x
+ * float32 LE each, rects/fillRects 4x) and Sdl/Video.lean : SDL_Rect ABI
+ * (updateSurfaceRects packs 4x Int32 LE each) ==== */
+_Static_assert(sizeof(SDL_FPoint) == 8,  "SDL_FPoint size");
+_Static_assert(offsetof(SDL_FPoint, x) == 0, "SDL_FPoint.x offset");
+_Static_assert(offsetof(SDL_FPoint, y) == 4, "SDL_FPoint.y offset");
+_Static_assert(sizeof(SDL_FRect) == 16, "SDL_FRect size");
+_Static_assert(offsetof(SDL_FRect, x) == 0,  "SDL_FRect.x offset");
+_Static_assert(offsetof(SDL_FRect, y) == 4,  "SDL_FRect.y offset");
+_Static_assert(offsetof(SDL_FRect, w) == 8,  "SDL_FRect.w offset");
+_Static_assert(offsetof(SDL_FRect, h) == 12, "SDL_FRect.h offset");
+_Static_assert(sizeof(SDL_Rect) == 16, "SDL_Rect size");
+_Static_assert(offsetof(SDL_Rect, x) == 0,  "SDL_Rect.x offset");
+_Static_assert(offsetof(SDL_Rect, y) == 4,  "SDL_Rect.y offset");
+_Static_assert(offsetof(SDL_Rect, w) == 8,  "SDL_Rect.w offset");
+_Static_assert(offsetof(SDL_Rect, h) == 12, "SDL_Rect.h offset");
 
 /* ==== Sdl/Render.lean : constants ==== */
 _Static_assert(SDL_RENDERER_VSYNC_DISABLED == 0,  "Renderer.vsyncDisabled");
