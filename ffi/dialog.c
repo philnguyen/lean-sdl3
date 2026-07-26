@@ -22,31 +22,9 @@ typedef struct {
     int nfilters;
 } lean_sdl_dialog_ctx;
 
-/* Build the context. `fn` is owned; `names`/`patterns` are borrowed parallel
- * `Array String` (same length; the Lean wrapper guarantees it). */
-static lean_sdl_dialog_ctx *lean_sdl_dialog_ctx_new(
-        lean_obj_arg fn, b_lean_obj_arg names, b_lean_obj_arg patterns) {
-    lean_mark_mt(fn);
-    lean_sdl_dialog_ctx *ctx = malloc(sizeof(lean_sdl_dialog_ctx));
-    ctx->fn = fn;
-    size_t n = lean_array_size(names);
-    if (n == 0) {
-        ctx->filters = NULL;
-        ctx->nfilters = 0;
-    } else {
-        ctx->filters = SDL_calloc(n, sizeof(SDL_DialogFileFilter));
-        for (size_t i = 0; i < n; i++) {
-            ctx->filters[i].name =
-                SDL_strdup(lean_string_cstr(lean_array_get_core(names, i)));
-            ctx->filters[i].pattern =
-                SDL_strdup(lean_string_cstr(lean_array_get_core(patterns, i)));
-        }
-        ctx->nfilters = (int)n;
-    }
-    return ctx;
-}
-
-/* Free the filters and the context (the closure is consumed by lean_apply). */
+/* Free the filters and the context. Does NOT touch ctx->fn: on the success
+ * path the closure has already been consumed by lean_apply, and on the
+ * construction-failure path the caller still owns it. */
 static void lean_sdl_dialog_ctx_free(lean_sdl_dialog_ctx *ctx) {
     for (int i = 0; i < ctx->nfilters; i++) {
         SDL_free((void *)ctx->filters[i].name);
@@ -54,6 +32,40 @@ static void lean_sdl_dialog_ctx_free(lean_sdl_dialog_ctx *ctx) {
     }
     SDL_free(ctx->filters);
     free(ctx);
+}
+
+/* Build the context. `fn` is owned; `names`/`patterns` are borrowed parallel
+ * `Array String` (same length: the Lean wrapper maps both out of one
+ * `Array DialogFileFilter`). NULL on allocation failure, with `fn` left
+ * unconsumed for the caller to dec. */
+static lean_sdl_dialog_ctx *lean_sdl_dialog_ctx_new(
+        lean_obj_arg fn, b_lean_obj_arg names, b_lean_obj_arg patterns) {
+    lean_mark_mt(fn);
+    lean_sdl_dialog_ctx *ctx = malloc(sizeof(lean_sdl_dialog_ctx));
+    if (!ctx) return NULL;
+    ctx->fn = fn;
+    ctx->filters = NULL;
+    ctx->nfilters = 0;
+    size_t n = lean_array_size(names);
+    if (n > 0) {
+        ctx->filters = SDL_calloc(n, sizeof(SDL_DialogFileFilter));
+        if (!ctx->filters) { free(ctx); return NULL; }
+        for (size_t i = 0; i < n; i++) {
+            /* Count the entry before filling it, so a mid-way strdup failure
+             * frees exactly what was allocated (calloc zeroed the rest and
+             * SDL_free(NULL) is a no-op). */
+            ctx->nfilters = (int)(i + 1);
+            ctx->filters[i].name =
+                SDL_strdup(lean_string_cstr(lean_array_get_core(names, i)));
+            ctx->filters[i].pattern =
+                SDL_strdup(lean_string_cstr(lean_array_get_core(patterns, i)));
+            if (!ctx->filters[i].name || !ctx->filters[i].pattern) {
+                lean_sdl_dialog_ctx_free(ctx);
+                return NULL;
+            }
+        }
+    }
+    return ctx;
 }
 
 /* One-shot trampoline. filelist: NULL = error (SDL_GetError is still valid
@@ -102,6 +114,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_show_open_file_dialog(
     (void)w;
     SDL_SHIM_PROLOGUE();
     lean_sdl_dialog_ctx *ctx = lean_sdl_dialog_ctx_new(fn, names, patterns);
+    if (!ctx) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: out of memory building dialog filters");
+    }
     SDL_ShowOpenFileDialog(lean_sdl_dialog_tramp, ctx,
         lean_sdl_option_window(win_opt), ctx->filters, ctx->nfilters,
         lean_sdl_option_cstr(default_location), allow_many != 0);
@@ -116,6 +132,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_show_save_file_dialog(
     (void)w;
     SDL_SHIM_PROLOGUE();
     lean_sdl_dialog_ctx *ctx = lean_sdl_dialog_ctx_new(fn, names, patterns);
+    if (!ctx) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: out of memory building dialog filters");
+    }
     SDL_ShowSaveFileDialog(lean_sdl_dialog_tramp, ctx,
         lean_sdl_option_window(win_opt), ctx->filters, ctx->nfilters,
         lean_sdl_option_cstr(default_location));
@@ -130,6 +150,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_show_open_folder_dialog(
     SDL_SHIM_PROLOGUE();
     lean_mark_mt(fn);
     lean_sdl_dialog_ctx *ctx = malloc(sizeof(lean_sdl_dialog_ctx));
+    if (!ctx) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: out of memory");
+    }
     ctx->fn = fn;
     ctx->filters = NULL;
     ctx->nfilters = 0;
@@ -151,6 +175,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_show_file_dialog_with_properties(
     }
     lean_mark_mt(fn);
     lean_sdl_dialog_ctx *ctx = malloc(sizeof(lean_sdl_dialog_ctx));
+    if (!ctx) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: out of memory");
+    }
     ctx->fn = fn;
     ctx->filters = NULL;
     ctx->nfilters = 0;

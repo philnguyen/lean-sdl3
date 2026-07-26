@@ -32,6 +32,9 @@ void lean_sdl_holder_foreach(void *data, b_lean_obj_arg fn) {
 
 lean_object *lean_sdl_wrap(lean_external_class *cls, void *ptr, lean_object *owner) {
     sdl_holder *h = (sdl_holder *)malloc(sizeof(sdl_holder));
+    /* No IO result to fail into (and callers have already taken ownership of
+     * `ptr`), so match the Lean runtime's own allocation-failure behaviour. */
+    if (!h) lean_internal_panic_out_of_memory();
     h->ptr = ptr;
     h->owner = owner;
     return lean_alloc_external(cls, h);

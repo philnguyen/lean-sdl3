@@ -77,6 +77,9 @@ static void lean_sdl_audio_drop_postmix(uint32_t devid);
 
 static lean_object *lean_sdl_wrap_audio_stream(SDL_AudioStream *s) {
     sdl_audio_stream_holder *h = calloc(1, sizeof(*h));
+    /* No IO result to fail into (as in lean_sdl_wrap); the stream is already
+     * ours, so match the Lean runtime's allocation-failure behaviour. */
+    if (!h) lean_internal_panic_out_of_memory();
     h->ptr = s;
     return lean_alloc_external(lean_sdl_audio_stream_class, h);
 }
@@ -120,17 +123,23 @@ static lean_object *lean_sdl_int_array_option(int *map, int count) {
     return lean_sdl_some(arr);
 }
 
-/* Build a temp `int[]` from `@& Option (Array Int32)`: none -> (NULL, 0). The
- * returned pointer (if any) must be SDL_free'd by the caller. */
-static int *lean_sdl_build_int_map(b_lean_obj_arg opt, int *out_count) {
-    if (lean_is_scalar(opt)) { *out_count = 0; return NULL; }
+/* Build a temp `int[]` from `@& Option (Array Int32)`: none -> (NULL, 0). On
+ * success `*out_map` (if any) must be SDL_free'd by the caller. False = the
+ * allocation failed (caller throws); NULL alone cannot say so, since it is also
+ * the legitimate `none` result. */
+static bool lean_sdl_build_int_map(b_lean_obj_arg opt, int **out_map, int *out_count) {
+    *out_map = NULL;
+    *out_count = 0;
+    if (lean_is_scalar(opt)) return true;
     lean_object *arr = lean_ctor_get(opt, 0);
     size_t n = lean_array_size(arr);
     int *map = (int *)SDL_malloc(n ? n * sizeof(int) : 1);
+    if (!map) return false;
     for (size_t i = 0; i < n; i++)
         map[i] = (int)(int32_t)lean_unbox_uint32(lean_array_get_core(arr, i));
+    *out_map = map;
     *out_count = (int)n;
-    return map;
+    return true;
 }
 
 /* ==================== Drivers ==================== */
@@ -339,19 +348,24 @@ LEAN_EXPORT lean_obj_res lean_sdl_get_silence_value_for_format(uint32_t format, 
 
 /* ==================== Stream (un)binding ==================== */
 
-/* Build a temp SDL_AudioStream*[] from an `@& Array AudioStream`, throwing (via
- * `return` in the caller) if any element was destroyed. On success returns a
- * SDL_malloc'd array (caller SDL_free's) and sets *count; on a destroyed
- * element returns NULL after having freed nothing (nothing allocated yet is
- * impossible, so it frees the partial array). */
-static SDL_AudioStream **lean_sdl_stream_array(b_lean_obj_arg streams, int *count, bool *bad) {
+/* Build a temp SDL_AudioStream*[] from an `@& Array AudioStream`. On success
+ * returns a SDL_malloc'd array (caller SDL_free's), sets *count and leaves
+ * *err NULL. On failure — a destroyed element, or the allocation itself —
+ * returns NULL with *err set to the message the caller should throw. */
+static SDL_AudioStream **lean_sdl_stream_array(b_lean_obj_arg streams, int *count,
+                                               const char **err) {
     size_t n = lean_array_size(streams);
     *count = (int)n;
-    *bad = false;
+    *err = NULL;
     SDL_AudioStream **arr = (SDL_AudioStream **)SDL_malloc(n ? n * sizeof(SDL_AudioStream *) : 1);
+    if (!arr) { *err = "SDL: out of memory"; return NULL; }
     for (size_t i = 0; i < n; i++) {
         sdl_holder *h = lean_sdl_holder_of(lean_array_get_core(streams, i));
-        if (!h->ptr) { SDL_free(arr); *bad = true; return NULL; }
+        if (!h->ptr) {
+            SDL_free(arr);
+            *err = "SDL: handle used after destroy/release";
+            return NULL;
+        }
         arr[i] = (SDL_AudioStream *)h->ptr;
     }
     return arr;
@@ -363,9 +377,9 @@ LEAN_EXPORT lean_obj_res lean_sdl_unbind_audio_streams(b_lean_obj_arg streams, l
     (void)w;
     SDL_SHIM_PROLOGUE();
     int count = 0;
-    bool bad = false;
-    SDL_AudioStream **arr = lean_sdl_stream_array(streams, &count, &bad);
-    if (bad) return lean_sdl_throw_msg("SDL: handle used after destroy/release");
+    const char *err = NULL;
+    SDL_AudioStream **arr = lean_sdl_stream_array(streams, &count, &err);
+    if (err) return lean_sdl_throw_msg(err);
     SDL_UnbindAudioStreams(arr, count);
     SDL_free(arr);
     return lean_sdl_unit_ok();
@@ -492,9 +506,9 @@ LEAN_EXPORT lean_obj_res lean_sdl_bind_audio_streams(
     (void)w;
     SDL_SHIM_PROLOGUE();
     int count = 0;
-    bool bad = false;
-    SDL_AudioStream **arr = lean_sdl_stream_array(streams, &count, &bad);
-    if (bad) return lean_sdl_throw_msg("SDL: handle used after destroy/release");
+    const char *err = NULL;
+    SDL_AudioStream **arr = lean_sdl_stream_array(streams, &count, &err);
+    if (err) return lean_sdl_throw_msg(err);
     bool ok = SDL_BindAudioStreams((SDL_AudioDeviceID)devid, arr, count);
     SDL_free(arr);
     if (!ok) return lean_sdl_throw();
@@ -638,8 +652,8 @@ LEAN_EXPORT lean_obj_res lean_sdl_set_audio_stream_input_channel_map(
         SDL_AudioSpec src, dst;
         if (!SDL_GetAudioStreamFormat(s, &src, &dst)) return lean_sdl_throw();
         count = src.channels;
-    } else {
-        map = lean_sdl_build_int_map(chmap, &count);
+    } else if (!lean_sdl_build_int_map(chmap, &map, &count)) {
+        return lean_sdl_throw_msg("SDL: out of memory");
     }
     bool ok = SDL_SetAudioStreamInputChannelMap(s, map, count);
     SDL_free(map);
@@ -661,8 +675,8 @@ LEAN_EXPORT lean_obj_res lean_sdl_set_audio_stream_output_channel_map(
         SDL_AudioSpec src, dst;
         if (!SDL_GetAudioStreamFormat(s, &src, &dst)) return lean_sdl_throw();
         count = dst.channels;
-    } else {
-        map = lean_sdl_build_int_map(chmap, &count);
+    } else if (!lean_sdl_build_int_map(chmap, &map, &count)) {
+        return lean_sdl_throw_msg("SDL: out of memory");
     }
     bool ok = SDL_SetAudioStreamOutputChannelMap(s, map, count);
     SDL_free(map);
@@ -692,6 +706,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_put_audio_stream_data_f32(
     size_t n = lean_sarray_size(samples);            /* element count (doubles) */
     const double *src = lean_float_array_cptr(samples);
     float *buf = (float *)SDL_malloc(n ? n * sizeof(float) : 1);
+    if (!buf) return lean_sdl_throw_msg("SDL: out of memory");
     for (size_t i = 0; i < n; i++) buf[i] = (float)src[i];
     bool ok = SDL_PutAudioStreamData(s, buf, (int)(n * sizeof(float)));
     SDL_free(buf);
@@ -709,6 +724,7 @@ LEAN_EXPORT lean_obj_res lean_sdl_put_audio_stream_planar_data(
     SDL_GET_OR_THROW(SDL_AudioStream, s, self);
     size_t n = lean_array_size(channels);
     const void **bufs = (const void **)SDL_malloc(n ? n * sizeof(const void *) : 1);
+    if (!bufs) return lean_sdl_throw_msg("SDL: out of memory");
     for (size_t i = 0; i < n; i++) {
         lean_object *opt = lean_array_get_core(channels, i);
         bufs[i] = lean_is_scalar(opt) ? NULL : (const void *)lean_sarray_cptr(lean_ctor_get(opt, 0));

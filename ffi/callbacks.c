@@ -14,6 +14,8 @@ __attribute__((constructor)) static void lean_sdl_cb_init(void) {
 uint64_t lean_sdl_cb_register(sdl_cb_registry *r, lean_obj_arg fn, uintptr_t aux) {
     lean_mark_mt(fn);
     sdl_cb_entry *e = malloc(sizeof(sdl_cb_entry));
+    /* Returns a key, not an IO result: no way to report failure to Lean. */
+    if (!e) lean_internal_panic_out_of_memory();
     e->fn = fn;
     e->aux = aux;
     SDL_LockMutex(lean_sdl_cb_mutex);

@@ -82,6 +82,10 @@ LEAN_EXPORT lean_obj_res lean_sdl_add_hint_callback(
     (void)w;
     SDL_SHIM_PROLOGUE();
     char *name_copy = SDL_strdup(lean_string_cstr(name));
+    if (!name_copy) {
+        lean_dec(fn);
+        return lean_sdl_throw_msg("SDL: out of memory");
+    }
     uint64_t key = lean_sdl_cb_register(&lean_sdl_hint_registry, fn, (uintptr_t)name_copy);
     if (!SDL_AddHintCallback(name_copy, lean_sdl_hint_tramp, (void *)(uintptr_t)key)) {
         lean_object *f;
