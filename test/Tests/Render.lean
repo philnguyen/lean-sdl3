@@ -63,14 +63,30 @@ def run : IO Unit := do
   check "packIndices layout (1, -1 LE)" ((packIndices #[1, -1]).toList ==
     [1, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF])
   check "packVertices stride is 32" ((packVertices #[default]).size == 32)
+  -- the public push* builders must produce byte-identical output to pack*, so a
+  -- buffer assembled element-by-element is a valid *Packed argument
+  check "pushFPoint matches packFPoints"
+    ((pushFPoint (ByteArray.emptyWithCapacity 8) 1.0 2.0).toList
+      == (packFPoints #[⟨1.0, 2.0⟩]).toList)
+  check "pushFRect matches packFRects"
+    ((pushFRect (ByteArray.emptyWithCapacity 16) 1.0 2.0 3.0 4.0).toList
+      == (packFRects #[⟨1.0, 2.0, 3.0, 4.0⟩]).toList)
+  check "pushVertex matches packVertices"
+    ((pushVertex (ByteArray.emptyWithCapacity 32) 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0).toList
+      == (packVertices #[⟨⟨1.0, 2.0⟩, ⟨3.0, 4.0, 5.0, 6.0⟩, ⟨7.0, 8.0⟩⟩]).toList)
+  check "pushIndex matches packIndices"
+    ((pushIndex (pushIndex (ByteArray.emptyWithCapacity 8) 1) (-1)).toList
+      == (packIndices #[1, -1]).toList)
+  -- and a push*-built buffer actually draws
   ren.setDrawColor 255 0 255 255
   ren.fillRectsPacked (packFRects #[⟨40, 40, 8, 8⟩, ⟨60, 60, 8, 8⟩])
   let shotP ← ren.readPixels
   check "fillRectsPacked: first rect drawn" (colorNear (← shotP.readPixel 44 44) 255 0 255 0)
   check "fillRectsPacked: second rect drawn" (colorNear (← shotP.readPixel 64 64) 255 0 255 0)
-  ren.pointsPacked (packFPoints #[⟨100.0, 100.0⟩])
+  ren.pointsPacked (pushFPoint (ByteArray.emptyWithCapacity 8) 100.0 100.0)
   let shotQ ← ren.readPixels
-  check "pointsPacked: point drawn" (colorNear (← shotQ.readPixel 100 100) 255 0 255 0)
+  check "pointsPacked from pushFPoint: point drawn"
+    (colorNear (← shotQ.readPixel 100 100) 255 0 255 0)
   ren.setDrawColorFloat 0.5 0.25 1.0 1.0
   let (fr, fg, fb, fa) ← ren.getDrawColorFloat
   check "getDrawColorFloat round-trip"

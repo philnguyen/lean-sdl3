@@ -209,14 +209,52 @@ private opaque pushU32LE (b : ByteArray) (v : UInt32) : ByteArray
 
 /-- Append `f` to `b` as 4 little-endian bytes (its IEEE-754 bit pattern). Used
 to pack `SDL_FPoint[]`/`SDL_FRect[]`/`SDL_Vertex[]`; all supported targets are
-little-endian. -/
-private def pushFloat32LE (b : ByteArray) (f : Float32) : ByteArray :=
+little-endian (`ffi/consts_check.c` fails the build otherwise). -/
+def pushFloat32LE (b : ByteArray) (f : Float32) : ByteArray :=
   pushU32LE b f.toBits
 
 /-- Append `v` to `b` as 4 little-endian bytes (its two's-complement bit pattern).
 Used to pack the `int[]` index array for `geometry`. -/
-private def pushInt32LE (b : ByteArray) (v : Int32) : ByteArray :=
+def pushInt32LE (b : ByteArray) (v : Int32) : ByteArray :=
   pushU32LE b v.toUInt32
+
+/-! The four `push*` helpers below append one element in the layout the matching
+`pack*` function produces, so a buffer built with them is a valid argument to the
+corresponding `*Packed` draw. Use them when the buffer changes every frame:
+`Array FPoint`/`Array Vertex` box one heap object per element, so `pack*` over a
+freshly built array reintroduces exactly the per-frame allocation the `*Packed`
+variants exist to avoid. Reserve with `ByteArray.emptyWithCapacity` and the
+appends are in-place.
+
+```
+let mut b := ByteArray.emptyWithCapacity (particles.size * 8)
+for p in particles do
+  b := Sdl.pushFPoint b p.x p.y
+renderer.pointsPacked b
+```
+-/
+
+/-- Append one `SDL_FPoint` (8 bytes) in `packFPoints` layout. -/
+def pushFPoint (buf : ByteArray) (x y : Float32) : ByteArray :=
+  pushFloat32LE (pushFloat32LE buf x) y
+
+/-- Append one `SDL_FRect` (16 bytes) in `packFRects` layout. -/
+def pushFRect (buf : ByteArray) (x y w h : Float32) : ByteArray :=
+  pushFloat32LE (pushFloat32LE (pushFloat32LE (pushFloat32LE buf x) y) w) h
+
+/-- Append one `SDL_Vertex` (32 bytes) in `packVertices` layout: position
+`(x, y)`, colour `(r, g, b, a)`, then texture coordinate `(u, v)`. -/
+def pushVertex (buf : ByteArray) (x y r g b a u v : Float32) : ByteArray :=
+  pushFloat32LE (pushFloat32LE (pushFloat32LE (pushFloat32LE (pushFloat32LE
+    (pushFloat32LE (pushFloat32LE (pushFloat32LE buf x) y) r) g) b) a) u) v
+
+/-- Append one `int` index (4 bytes) in `packIndices` layout. -/
+def pushIndex (buf : ByteArray) (i : Int32) : ByteArray :=
+  pushInt32LE buf i
+
+-- These bottom out in the `@[extern]` `pushU32LE`, which the interpreter cannot
+-- resolve while elaborating this very module, so they are covered by runtime
+-- tests (`test/Tests/Render.lean`) rather than `#guard`.
 
 /-- Pack an `Array FPoint` into a `ByteArray` matching `SDL_FPoint[]` (two
 little-endian float32s each, 8 bytes per point). `points`/`lines` do this per
@@ -225,7 +263,7 @@ static across frames. -/
 def packFPoints (pts : Array FPoint) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (pts.size * 8)
   for p in pts do
-    bytes := pushFloat32LE (pushFloat32LE bytes p.x) p.y
+    bytes := pushFPoint bytes p.x p.y
   return bytes
 
 /-- Pack an `Array FRect` into a `ByteArray` matching `SDL_FRect[]` (four
@@ -233,7 +271,7 @@ little-endian float32s each, 16 bytes per rect). See `packFPoints` on reuse. -/
 def packFRects (rs : Array FRect) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (rs.size * 16)
   for r in rs do
-    bytes := pushFloat32LE (pushFloat32LE (pushFloat32LE (pushFloat32LE bytes r.x) r.y) r.w) r.h
+    bytes := pushFRect bytes r.x r.y r.w r.h
   return bytes
 
 /-- Pack an `Array Vertex` into a `ByteArray` matching `SDL_Vertex[]` (eight
@@ -243,14 +281,8 @@ field layout, see `ffi/consts_check.c`). See `packFPoints` on reuse. -/
 def packVertices (vs : Array Vertex) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (vs.size * 32)
   for v in vs do
-    bytes := pushFloat32LE bytes v.position.x
-    bytes := pushFloat32LE bytes v.position.y
-    bytes := pushFloat32LE bytes v.color.r
-    bytes := pushFloat32LE bytes v.color.g
-    bytes := pushFloat32LE bytes v.color.b
-    bytes := pushFloat32LE bytes v.color.a
-    bytes := pushFloat32LE bytes v.texCoord.x
-    bytes := pushFloat32LE bytes v.texCoord.y
+    bytes := pushVertex bytes v.position.x v.position.y
+      v.color.r v.color.g v.color.b v.color.a v.texCoord.x v.texCoord.y
   return bytes
 
 /-- Pack an `Array Int32` into a `ByteArray` matching `int[]` (four
@@ -258,7 +290,7 @@ little-endian bytes each). See `packFPoints` on reuse. -/
 def packIndices (idx : Array Int32) : ByteArray := Id.run do
   let mut bytes := ByteArray.emptyWithCapacity (idx.size * 4)
   for i in idx do
-    bytes := pushInt32LE bytes i
+    bytes := pushIndex bytes i
   return bytes
 
 /-! ## Render drivers -/
