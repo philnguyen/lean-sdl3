@@ -867,6 +867,11 @@ static void lean_sdl_stream_cb_dispatch(sdl_cb_slot *slot, SDL_AudioStream *stre
     lean_object *fn = lean_sdl_slot_acquire(slot);
     if (!fn) return; /* cleared mid-dispatch */
     lean_object *wrapper = lean_sdl_wrap(lean_sdl_audio_stream_borrowed_class, stream, NULL);
+    /* Created here on SDL's audio device thread. NULLing the ptr below makes an
+     * escaped copy useless, but not unreferenced: a closure that stores the
+     * handle leaves the main thread and this one both touching its refcount, so
+     * those ops must be atomic (same rationale as lean_sdl_wrap_window). */
+    lean_mark_mt(wrapper);
     lean_inc(wrapper); /* survive the apply so the ptr can be invalidated */
     lean_sdl_io_ignore(lean_apply_4(fn, wrapper,
         lean_box_uint32((uint32_t)additional), lean_box_uint32((uint32_t)total),
