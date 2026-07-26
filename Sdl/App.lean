@@ -87,7 +87,9 @@ partial def run (app : App σ) (args : List String := []) : IO UInt32 := do
       try
         loop s
       catch e =>
-        app.quit s .failure
+        -- Cleanup must not mask what actually went wrong: a `quit` that throws
+        -- on the way out loses its own exception, not the loop's.
+        try app.quit s .failure catch _ => pure ()
         throw e
     app.quit s result
     return exitCode result
