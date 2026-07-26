@@ -239,6 +239,13 @@ LEAN_EXPORT lean_obj_res lean_sdl_ttf_get_gpu_text_draw_data(
     (void)w;
     SDL_SHIM_PROLOGUE();
     SDL_GET_OR_THROW(TTF_Text, t, self);
+    /* TTF_GetGPUTextDrawData returns NULL both for "no glyphs" and for failure,
+     * and we take NULL as empty below. Rule out the one failure a caller can
+     * actually make -- a text built on a surface/renderer engine -- so it
+     * throws like the other GPU-only shims instead of silently yielding #[]. */
+    lean_object *eng = lean_ctor_get(lean_sdl_holder_of(self)->owner, 0);
+    if (lean_get_external_class(eng) != lean_sdl_ttf_engine_gpu_class)
+        return lean_sdl_throw_msg("SDL: gpuDrawData requires a GPU text engine");
     TTF_GPUAtlasDrawSequence *seq = TTF_GetGPUTextDrawData(t);
     /* NULL is a valid empty result (no glyphs); SDL sets no error. */
     size_t n = 0;
