@@ -4,7 +4,7 @@ Settled design for the SDL3 FFI. Read together with `AGENTS.md` (naming and
 testing conventions). Implementation subagents: follow this document exactly;
 deviations require orchestrator sign-off.
 
-Facts this design rests on (verified against Lean v4.31.0 + SDL 3.4.10):
+Facts this design rests on (verified against Lean v4.32.2 + SDL 3.4.10):
 - `@[extern]` IO functions receive a trailing world argument and must return
   `lean_io_result_*` — so **every IO binding goes through a C shim**; direct
   `@[extern "SDL_..."]` to an SDL symbol is never correct for IO.
