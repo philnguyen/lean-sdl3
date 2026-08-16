@@ -19,7 +19,7 @@ Comprehensive [Lean 4](https://lean-lang.org) bindings for
   in CI.
 
 Developed against SDL 3.4.10 / SDL_ttf 3.2.2 on macOS (Apple Silicon), Lean
-toolchain `v4.32.2`. CI builds and tests on both macOS and Linux (see
+toolchain `v4.33.0`. CI builds and tests on both macOS and Linux (see
 [Portability](#portability)). Windows is untested — reports and PRs welcome.
 
 ## Quick start
