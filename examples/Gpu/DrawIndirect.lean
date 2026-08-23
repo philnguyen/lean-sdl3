@@ -84,11 +84,7 @@ def demo : Example State where
       primitiveType := .triangleList
       targetInfo := { colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }] }
       -- This is set up to match the vertex shader layout!
-      vertexInputState := {
-        vertexBufferDescriptions := #[{ slot := 0, pitch := PositionColorVertex.stride }]
-        vertexAttributes := #[
-          { location := 0, bufferSlot := 0, format := .float3, offset := 0 },
-          { location := 1, bufferSlot := 0, format := .ubyte4Norm, offset := 4 * 3 }] }
+      vertexInputState := PositionColorVertex.inputState
     }
     vertexShader.release
     fragmentShader.release

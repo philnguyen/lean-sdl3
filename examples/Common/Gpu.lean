@@ -94,9 +94,15 @@ def stride : UInt32 := 12
 /-- Append the 12-byte C layout. -/
 def emit (b : ByteArray) (v : PositionVertex) : ByteArray :=
   pushF32 (pushF32 (pushF32 b v.x) v.y) v.z
+/-- The vertex-input state matching `Skybox.vert`: one buffer at slot 0,
+`FLOAT3` position at location 0. -/
+def inputState : Sdl.Gpu.VertexInputState where
+  vertexBufferDescriptions := #[{ slot := 0, pitch := stride, inputRate := .vertex }]
+  vertexAttributes := #[{ location := 0, bufferSlot := 0, format := .float3, offset := 0 }]
 end PositionVertex
 
 #guard (PositionVertex.emit .empty ⟨0, 0, 0⟩).size.toUInt32 == PositionVertex.stride
+#guard (PositionVertex.inputState.vertexBufferDescriptions.map (·.pitch)) == #[12]
 
 /-- `{float x, y, z; Uint8 r, g, b, a}`. C: `PositionColorVertex` (16 bytes). -/
 structure PositionColorVertex where
@@ -114,6 +120,13 @@ def stride : UInt32 := 16
 /-- Append the 16-byte C layout. -/
 def emit (b : ByteArray) (v : PositionColorVertex) : ByteArray :=
   pushF32 (pushF32 (pushF32 b v.x) v.y) v.z |>.push v.r |>.push v.g |>.push v.b |>.push v.a
+/-- The vertex-input state matching `PositionColor*.vert`: one buffer at slot
+0, `FLOAT3` position at location 0 and `UBYTE4_NORM` color at location 1. -/
+def inputState : Sdl.Gpu.VertexInputState where
+  vertexBufferDescriptions := #[{ slot := 0, pitch := stride, inputRate := .vertex }]
+  vertexAttributes := #[
+    { location := 0, bufferSlot := 0, format := .float3, offset := 0 },
+    { location := 1, bufferSlot := 0, format := .ubyte4Norm, offset := 12 }]
 end PositionColorVertex
 
 #guard (PositionColorVertex.emit .empty ⟨0, 0, 0, 0, 0, 0, 0⟩).size.toUInt32
@@ -133,10 +146,19 @@ def stride : UInt32 := 20
 /-- Append the 20-byte C layout. -/
 def emit (b : ByteArray) (v : PositionTextureVertex) : ByteArray :=
   pushF32 (pushF32 (pushF32 (pushF32 (pushF32 b v.x) v.y) v.z) v.u) v.v
+/-- The vertex-input state matching `TexturedQuad*.vert`: one buffer at slot
+0, `FLOAT3` position at location 0 and `FLOAT2` texcoord at location 1. -/
+def inputState : Sdl.Gpu.VertexInputState where
+  vertexBufferDescriptions := #[{ slot := 0, pitch := stride, inputRate := .vertex }]
+  vertexAttributes := #[
+    { location := 0, bufferSlot := 0, format := .float3, offset := 0 },
+    { location := 1, bufferSlot := 0, format := .float2, offset := 12 }]
 end PositionTextureVertex
 
 #guard (PositionTextureVertex.emit .empty ⟨0, 0, 0, 0, 0⟩).size.toUInt32
   == PositionTextureVertex.stride
+#guard (PositionColorVertex.inputState.vertexAttributes.map (·.offset)) == #[0, 12]
+#guard (PositionTextureVertex.inputState.vertexAttributes.map (·.offset)) == #[0, 12]
 
 /-- Pack an array of vertices with `emit`. -/
 def packVertices (emit : ByteArray → α → ByteArray) (vs : Array α) : ByteArray :=

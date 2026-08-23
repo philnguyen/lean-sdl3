@@ -76,12 +76,6 @@ def viewProj (camPos : Vector3) : Matrix4x4 :=
 
 #guard (viewProj ⟨0, 0, 4⟩).toBytes.size == 64
 
-/-- One vertex buffer of `PositionVertex`, one `float3` attribute at location 0. -/
-def skyboxVertexInput : Gpu.VertexInputState where
-  vertexBufferDescriptions :=
-    #[{ slot := 0, inputRate := .vertex, instanceStepRate := 0, pitch := PositionVertex.stride }]
-  vertexAttributes := #[{ bufferSlot := 0, format := .float3, location := 0, offset := 0 }]
-
 def demo : Example State where
   name := "Cubemap"
   init ctx := do
@@ -92,7 +86,7 @@ def demo : Example State where
     let pipeline ← ctx.device.createGraphicsPipeline {
       vertexShader, fragmentShader
       primitiveType := .triangleList
-      vertexInputState := skyboxVertexInput
+      vertexInputState := PositionVertex.inputState
       targetInfo := { colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }] }
     }
     vertexShader.release

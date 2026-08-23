@@ -36,15 +36,6 @@ def vertexBytes : UInt32 := PositionColorVertex.stride * 3
 #guard (packVertices PositionColorVertex.emit triangleVertices).size.toUInt32 == vertexBytes
 #guard (packVertices PositionColorVertex.emit triangleVertices)[12]! == 255
 
-/-- This is set up to match the vertex shader layout! -/
-def vertexInputState : Gpu.VertexInputState := {
-  vertexBufferDescriptions := #[{ slot := 0, inputRate := .vertex, instanceStepRate := 0,
-                                  pitch := PositionColorVertex.stride }]
-  vertexAttributes := #[
-    { bufferSlot := 0, format := .float3, location := 0, offset := 0 },
-    { bufferSlot := 0, format := .ubyte4Norm, location := 1, offset := 4 * 3 }]
-}
-
 def demo : Example State where
   name := "BasicVertexBuffer"
   init ctx := do
@@ -53,7 +44,8 @@ def demo : Example State where
     let fragmentShader ← loadShader ctx.device "SolidColor.frag"
     -- Create the pipeline
     let pipeline ← ctx.device.createGraphicsPipeline {
-      vertexShader, fragmentShader, vertexInputState
+      vertexShader, fragmentShader
+      vertexInputState := PositionColorVertex.inputState
       primitiveType := .triangleList
       targetInfo := { colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }] }
     }

@@ -94,14 +94,7 @@ def demo : Example State where
     let pipeline ← ctx.device.createGraphicsPipeline {
       vertexShader, fragmentShader
       targetInfo := { colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }] }
-      vertexInputState := {
-        vertexBufferDescriptions := #[{
-          slot := 0, inputRate := .vertex, instanceStepRate := 0,
-          pitch := PositionTextureVertex.stride }]
-        vertexAttributes := #[
-          { bufferSlot := 0, format := .float3, location := 0, offset := 0 },
-          { bufferSlot := 0, format := .float2, location := 1, offset := 4 * 3 }]
-      }
+      vertexInputState := PositionTextureVertex.inputState
       primitiveType := .triangleList
     }
     vertexShader.release

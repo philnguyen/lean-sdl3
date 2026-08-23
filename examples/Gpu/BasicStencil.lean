@@ -44,14 +44,6 @@ def vertexBytes : UInt32 := PositionColorVertex.stride * 6
 
 #guard (packVertices PositionColorVertex.emit vertices).size.toUInt32 == vertexBytes
 
-def vertexInputState : Gpu.VertexInputState := {
-  vertexBufferDescriptions := #[{ slot := 0, inputRate := .vertex, instanceStepRate := 0,
-                                  pitch := PositionColorVertex.stride }]
-  vertexAttributes := #[
-    { bufferSlot := 0, format := .float3, location := 0, offset := 0 },
-    { bufferSlot := 0, format := .ubyte4Norm, location := 1, offset := 4 * 3 }]
-}
-
 /-- Masker: the test never passes, and failing replaces the stored stencil
 value with the reference (1). -/
 def maskerDepthStencilState : Gpu.DepthStencilState := {
@@ -96,7 +88,8 @@ def demo : Example State where
     let fragmentShader ← loadShader ctx.device "SolidColor.frag"
     let depthStencilFormat ← pickDepthStencilFormat ctx.device
     let info : Gpu.GraphicsPipelineCreateInfo := {
-      vertexShader, fragmentShader, vertexInputState
+      vertexShader, fragmentShader
+      vertexInputState := PositionColorVertex.inputState
       primitiveType := .triangleList
       targetInfo := {
         colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }]

@@ -63,14 +63,6 @@ def triangleBytes : UInt32 := PositionColorVertex.stride * 3
 
 #guard (packVertices PositionColorVertex.emit vertices).size.toUInt32 == 2 * triangleBytes
 
-def vertexInputState : Gpu.VertexInputState := {
-  vertexBufferDescriptions := #[{ slot := 0, inputRate := .vertex, instanceStepRate := 0,
-                                  pitch := PositionColorVertex.stride }]
-  vertexAttributes := #[
-    { bufferSlot := 0, format := .float3, location := 0, offset := 0 },
-    { bufferSlot := 0, format := .ubyte4Norm, location := 1, offset := 4 * 3 }]
-}
-
 def demo : Example State where
   name := "CullMode"
   init ctx := do
@@ -79,7 +71,8 @@ def demo : Example State where
     let fragmentShader ← loadShader ctx.device "SolidColor.frag"
     -- Create the pipelines
     let info : Gpu.GraphicsPipelineCreateInfo := {
-      vertexShader, fragmentShader, vertexInputState
+      vertexShader, fragmentShader
+      vertexInputState := PositionColorVertex.inputState
       primitiveType := .triangleList
       targetInfo := { colorTargetDescriptions := #[{ format := ← ctx.swapchainFormat }] }
     }
