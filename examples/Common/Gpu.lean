@@ -304,6 +304,75 @@ def randFloat (s : UInt64) : Float32 := (s >>> 40).toNat.toFloat32 / 16777216.0
 #guard randFloat 0 == 0
 #guard randFloat 0xFFFFFFFFFFFFFFFF < 1
 
+/-! ## Sprite instances (the `*SpriteBatch` demos)
+
+The per-sprite record both sprite batchers upload each frame — upstream
+`SpriteInstance` / `ComputeSpriteInstance` (identical layouts) — and the
+random batch generator from their `Draw` loops. -/
+
+/-- One sprite: position, rotation, size, atlas rectangle and tint. C:
+`SpriteInstance` (64 bytes: `x y z rotation | w h pad pad | tex_u tex_v tex_w
+tex_h | r g b a`). -/
+structure SpriteInstance where
+  x : Float32
+  y : Float32
+  z : Float32 := 0
+  rotation : Float32
+  w : Float32
+  h : Float32
+  texU : Float32
+  texV : Float32
+  texW : Float32
+  texH : Float32
+  r : Float32 := 1
+  g : Float32 := 1
+  b : Float32 := 1
+  a : Float32 := 1
+
+namespace SpriteInstance
+/-- `sizeof(SpriteInstance)`. -/
+def stride : UInt32 := 64
+/-- Append the 64-byte C layout (including the two padding floats). -/
+def emit (b : ByteArray) (s : SpriteInstance) : ByteArray :=
+  let b := pushF32x4 b s.x s.y s.z s.rotation
+  let b := pushF32x4 b s.w s.h 0 0
+  let b := pushF32x4 b s.texU s.texV s.texW s.texH
+  pushF32x4 b s.r s.g s.b s.a
+end SpriteInstance
+
+#guard (SpriteInstance.emit .empty {
+    x := 0, y := 0, rotation := 0, w := 0, h := 0, texU := 0, texV := 0, texW := 0, texH := 0
+  }).size.toUInt32 == SpriteInstance.stride
+
+/-- Atlas column of each of the four ravioli in `ravioli_atlas.bmp`. C: `uCoords`. -/
+def ravioliU : Array Float32 := #[0.0, 0.5, 0.0, 0.5]
+/-- Atlas row of each of the four ravioli. C: `vCoords`. -/
+def ravioliV : Array Float32 := #[0.0, 0.0, 0.5, 0.5]
+
+/-- `count` random 32×32 ravioli sprites somewhere in a 640×480 window, as a
+packed `SpriteInstance` batch, advancing the xorshift state. C: the
+`SDL_MapGPUTransferBuffer` fill loop in the sprite batchers' `Draw` (with
+`SDL_rand`/`SDL_randf` replaced by the xorshift stream). -/
+def randomSpriteBatch (count : Nat) (rng : UInt64) : ByteArray × UInt64 := Id.run do
+  let mut b := ByteArray.emptyWithCapacity (count * SpriteInstance.stride.toNat)
+  let mut s := rng
+  for _ in [0:count] do
+    s := xorshift64 s
+    let ravioli := (s >>> 8).toNat % 4                      -- SDL_rand(4)
+    s := xorshift64 s
+    let x := ((s >>> 8).toNat % 640).toFloat32              -- SDL_rand(640)
+    s := xorshift64 s
+    let y := ((s >>> 8).toNat % 480).toFloat32              -- SDL_rand(480)
+    s := xorshift64 s
+    let rotation := randFloat s * Examples.pi.toFloat32 * 2 -- SDL_randf() * 2π
+    b := SpriteInstance.emit b {
+      x, y, rotation, w := 32, h := 32
+      texU := ravioliU[ravioli]!, texV := ravioliV[ravioli]!, texW := 0.5, texH := 0.5 }
+  return (b, s)
+
+#guard (randomSpriteBatch 3 1).1.size == 3 * 64
+#guard (randomSpriteBatch 3 1).2 != 1
+
 /-! ## Assets -/
 
 /-- `examples/assets/gpu/`: the assets vendored from SDL_gpu_examples. -/

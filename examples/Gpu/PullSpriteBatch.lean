@@ -30,45 +30,6 @@ open Sdl Examples.Gpu
 /-- Sprites per frame. C: `SPRITE_COUNT`. -/
 def spriteCount : Nat := 8192
 
-/-- `sizeof(SpriteInstance)`: `x y z rotation | w h pad pad | u v w h | r g b a`,
-sixteen floats. -/
-def spriteInstanceSize : Nat := 64
-
-/-- Texture-atlas column of each ravioli variant. C: `uCoords`. -/
-def uCoords : Array Float32 := #[0.0, 0.5, 0.0, 0.5]
-/-- Texture-atlas row of each ravioli variant. C: `vCoords`. -/
-def vCoords : Array Float32 := #[0.0, 0.0, 0.5, 0.5]
-
-/-- Append one `SpriteInstance` (64 bytes) to `b`. -/
-def emitSprite (b : ByteArray) (x y rotation : Float32) (ravioli : Nat) : ByteArray :=
-  [x, y, 0, rotation,                          -- x, y, z, rotation
-   32, 32, 0, 0,                               -- w, h, padding_a, padding_b
-   uCoords[ravioli]!, vCoords[ravioli]!, 0.5, 0.5, -- tex_u, tex_v, tex_w, tex_h
-   1, 1, 1, 1].foldl pushF32 b                 -- r, g, b, a
-
-#guard (emitSprite .empty 0 0 0 0).size == spriteInstanceSize
-
-/-- Fill a `spriteCount × SpriteInstance` batch with random sprites,
-advancing the xorshift state. C: the `SDL_MapGPUTransferBuffer` loop in
-`Draw` (with `SDL_rand`/`SDL_randf` replaced by the xorshift stream). -/
-def buildSpriteBatch (rng : UInt64) : ByteArray × UInt64 := Id.run do
-  let mut b := ByteArray.emptyWithCapacity (spriteCount * spriteInstanceSize)
-  let mut s := rng
-  for _ in [0:spriteCount] do
-    s := xorshift64 s
-    let ravioli := (s >>> 8).toNat % 4                      -- SDL_rand(4)
-    s := xorshift64 s
-    let x := ((s >>> 8).toNat % 640).toFloat32              -- SDL_rand(640)
-    s := xorshift64 s
-    let y := ((s >>> 8).toNat % 480).toFloat32              -- SDL_rand(480)
-    s := xorshift64 s
-    let rotation := randFloat s * Examples.pi.toFloat32 * 2 -- SDL_randf() * 2π
-    b := emitSprite b x y rotation ravioli
-  return (b, s)
-
-#guard (buildSpriteBatch 1).1.size == spriteCount * spriteInstanceSize
-#guard (buildSpriteBatch 1).2 != 1
-
 structure State where
   renderPipeline : Gpu.GraphicsPipeline
   sampler : Gpu.Sampler
@@ -123,7 +84,7 @@ def demo : Example State where
     let sampler ← ctx.device.createSampler {
       minFilter := .nearest, magFilter := .nearest, mipmapMode := .nearest
       addressModeU := .clampToEdge, addressModeV := .clampToEdge, addressModeW := .clampToEdge }
-    let batchSize := (spriteCount * spriteInstanceSize).toUInt32
+    let batchSize := (spriteCount * SpriteInstance.stride.toNat).toUInt32
     let spriteDataTransferBuffer ← ctx.device.createTransferBuffer .upload batchSize
     let spriteDataBuffer ← ctx.device.createBuffer .graphicsStorageRead batchSize
 
@@ -142,7 +103,7 @@ def demo : Example State where
     let cameraMatrix := Matrix4x4.orthographicOffCenter 0 640 480 0 0 (-1)
     withSwapchainFrame ctx fun cmd sc => do
       -- Build sprite instance transfer
-      let (batch, rng) := buildSpriteBatch (← s.rng.get)
+      let (batch, rng) := randomSpriteBatch spriteCount (← s.rng.get)
       s.rng.set rng
       s.spriteDataTransferBuffer.write batch (cycle := true)
 
