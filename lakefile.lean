@@ -149,7 +149,7 @@ lean_exe test where
 -- exe imports; the example root modules themselves belong to their exes.
 lean_lib Examples where
   srcDir := "examples"
-  roots := #[`Common]
+  roots := #[`Common, `Common.Gpu]
 
 /- Demos: Lean ports of the official SDL3 examples (examples.libsdl.org), one
 `lean_exe` per example, named `<category>-<nn>-<name>` after the upstream
@@ -311,6 +311,70 @@ lean_exe «storage-01-user» where
 lean_exe «gpu-01-clear» where
   srcDir := "examples"
   root := `Gpu.Clear
+
+lean_exe «gpu-02-basic-triangle» where
+  srcDir := "examples"
+  root := `Gpu.BasicTriangle
+
+lean_exe «gpu-03-basic-vertex-buffer» where
+  srcDir := "examples"
+  root := `Gpu.BasicVertexBuffer
+
+lean_exe «gpu-04-cull-mode» where
+  srcDir := "examples"
+  root := `Gpu.CullMode
+
+lean_exe «gpu-05-basic-stencil» where
+  srcDir := "examples"
+  root := `Gpu.BasicStencil
+
+lean_exe «gpu-06-instanced-indexed» where
+  srcDir := "examples"
+  root := `Gpu.InstancedIndexed
+
+lean_exe «gpu-07-textured-quad» where
+  srcDir := "examples"
+  root := `Gpu.TexturedQuad
+
+lean_exe «gpu-08-textured-animated-quad» where
+  srcDir := "examples"
+  root := `Gpu.TexturedAnimatedQuad
+
+lean_exe «gpu-09-basic-compute» where
+  srcDir := "examples"
+  root := `Gpu.BasicCompute
+
+lean_exe «gpu-10-compute-uniforms» where
+  srcDir := "examples"
+  root := `Gpu.ComputeUniforms
+
+lean_exe «gpu-11-draw-indirect» where
+  srcDir := "examples"
+  root := `Gpu.DrawIndirect
+
+lean_exe «gpu-12-copy-and-readback» where
+  srcDir := "examples"
+  root := `Gpu.CopyAndReadback
+
+lean_exe «gpu-13-triangle-msaa» where
+  srcDir := "examples"
+  root := `Gpu.TriangleMSAA
+
+lean_exe «gpu-14-cubemap» where
+  srcDir := "examples"
+  root := `Gpu.Cubemap
+
+lean_exe «gpu-15-generate-mipmaps» where
+  srcDir := "examples"
+  root := `Gpu.GenerateMipmaps
+
+lean_exe «gpu-16-compute-sprite-batch» where
+  srcDir := "examples"
+  root := `Gpu.ComputeSpriteBatch
+
+lean_exe «gpu-17-pull-sprite-batch» where
+  srcDir := "examples"
+  root := `Gpu.PullSpriteBatch
 
 lean_exe «ttf-01-hello» where
   srcDir := "examples"
