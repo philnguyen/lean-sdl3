@@ -15,8 +15,8 @@ Comprehensive [Lean 4](https://lean-lang.org) bindings for
 - **Typed throughout**: enums are inductives with exhaustive `match`, bit
   flags and IDs are dedicated structs, handles are opaque types with
   GC-managed lifetimes, failures are `IO` exceptions carrying `SDL_GetError()`.
-- **40 demos**, one `lake exe` per official example, all smoke-tested headless
-  in CI.
+- **56 demos**, one `lake exe` per official example (SDL's `examples/`
+  gallery plus the SDL_gpu_examples suite), all smoke-tested headless in CI.
 
 Developed against SDL 3.4.10 / SDL_ttf 3.2.2 on macOS (Apple Silicon), Lean
 toolchain `v4.33.0`. CI builds and tests on both macOS and Linux (see
@@ -113,7 +113,41 @@ One `lean_exe` per official example, named after the upstream directory
 | `demo-03-infinite-monkeys` | text generation with debug text |
 | `demo-04-bytepusher <rom>` | BytePusher VM (try `examples/assets/hello.BytePusher`) |
 | `gpu-01-clear` | SDL_gpu swapchain clear (Metal on macOS) |
+| `gpu-02-basic-triangle` … `gpu-17-pull-sprite-batch` | ports of the official [SDL_gpu_examples](https://github.com/TheSpydog/SDL_gpu_examples) — see [GPU demos](#gpu-demos) |
 | `ttf-01-hello` | SDL_ttf text rendering via a renderer text engine |
+
+### GPU demos
+
+`gpu-02` onward port [SDL_gpu_examples](https://github.com/TheSpydog/SDL_gpu_examples)
+(the official SDL_GPU example suite) one-to-one, numbered in upstream's
+order, on the shared scaffold in [`examples/Common/Gpu.lean`](examples/Common/Gpu.lean)
+(upstream's `Common.c`: example shape, shader/image loading, matrix math).
+Shaders are upstream's SDL_shadercross output — SPIR-V, MSL and DXIL are all
+vendored, and the loader picks whichever the device accepts, so the demos
+run on Vulkan and D3D12 as well as Metal. Arrow keys drive the interactive
+ones (each prints its controls on start).
+
+| Demo | Shows |
+|---|---|
+| `gpu-02-basic-triangle` | vertex-ID triangle; fill vs wireframe, viewport, scissor |
+| `gpu-03-basic-vertex-buffer` | vertex buffer upload through a transfer buffer |
+| `gpu-04-cull-mode` | cull modes × front-face winding |
+| `gpu-05-basic-stencil` | depth-stencil target, stencil test masking a draw |
+| `gpu-06-instanced-indexed` | index buffer, instancing, vertex offsets |
+| `gpu-07-textured-quad` | texture upload, six sampler configurations |
+| `gpu-08-textured-animated-quad` | vertex/fragment uniforms, matrix animation |
+| `gpu-09-basic-compute` | compute pass writing a texture, sampled in a draw |
+| `gpu-10-compute-uniforms` | compute uniforms, blit to the swapchain |
+| `gpu-11-draw-indirect` | indirect (and indexed indirect) draws from a buffer |
+| `gpu-12-copy-and-readback` | texture/buffer copies, download + CPU verification |
+| `gpu-13-triangle-msaa` | multisampled render target, resolve |
+| `gpu-14-cubemap` | cube texture, skybox with a look-at camera |
+| `gpu-15-generate-mipmaps` | mip generation, blitting individual mip levels |
+| `gpu-16-compute-sprite-batch` | 8192 sprites: compute-expanded vertex buffer |
+| `gpu-17-pull-sprite-batch` | 8192 sprites: vertex pulling from a storage buffer ([tutorial](https://moonside.games/posts/sdl-gpu-sprite-batcher/)) |
+
+The GPU demos need a real backend; under the dummy video driver (CI) they log
+"no GPU backend, skipping" and exit 0.
 
 All demos honor `SDL_LEAN_MAX_FRAMES=<n>` (exit successfully after n frames),
 which is how CI smoke-runs them windowless:
@@ -181,7 +215,7 @@ Header and link-flag discovery are both dynamic (pkg-config →
 nowhere to be found); discovered library dirs get an rpath, so binaries run
 without `LD_LIBRARY_PATH`. CI exercises macOS (Homebrew SDL) and Linux
 (Ubuntu, SDL3 + SDL3_ttf built from source since no distro package exists
-yet): full build, the 800+ tests, and all-40-demo headless smoke on both.
+yet): full build, the 800+ tests, and all-56-demo headless smoke on both.
 Windows is not supported yet — the C shims are portable C11, but the build
 discovery and the `LEAN_MAIN_USE_THREAD` constructor are POSIX-only.
 

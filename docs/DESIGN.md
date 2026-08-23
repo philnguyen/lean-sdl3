@@ -193,6 +193,20 @@ mirroring the official examples' `SDL_MAIN_USE_CALLBACKS` shape) driven by
 SDL_AUDIO_DRIVER=dummy`, frame cap via `SDL_LEAN_MAX_FRAMES` env var
 (`examples/Common.lean`).
 
+The `gpu-02` … `gpu-17` demos port the SDL_gpu_examples suite on a second
+scaffold, `examples/Common/Gpu.lean` (upstream `Common.c`): an
+`Examples.Gpu.Example` record (`init`/`update`/`draw`/`quit` over a resource
+record) that `Example.run` maps onto `Sdl.App`, creating the device (SPIR-V |
+DXIL | MSL, debug mode) and a 640×480 window, tracking per-frame arrow-key
+state and delta time, and exiting 0 with a log line when no backend exists
+(dummy driver). Shaders are upstream's SDL_shadercross output vendored in all
+three formats under `examples/assets/gpu/shaders/`; `loadShader` /
+`createComputePipeline` pick by `Device.getShaderFormats` (entrypoint `main0`
+for MSL). Struct-shaped GPU data (vertices, uniforms, sprite instances) is
+packed to the C layout in pure Lean with `#guard`-pinned sizes, the same
+discipline as the binding's own packers. Ported pipelines and samplers live in
+the demo's state record because pass binds do not retain (see below).
+
 ## GPU module (M13)
 
 - Namespace `Sdl.Gpu`; type names drop the C `GPU` prefix (`Gpu.Texture` is a

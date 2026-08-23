@@ -49,6 +49,22 @@ demos=(
   asyncio-01-load-bitmaps
   storage-01-user
   gpu-01-clear
+  gpu-02-basic-triangle
+  gpu-03-basic-vertex-buffer
+  gpu-04-cull-mode
+  gpu-05-basic-stencil
+  gpu-06-instanced-indexed
+  gpu-07-textured-quad
+  gpu-08-textured-animated-quad
+  gpu-09-basic-compute
+  gpu-10-compute-uniforms
+  gpu-11-draw-indirect
+  gpu-12-copy-and-readback
+  gpu-13-triangle-msaa
+  gpu-14-cubemap
+  gpu-15-generate-mipmaps
+  gpu-16-compute-sprite-batch
+  gpu-17-pull-sprite-batch
   ttf-01-hello
 )
 
